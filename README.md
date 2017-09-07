@@ -1,31 +1,33 @@
+Deep Learning on Azure
+=======================
 
-# Contributing
+This repository contains materials to help you learn about Deep Learning with the [Microsoft Cognitive Toolkit (CNTK)](https://github.com/microsoft/cntk) and Microsoft Azure. [Students](./Students) can find slides, tutorial notebooks, and scripts covering a variety of deep learning fundamentals and applications. These course assets will teach you how to implement convolutional networks, recurrent networks, and generative models and apply them to problems in computer vision, natural language processing, and reinforcement learning. The course materials will pay particular attention on how to implement these algorithms most effectively using the resources provided by the Azure infrastructure, and best practices when working with CNTK.
 
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
-Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.microsoft.com.
+## Useful Resources
 
-When you submit a pull request, a CLA-bot will automatically determine whether you need to provide
-a CLA and decorate the PR appropriately (e.g., label, comment). Simply follow the instructions
-provided by the bot. You will only need to do this once across all repos using our CLA.
+### Online Courses
 
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
-For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
-contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
++ [Deep Learning Explained, edX 2017](https://courses.edx.org/courses/course-v1:Microsoft+DAT236x+2T2017/course/)
+	* Online MOOC that covers the fundamentals of Deep Learning with the Microsoft Cognitive Toolkit
+	* Consists of 7 modules
+	* Released in June 2017
++ [deeplearning.ai - Coursera Specialization Taught by Andrew Ng](https://www.deeplearning.ai/)
+	* Specialization consisting of 5 MOOCs on Deep Learning taught by Andrew Ng
+	* Taught using TensorFlow
++ [fastAI](http://www.fast.ai/)
+	* 2 Deep Learning courses taught by Jeremy Howard and Rachel Thomas at USF
++ [CS231n - Convolutional Networks for Visual Recognition](http://cs231n.stanford.edu/)
++ [CS224n - Natural Language Processing with Deep Learning](http://web.stanford.edu/class/cs224n/)
 
-# Legal Notices
+### Online Books and Blogs
 
-Microsoft and any contributors grant you a license to the Microsoft documentation and other content
-in this repository under the [Creative Commons Attribution 4.0 International Public License](https://creativecommons.org/licenses/by/4.0/legalcode),
-see the [LICENSE](LICENSE) file, and grant you a license to any code in the repository under the [MIT License](https://opensource.org/licenses/MIT), see the
-[LICENSE-CODE](LICENSE-CODE) file.
++ [Neural Networks and Deep Learning - Michael Nielsen](http://neuralnetworksanddeeplearning.com/)
++ [Deep Learning - Ian Goodfellow, Youshua Bengio & Aaron Courville](http://www.deeplearningbook.org/)
++ [Chris Olah's Blog](http://colah.github.io/)
++ [Distill Publications](https://distill.pub/)
++ [Andrej Karpathy's Blog](http://karpathy.github.io/)
++ [Denny Britz's Blog](http://www.wildml.com/)
++ [Edwin Chen's Blog](http://blog.echen.me/)
++ [Off the Convex Path - Join blog with Sanjeev Arora, Moritz Hardt & Nisheeth Vishnoi](http://www.offconvex.org/about/)
++ [BAIR - Berkeley AI Research Blog](http://bair.berkeley.edu/blog/)
 
-Microsoft, Windows, Microsoft Azure and/or other Microsoft products and services referenced in the documentation
-may be either trademarks or registered trademarks of Microsoft in the United States and/or other countries.
-The licenses for this project do not grant you rights to use any Microsoft names, logos, or trademarks.
-Microsoft's general trademark guidelines can be found at http://go.microsoft.com/fwlink/?LinkID=254653.
-
-Privacy information can be found at https://privacy.microsoft.com/en-us/
-
-Microsoft and any contributors reserve all others rights, whether under their respective copyrights, patents,
-or trademarks, whether by implication, estoppel or otherwise.

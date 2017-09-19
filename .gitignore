@@ -12,3 +12,4 @@ Models/
 
 # ignore data downloads
 cifar-10-batches-py/
+data/

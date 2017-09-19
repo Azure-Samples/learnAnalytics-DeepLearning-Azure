@@ -40,6 +40,7 @@ Let's take complete ownership of our `home` and `anaconda` directories:
 sudo chown alizaidi:alizaidi -R /home/alizaidi
 source deactivate
 sudo chown alizaidi:alizaidi -R /anaconda/
+pip install -U pip
 ```
 
 **IMPORTANT** replace `alizaidi` with the username you used to create the DSVM.

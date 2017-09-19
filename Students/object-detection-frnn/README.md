@@ -6,20 +6,12 @@ We use Fast R-CNN to find rough locations and types of groceries in pictures. Pl
 
 # Prerequisites
 
-The instructions below (apologies in advance!) are for Windows 10 64-bit users. I'll gladly accept pull requests for other operating systems, but haven't had a chance to run through all of them on every system.
-
 Please create a Python 3.4 environment with the appropriate setup by:
 
 - Install Anaconda
 - Create a new Anaconda environment using the included environment.yml file
-   - `conda env create --name myNewEnv -f environment.yml python=3.4`
+   - `conda env create --name fastrnn -f environment.yml python=3.4`
 - Install `scikit-image` and `opencv` using the pre-built Wheel files 
-
-NOTE: I've put the direct link to CNTK 2.1's Python 3.4 Wheel in the `environment.yml` - if you're not on Windows 64-bit, you'll need to switch that out or remove it and [install CNTK by hand](https://docs.microsoft.com/en-us/cognitive-toolkit/Setup-CNTK-on-your-machine).
-
-## Installing pre-built wheel files
-
-You can acquire pre-built Wheel files for Scikit-Image and OpenCV from http://www.lfd.uci.edu/~gohlke/pythonlibs/, download them (the `cp34` versions for Python 3.4, the `amd64` version since we're on 64-bit Windows), and install using `pip install \path\to\wheel-file`.
 
 ## C Library code
 

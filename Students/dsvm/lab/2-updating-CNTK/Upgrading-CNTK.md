@@ -38,6 +38,7 @@ Let's take complete ownership of our `home` and `anaconda` directories:
 
 ```bash
 sudo chown alizaidi:alizaidi -R /home/alizaidi
+source deactivate
 sudo chown alizaidi:alizaidi -R /anaconda/
 ```
 

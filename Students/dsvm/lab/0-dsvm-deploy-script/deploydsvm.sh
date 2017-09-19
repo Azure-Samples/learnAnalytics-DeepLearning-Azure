@@ -18,7 +18,7 @@ vmname="dsvm"
 ARG1=${1:-$yourname$class}
 RG=$ARG1
 
-ARG2=${2:-southcentralus}
+ARG2=${2:-eastus}
 LOC=$ARG2
 
 ARG3=${3:-$yourname$vmname}

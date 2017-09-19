@@ -1,2 +1,14 @@
 # ignore etc dir
 etc/
+
+# ignore cache
+__pycache__/
+
+# ignore ipynb
+.ipynb_checkpoints/
+
+# ignore pretrained models
+Models/
+
+# ignore data downloads
+cifar-10-batches-py/

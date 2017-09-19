@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 #title           :deploydsvm.sh
 #description     :This script creates a Linux DSVM in Azure.
-#author		     :Ali Zaidi (github: akzaidi; contact alizaidi at microsoft dot com)
+#author		 :Ali Zaidi (github: akzaidi; contact alizaidi at microsoft dot com)
 #date            :2017-08-04
 #version         :0.1    
-#usage		     :bash deployDSVM.sh
+#usage		 :bash deployDSVM.sh
 #notes           :Requires azure-CLI, and you must login prior to usage, az login.
 #====================================================================================
 
@@ -72,7 +72,7 @@ az network nsg rule create \
     --priority 1002 \
     --destination-port-range 8888
 
-# Open Port 8787 for RStudio-Server
+# Open Port 6006 for TensorBoard
 
 az network nsg rule create \
     --resource-group "$RG" \
@@ -80,4 +80,15 @@ az network nsg rule create \
     --name rstudio-server \
     --protocol tcp \
     --priority 1003 \
+    --destination-port-range 6006
+
+# Open Port 8787 for RStudio-Server
+
+az network nsg rule create \
+    --resource-group "$RG" \
+    --nsg-name "$NSG" \
+    --name rstudio-server \
+    --protocol tcp \
+    --priority 1004 \
     --destination-port-range 8787
+

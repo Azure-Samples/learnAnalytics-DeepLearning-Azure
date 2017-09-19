@@ -46,7 +46,7 @@ az vm create \
     --public-ip-address-dns-name "$DNS" \
     --image microsoft-ads:linux-data-science-vm-ubuntu:linuxdsvmubuntu:1.1.1 \
     --size Standard_NC6 \
-    --generate-ssh-keys
+    --admin-password Password123!
 
 # verify image SKU by searching dsvm skus
 # az vm image list --all --output table --location eastus --publisher microsoft-ads

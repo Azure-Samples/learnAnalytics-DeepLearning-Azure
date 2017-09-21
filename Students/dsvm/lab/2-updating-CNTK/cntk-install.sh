@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 # create conda environment and install cntk
-conda create -n cntk-py35 python=3.5 anaconda
+conda create -y -n cntk-py35 python=3.5 anaconda
 source activate cntk-py35
-pip install https://cntk.ai/PythonWheel/GPU/cntk-2.2-cp35-cp35m-linux_x86_64.whl
+pip install -y https://cntk.ai/PythonWheel/GPU/cntk-2.2-cp35-cp35m-linux_x86_64.whl
 
 # take ownership of root anaconda
 sudo chown $whoami:$whoami -R /anaconda/
@@ -13,7 +13,6 @@ source deactivate
 pip install -U pip
 pip install --upgrade --force-reinstall jupyter
 rm ~/.ipython/profile_default/startup/az_ml_magic.py
-
 
 # update conda kernels
 conda install nb_conda

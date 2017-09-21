@@ -26,6 +26,7 @@ yes | pip install --upgrade --force-reinstall jupyter # the previous was to upda
 yes | pip install --upgrade --force-reinstall jupyter # seems redundant, but for some reason the first fails...
 yes | pip install keras
 yes | pip install tensorflow-gpu
+yes | pip install opencv-python easydict future
 conda install -y libgcc
 
 # update cudnn

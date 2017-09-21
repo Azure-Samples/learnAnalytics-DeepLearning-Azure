@@ -22,11 +22,13 @@ jupyter kernelspec list
 
 # install keras and tensorflow-gpu
 source activate cntk-py35
-yes | pip install --upgrade --force-reinstall jupyter
+yes | pip install --upgrade --force-reinstall jupyter # the previous was to update jupyter on root, this will fix ipython cli
 yes | pip install --upgrade --force-reinstall jupyter # seems redundant, but for some reason the first fails...
 yes | pip install keras
 yes | pip install tensorflow-gpu
+conda install -y libgcc
 
 # update cudnn
 wget https://alizaidi.blob.core.windows.net/training/cuda_builds/CUDA/libcudnn6_6.0.21-1%2Bcuda8.0_amd64.deb
 sudo dpkg -i libcudnn6_6.0.21-1+cuda8.0_amd64.deb
+sudo systemctl restart jupyterhub

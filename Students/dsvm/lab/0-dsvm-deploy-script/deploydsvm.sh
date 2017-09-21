@@ -101,6 +101,6 @@ az network nsg rule create \
 echo "VM Name = " $VMNAME >> creds.txt
 echo "Username = " $SSHADMIN >> creds.txt
 echo "Password = " $PASSWORD >> creds.txt
-echo "DNS Name = " $DNS$LOC.cloudapp.azure.com >> creds.txt
+echo "DNS Name = " $DNS.$LOC.cloudapp.azure.com >> creds.txt
 echo "Network Security Group = " $NSG >> creds.txt
 echo "Resource Group = " $RG >> creds.txt

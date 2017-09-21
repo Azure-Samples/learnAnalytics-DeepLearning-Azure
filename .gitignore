@@ -13,3 +13,6 @@ Models/
 # ignore data downloads
 cifar-10-batches-py/
 data/
+
+# ignore creds
+creds.txt

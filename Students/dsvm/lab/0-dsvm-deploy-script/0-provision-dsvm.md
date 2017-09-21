@@ -86,6 +86,13 @@ You can simply deploy the DSVM by navigating to the `labs/0-dsvm-deploy-script` 
 alizaidi:$ ./deploydsvm.sh
 ```
 
+The default parameters will use your bash username as your username for the VM, and a simple password. Feel free to change these by specifying your own parameters:
+
+
+```bash
+alizaidi:$ ./deploydsvm.sh batman Gotham3141
+```
+
 Take note of the messages produced by the script. You may want to save the output somewhere for reference.
 
 
@@ -136,7 +143,7 @@ az vm create \
     --name azdsvmclass \
     --admin-username alizaidi \
     --public-ip-address-dns-name algoclass \
-    --image microsoft-ads:linux-data-science-vm-ubuntu:linuxdsvmubuntu:1.1.1 \
+    --image microsoft-ads:linux-data-science-vm-ubuntu:linuxdsvmubuntu:latest \
     --size Standard_NC6 \
     --generate-ssh-keys
 ```

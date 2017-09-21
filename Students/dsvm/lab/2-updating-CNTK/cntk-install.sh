@@ -14,7 +14,7 @@ pip install -U pip
 pip install --upgrade --force-reinstall jupyter
 rm ~/.ipython/profile_default/startup/az_ml_magic.py
 
-# update conda kernels
+# update conda kernels and add cntk-py35 spec
 conda install nb_conda
 conda install ipykernel
 python -m ipykernel install --user --name cntk-py35 --display-name "cntk-py35"

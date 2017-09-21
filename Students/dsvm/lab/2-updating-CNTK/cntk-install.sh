@@ -22,5 +22,11 @@ jupyter kernelspec list
 
 # install keras and tensorflow-gpu
 source activate cntk-py35
+pip install --upgrade --force-reinstall jupyter
+pip install --upgrade --force-reinstall jupyter # seems redundant, but for some reason the first fails...
 pip install keras
 pip install tensorflow-gpu
+
+# update cudnn
+wget https://alizaidi.blob.core.windows.net/training/cuda_builds/CUDA/libcudnn6_6.0.21-1%2Bcuda8.0_amd64.deb
+sudo dpkg -i libcudnn6_6.0.21-1+cuda8.0_amd64.deb

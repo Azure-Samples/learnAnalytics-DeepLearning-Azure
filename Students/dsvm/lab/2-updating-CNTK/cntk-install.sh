@@ -31,4 +31,5 @@ conda install -y libgcc
 # update cudnn
 wget https://alizaidi.blob.core.windows.net/training/cuda_builds/CUDA/libcudnn6_6.0.21-1%2Bcuda8.0_amd64.deb
 sudo dpkg -i libcudnn6_6.0.21-1+cuda8.0_amd64.deb
+python -m ipykernel install --user --name cntk-py35 --display-name "cntk-py35" # TODO: check where this should done
 sudo systemctl restart jupyterhub

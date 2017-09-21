@@ -75,6 +75,35 @@ alizaidi@MININT-C510VH5:~$ az account list
 
 You can use the option `--output table` to print the output in a tabular format.
 
+
+## Deploying Via Custom Script
+
+Rather than doing this manually, I have created a custom script that will create the DSVM for you, and also run some configuration settings on your VM's network to allow for easier access.
+
+You can simply deploy the DSVM by navigating to the `labs/0-dsvm-deploy-script` directory and running
+
+```bash
+alizaidi:$ ./deploydsvm.sh
+```
+
+Take note of the messages produced by the script. You may want to save the output somewhere for reference.
+
+
+## Create a Password for the User
+
+In the script above, the authentication is done through a password. Look at the script to find out the password.
+
+If you chose the `generate-ssh-keys` option when creating your VM, the SSH user authenticates to the VM using SSH keys, which by default, are saved as a pair of private and public keys in `~/.ssh/id_rsa` and `~/.ssh/id_rsa.pub`. In order to access certain web applications like Jupyter, we'll need a password for our user. 
+
+To create a password for the user, run the following:
+
+```bash
+sudo passwd $USERNAME
+```
+
+where `$USERNAME` is the username you used to create the VM.
+
+
 ## Create a New Resource Group
 
 Resource groups are a convenient way of consolidating related resources together. This is particularly handy when you have a project that will require a variety of Azure resources and you'd like to see them all in one-place.
@@ -107,7 +136,6 @@ az vm create \
     --name azdsvmclass \
     --admin-username alizaidi \
     --public-ip-address-dns-name algoclass \
-    --data-disk-sizes-gb 500 300 \
     --image microsoft-ads:linux-data-science-vm-ubuntu:linuxdsvmubuntu:1.1.1 \
     --size Standard_NC6 \
     --generate-ssh-keys
@@ -129,29 +157,4 @@ While the resources are being deployed, you will see a _"Running"_ message displ
 ```
 
 You can now navigate to the portal and check for your resources.
-
-## Deploying Via Custom Script
-
-Rather than doing this manually, I have created a custom script that will create the DSVM for you, and also run some configuration settings on your VM's network to allow for easier access.
-
-You can simply deploy the DSVM by navigating to the `labs/0-dsvm-deploy-script` directory and running
-
-```bash
-alizaidi:$ ./deploydsvm.sh
-```
-
-Take note of the messages produced by the script. You may want to save the output somewhere for reference.
-
-
-## Create a Password for the User
-
-Since we used the `generate-ssh-keys` option when creating our VM, our SSH user authenticates to the VM using SSH keys, which by default, are saved as a pair of private and public keys in `~/.ssh/id_rsa` and `~/.ssh/id_rsa.pub`. In order to access certain web applications like Jupyter, we'll need a password for our user. 
-
-To create a password for the user, run the following:
-
-```bash
-sudo passwd $USERNAME
-```
-
-where `$USERNAME` is the username you used to create the VM.
 

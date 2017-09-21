@@ -6,7 +6,7 @@ source activate cntk-py35
 pip install -y https://cntk.ai/PythonWheel/GPU/cntk-2.2-cp35-cp35m-linux_x86_64.whl
 
 # take ownership of root anaconda
-sudo chown $whoami:$whoami -R /anaconda/
+sudo chown $USER:$USER -R /anaconda/
 
 # update root anaconda python and jupyter
 source deactivate

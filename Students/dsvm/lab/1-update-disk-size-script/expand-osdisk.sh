@@ -4,7 +4,7 @@
 #author	         :Ali Zaidi (github: akzaidi; contact alizaidi at microsoft dot com)
 #date            :2017-08-04
 #version         :0.1    
-#usage           :bash expand-osdisk.sh
+#usage           :bash expand-osdisk.sh "os-size-in-GB" "resource-group" "vmname"
 #notes           :Requires azure-CLI, and you must login prior to usage, az login.
 #====================================================================================
 

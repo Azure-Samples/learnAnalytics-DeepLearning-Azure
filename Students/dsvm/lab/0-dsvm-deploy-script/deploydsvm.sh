@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 #title           :deploydsvm.sh
 #description     :This script creates a Linux DSVM in Azure.
-#author		     :Ali Zaidi (github: akzaidi; contact alizaidi at microsoft dot com)
+#author		 :Ali Zaidi (github: akzaidi; contact alizaidi at microsoft dot com)
 #date            :2017-08-04
 #version         :0.2    
-#usage		     :bash deployDSVM.sh
+#usage		 :bash deployDSVM.sh "username" "password"
 #notes           :Requires azure-CLI, and you must login prior to usage, az login.
 #====================================================================================
 

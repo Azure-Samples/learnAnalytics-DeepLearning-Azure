@@ -16,3 +16,6 @@ data/
 
 # ignore credentials
 creds.txt
+
+# don't push models
+*.model

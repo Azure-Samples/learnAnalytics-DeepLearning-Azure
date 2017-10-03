@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 yourname=$(whoami)
 class="dlclass"
 vmname="dsvm"
@@ -10,6 +12,6 @@ VMNAME=${2:-$yourname$vmname}
 # List managed disks on VM
 
 az disk list \
-    --resource-group "$RG" \
-    --query '[*].{Name:name,Gb:diskSizeGb,Tier:accountType}' \
-    --output table
+	--resource-group "$RG" \
+	--query '[*].{Name:name,Gb:diskSizeGb,Tier:accountType}' \
+	--output table

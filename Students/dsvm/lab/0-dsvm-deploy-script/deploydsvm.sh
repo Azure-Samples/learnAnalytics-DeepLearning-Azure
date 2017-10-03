@@ -14,7 +14,7 @@
 yourname=$(whoami)
 username=${1:-$yourname}
 class="dlclass"
-vmname="dsvm"
+vmsuffix="dsvm"
 
 ARG2=${2:-"Password123!"}
 PASSWORD=$ARG2
@@ -22,16 +22,18 @@ PASSWORD=$ARG2
 ARG3=${3:-$username$class}
 RG=$ARG3
 
+# available regions:
+# https://azure.microsoft.com/en-us/regions/services/
 ARG4=${4:-eastus}
 LOC=$ARG4
 
-ARG5=${5:-$username$vmname}
+ARG5=${5:-$username$vmsuffix}
 VMNAME=$ARG5
 
 ARG6=${6:-$username}
 SSHADMIN=$ARG6
 
-ARG7=${7:-$username$vmname}
+ARG7=${7:-$VMNAME}
 DNS=$ARG7
 
 nsgp="NSG"

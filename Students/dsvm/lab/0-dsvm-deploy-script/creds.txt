@@ -1,6 +1,0 @@
-VM Name =  alikzaididsvm
-Username =  alikzaidi
-Password =  Nandeska123!
-DNS Name =  alikzaididsvmeastus.cloudapp.azure.com
-Network Security Group =  alikzaididsvmNSG
-Resource Group =  alikzaididlclass

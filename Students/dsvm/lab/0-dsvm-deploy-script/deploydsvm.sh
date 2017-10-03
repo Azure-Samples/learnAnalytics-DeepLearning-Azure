@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 #title           :deploydsvm.sh
 #description     :This script creates a Linux DSVM in Azure.
-#author		 :Ali Zaidi (github: akzaidi; contact alizaidi at microsoft dot com)
+#author		     :Ali Zaidi (github: akzaidi; contact alizaidi at microsoft dot com)
 #date            :2017-08-04
-#version         :0.1    
-#usage		 :bash deployDSVM.sh
+#version         :0.2    
+#usage		     :bash deployDSVM.sh
 #notes           :Requires azure-CLI, and you must login prior to usage, az login.
 #====================================================================================
 
@@ -12,23 +12,27 @@
 # uses username on bash profile and concatenates with resources
 
 yourname=$(whoami)
+username=${1:-$yourname}
 class="dlclass"
 vmname="dsvm"
 
-ARG1=${1:-$yourname$class}
-RG=$ARG1
+ARG2=${2:-"Password123!"}
+PASSWORD=$ARG2
 
-ARG2=${2:-southcentralus}
-LOC=$ARG2
+ARG3=${3:-$username$class}
+RG=$ARG3
 
-ARG3=${3:-$yourname$vmname}
-VMNAME=$ARG3
+ARG4=${4:-eastus}
+LOC=$ARG4
 
-ARG4=${4:-$yourname}
-SSHADMIN=$ARG4
+ARG5=${5:-$username$vmname}
+VMNAME=$ARG5
 
-ARG5=${5:-$yourname$vmname}
-DNS=$ARG5
+ARG6=${6:-$username}
+SSHADMIN=$ARG6
+
+ARG7=${7:-$username$vmname}
+DNS=$ARG7
 
 nsgp="NSG"
 NSG=$VMNAME$nsgp
@@ -44,9 +48,9 @@ az vm create \
     --name "$VMNAME" \
     --admin-username "$SSHADMIN" \
     --public-ip-address-dns-name "$DNS" \
-    --image microsoft-ads:linux-data-science-vm-ubuntu:linuxdsvmubuntu:1.1.1 \
+    --image microsoft-ads:linux-data-science-vm-ubuntu:linuxdsvmubuntu:latest \
     --size Standard_NC6 \
-    --generate-ssh-keys
+    --admin-password "$PASSWORD"
 
 # verify image SKU by searching dsvm skus
 # az vm image list --all --output table --location eastus --publisher microsoft-ads
@@ -92,3 +96,11 @@ az network nsg rule create \
     --priority 1004 \
     --destination-port-range 8787
 
+# save credentials to text file
+
+echo "VM Name = " $VMNAME >> creds.txt
+echo "Username = " $SSHADMIN >> creds.txt
+echo "Password = " $PASSWORD >> creds.txt
+echo "DNS Name = " $DNS.$LOC.cloudapp.azure.com >> creds.txt
+echo "Network Security Group = " $NSG >> creds.txt
+echo "Resource Group = " $RG >> creds.txt

@@ -38,7 +38,9 @@ Let's take complete ownership of our `home` and `anaconda` directories:
 
 ```bash
 sudo chown alizaidi:alizaidi -R /home/alizaidi
+source deactivate
 sudo chown alizaidi:alizaidi -R /anaconda/
+pip install -U pip
 ```
 
 **IMPORTANT** replace `alizaidi` with the username you used to create the DSVM.
@@ -55,14 +57,6 @@ Remove `az_ml_magic` from ipython startup:
 rm ~/.ipython/profile_default/startup/az_ml_magic.py
 ```
 
-### Install Keras
-
-Let's also install Keras in this specific Python environment
-
-```bash
-pip install keras
-```
-
 ### Conda Extensions
 
 Since we created a new environment, let's also install some extensions that will make it easier to find that environment from JupyterHub. 
@@ -72,4 +66,13 @@ conda install nb_conda
 conda install ipykernel
 python -m ipykernel install --user --name cntk-py35 --display-name "cntk-py35"
 jupyter kernelspec list
+```
+
+### Install Keras
+
+Let's also install Keras in this specific Python environment
+
+```bash
+source activate cntk-py35
+pip install keras
 ```

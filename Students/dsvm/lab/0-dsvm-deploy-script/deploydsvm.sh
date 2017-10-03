@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 #title           :deploydsvm.sh
 #description     :This script creates a Linux DSVM in Azure.
-#author		 :Ali Zaidi (github: akzaidi; contact alizaidi at microsoft dot com)
+#author          :Ali Zaidi (github: akzaidi; contact alizaidi at microsoft dot com)
 #date            :2017-08-04
 #version         :0.2    
-#usage		 :bash deployDSVM.sh "username" "password"
+#usage           :bash deployDSVM.sh "username" "password" "resource-group" "location" "vmname" "sshadmin" "dns"
 #notes           :Requires azure-CLI, and you must login prior to usage, az login.
 #====================================================================================
 
@@ -99,6 +99,8 @@ az network nsg rule create \
     --destination-port-range 8787
 
 # save credentials to text file
+
+printf "Saving credentials to creds.txt"
 
 echo "VM Name = " $VMNAME >> creds.txt
 echo "Username = " $SSHADMIN >> creds.txt

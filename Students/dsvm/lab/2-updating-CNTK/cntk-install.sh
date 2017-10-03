@@ -36,3 +36,9 @@ rm libcudnn6_6.0.21-1+cuda8.0_amd64.deb
 python -m ipykernel install --user --name cntk-py35 --display-name "cntk-py35" # TODO: check where this should done
 sudo systemctl restart jupyterhub
 
+# start jupyterlab
+cd ~/notebooks
+tmux new -s jupyterlab
+nohup jupyter lab --ip="*" & disown
+tmux detach
+jupyter notebook list

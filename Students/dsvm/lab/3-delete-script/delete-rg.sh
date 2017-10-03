@@ -2,5 +2,5 @@
 
 rgname=$1
 
-printf "Deleting resource group %s\n $rgname
+printf "Deleting resource group %s $rgname"
 az group delete --name $rgname --yes

@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html >
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Deep Learning on Azure</title>
+  <meta name="description" content="Rendered version of Deep Learning on Azure materials.">
+  <meta name="generator" content="bookdown 0.5 and GitBook 2.6.7">
+
+  <meta property="og:title" content="Deep Learning on Azure" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="Rendered version of Deep Learning on Azure materials." />
+  <meta name="github-repo" content="Azure/learnAnalytics-DeepLearning-Azure" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Deep Learning on Azure" />
+  
+  <meta name="twitter:description" content="Rendered version of Deep Learning on Azure materials." />
+  
+
+<meta name="author" content="Ali Zaidi">
+
+
+<meta name="date" content="2017-10-04">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  
+  
+<link rel="prev" href="index.html">
+<link rel="next" href="upgrading-cntk-and-cudnn.html">
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Deep Learning on Azure</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Preface</a><ul>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#part-i---fundamentals-and-azure-for-machine-learning"><i class="fa fa-check"></i><b>1.1</b> Part I - Fundamentals and Azure for Machine Learning</a></li>
+<li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#part-ii---optimization"><i class="fa fa-check"></i><b>1.2</b> Part II - Optimization</a></li>
+<li class="chapter" data-level="1.3" data-path="index.html"><a href="index.html#part-iii---convolutional-neural-networks"><i class="fa fa-check"></i><b>1.3</b> Part III - Convolutional Neural Networks</a></li>
+<li class="chapter" data-level="1.4" data-path="index.html"><a href="index.html#part-iv---recurrent-networks"><i class="fa fa-check"></i><b>1.4</b> Part IV - Recurrent Networks</a></li>
+<li class="chapter" data-level="1.5" data-path="index.html"><a href="index.html#part-v---reinforcement-learning"><i class="fa fa-check"></i><b>1.5</b> Part V - Reinforcement Learning</a></li>
+<li class="chapter" data-level="1.6" data-path="index.html"><a href="index.html#part-vi---generative-models"><i class="fa fa-check"></i><b>1.6</b> Part VI - Generative Models</a></li>
+<li class="chapter" data-level="1.7" data-path="index.html"><a href="index.html#part-vii---operationalization-methods"><i class="fa fa-check"></i><b>1.7</b> Part VII - Operationalization Methods</a></li>
+<li class="chapter" data-level="1.8" data-path="index.html"><a href="index.html#useful-resources"><i class="fa fa-check"></i><b>1.8</b> Useful Resources</a><ul>
+<li class="chapter" data-level="1.8.1" data-path="index.html"><a href="index.html#online-courses"><i class="fa fa-check"></i><b>1.8.1</b> Online Courses</a></li>
+<li class="chapter" data-level="1.8.2" data-path="index.html"><a href="index.html#online-books-and-blogs"><i class="fa fa-check"></i><b>1.8.2</b> Online Books and Blogs</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html"><i class="fa fa-check"></i><b>2</b> Provisioning Linux DSVMs with Azure CLI 2.0</a><ul>
+<li class="chapter" data-level="2.1" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#installing-and-testing-the-azure-cli"><i class="fa fa-check"></i><b>2.1</b> Installing and Testing the Azure CLI</a></li>
+<li class="chapter" data-level="2.2" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#login-to-your-azure-account"><i class="fa fa-check"></i><b>2.2</b> Login to Your Azure Account</a></li>
+<li class="chapter" data-level="2.3" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#deploying-via-custom-script"><i class="fa fa-check"></i><b>2.3</b> <a name="deploying"></a> Deploying Via Custom Script</a></li>
+<li class="chapter" data-level="2.4" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#updating-dsvm-os-disk-size"><i class="fa fa-check"></i><b>2.4</b> Updating DSVM OS Disk Size</a></li>
+<li class="chapter" data-level="2.5" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#deploying-manually"><i class="fa fa-check"></i><b>2.5</b> Deploying Manually</a><ul>
+<li class="chapter" data-level="2.5.1" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#create-a-new-resource-group"><i class="fa fa-check"></i><b>2.5.1</b> Create a New Resource Group</a></li>
+<li class="chapter" data-level="2.5.2" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#create-your-dsvm"><i class="fa fa-check"></i><b>2.5.2</b> Create Your DSVM</a></li>
+<li class="chapter" data-level="2.5.3" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#create-a-password-for-the-user"><i class="fa fa-check"></i><b>2.5.3</b> Create a Password for the User</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html"><i class="fa fa-check"></i><b>3</b> Upgrading CNTK and CUDNN</a><ul>
+<li class="chapter" data-level="3.1" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#updating-cntk"><i class="fa fa-check"></i><b>3.1</b> Updating CNTK</a></li>
+<li class="chapter" data-level="3.2" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#updating-cntk-with-a-single-script"><i class="fa fa-check"></i><b>3.2</b> Updating CNTK With a Single Script</a><ul>
+<li class="chapter" data-level="3.2.1" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#launch-jupyterlab"><i class="fa fa-check"></i><b>3.2.1</b> Launch JupyterLab</a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#manually-updating-cntk-and-launching-jupyter-no-need-to-do-this-if-you-use-the-script"><i class="fa fa-check"></i><b>3.3</b> Manually Updating CNTK and Launching Jupyter (<strong>No Need to Do This if You Use the Script</strong>)</a><ul>
+<li class="chapter" data-level="3.3.1" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#create-conda-virtual-environment"><i class="fa fa-check"></i><b>3.3.1</b> Create Conda Virtual Environment</a></li>
+<li class="chapter" data-level="3.3.2" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#install-cntk-using-pip-binary-wheels"><i class="fa fa-check"></i><b>3.3.2</b> Install CNTK Using <code>pip</code> Binary Wheels</a></li>
+<li class="chapter" data-level="3.3.3" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#temporary-fixes"><i class="fa fa-check"></i><b>3.3.3</b> Temporary Fixes</a></li>
+<li class="chapter" data-level="3.3.4" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#conda-extensions"><i class="fa fa-check"></i><b>3.3.4</b> Conda Extensions</a></li>
+<li class="chapter" data-level="3.3.5" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#install-keras"><i class="fa fa-check"></i><b>3.3.5</b> Install Keras</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html"><i class="fa fa-check"></i><b>4</b> Transfer Learning with CNTK</a><ul>
+<li class="chapter" data-level="4.1" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#classifying-dogs-and-cats-using-a-pre-trained-network"><i class="fa fa-check"></i><b>4.1</b> Classifying Dogs and Cats Using a Pre-Trained Network</a><ul>
+<li class="chapter" data-level="4.1.1" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#download-data"><i class="fa fa-check"></i><b>4.1.1</b> Download Data</a></li>
+</ul></li>
+<li class="chapter" data-level="4.2" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#create-train-test-and-validate-sets"><i class="fa fa-check"></i><b>4.2</b> Create Train, Test and Validate Sets</a></li>
+<li class="chapter" data-level="4.3" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#kittypupsploration"><i class="fa fa-check"></i><b>4.3</b> Kittypupsploration</a></li>
+<li class="chapter" data-level="4.4" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#data-readers-in-cntk"><i class="fa fa-check"></i><b>4.4</b> Data Readers in CNTK</a></li>
+<li class="chapter" data-level="4.5" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#pre-trained-models"><i class="fa fa-check"></i><b>4.5</b> Pre-Trained Models</a></li>
+<li class="chapter" data-level="4.6" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#defining-model-architecture"><i class="fa fa-check"></i><b>4.6</b> Defining Model Architecture</a></li>
+<li class="chapter" data-level="4.7" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#training-the-transfer-model"><i class="fa fa-check"></i><b>4.7</b> Training the Transfer Model</a></li>
+<li class="chapter" data-level="4.8" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#define-minibatch-source"><i class="fa fa-check"></i><b>4.8</b> Define Minibatch Source</a></li>
+<li class="chapter" data-level="4.9" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#training"><i class="fa fa-check"></i><b>4.9</b> Training</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://aka.ms/az-dl" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Deep Learning on Azure</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="provisioning-linux-dsvms-with-azure-cli-2.0" class="section level1">
+<h1><span class="header-section-number">Chapter 2</span> Provisioning Linux DSVMs with Azure CLI 2.0</h1>
+<p><strong>What You’ll Need</strong></p>
+<ul>
+<li>An Azure Subscription</li>
+<li>Bash</li>
+<li><a href="https://docs.microsoft.com/en-us/azure/cloud-shell/features">Azure Cloud Shell</a>
+<ul>
+<li>The Azure cloud shell provides a complete bash (and powershell) environment. The shell is automatically authenticated with Azure CLI 2.0 so you can provision and run all the scripts listed below using this shell.Shell:</li>
+</ul></li>
+<li><a href="https://msdn.microsoft.com/en-us/commandline/wsl/install">Windows Subsystem for Linux</a>
+<ul>
+<li>In addition to WSL, you’ll need to install Azure CLI 2.0. See the instructions below or refer to the <a href="https://docs.microsoft.com/en-us/cli/azure/overview">Azure CLI 2.0</a>.</li>
+</ul></li>
+</ul>
+<p>In this lab you will provision your own <strong>Linux Data Science Virtual Machine (DSVM)</strong>. The DSVM is a virtual machine that contains a large number of data science and machine learning tools preinstalled, including deep learning libraries like CNTK, Tensorflow, Caffe2, PyTorch, Keras, MXNet, and a lot more.</p>
+<p>In this course, we will specifically use the <a href="https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-dsvm-ubuntu-intro">Ubuntu version</a> of the DSVM, since it is the most common distribution for machine learning and data science. Other operating system variants of the DSVM are available in <a href="https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-linux-dsvm-intro">CentOS</a> and <a href="https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-provision-vm">Windows</a> (2012 and 2016 Server Editions).</p>
+<p>You can provision, start, and stop the Linux DSVM from the Azure portal itself. You are recommended to take a look at the <a href="https://portal.azure.com/">Azure portal</a> and learn the interface. However, in this course we will introduce you to the <a href="https://docs.microsoft.com/en-us/cli/azure/overview">Azure CLI 2.0</a>, which is a command-line interface built in Python and available on macOS, Linux, and Windows. Learning a bit about the CLI can greatly improve your productivity with Azure resources, and will allow you to configuration and management scripts into your daily workflow. For Windows 10 users, I highly recommend you install the <a href="https://msdn.microsoft.com/en-us/commandline/wsl/install_guide">Windows Subsystem for Linux</a> to get a complete <code>bash</code> environment on your system. In addition, I use <a href="https://conemu.github.io/">conemu</a> as my main console, which has a number of nice features including tabbed support for multiple consoles, including Ubuntu Bash, PowerShell and Git Bash.</p>
+<div id="installing-and-testing-the-azure-cli" class="section level2">
+<h2><span class="header-section-number">2.1</span> Installing and Testing the Azure CLI</h2>
+<p>Follow the instructions on the <a href="https://docs.microsoft.com/en-us/cli/azure/install-azure-cli">Azure CLI 2.0 webpage</a> for the latest information on how to install the CLI. Once you have installed the Azure CLI, and added it to your <code>$PATH</code>, you should be able to call it from your terminal.</p>
+<p>*<strong>NOTE</strong> <em>If you’re using the Azure Cloud Shell, you don’t need to install Azure CLI 2.0 or authenticate. All that is already done for you.</em> Skip to section <a href="#deploying">Deploying Via a Custom Script</a>.</p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">alizaidi@MININT-C510VH5</span>:~$ which az
+<span class="ex">/home/alizaidi/anaconda3/bin/az</span></code></pre></div>
+</div>
+<div id="login-to-your-azure-account" class="section level2">
+<h2><span class="header-section-number">2.2</span> Login to Your Azure Account</h2>
+<p>In order to the use the Azure CLI 2.0 to manage and create resources in Azure, you’ll need to login to your Azure account:</p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">alizaidi@MININT-C510VH5</span>:~$ az login</code></pre></div>
+<p>This will prompt you to open a browser and activate your session:</p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">alizaidi@MININT-C510VH5</span>:~$ az login
+<span class="ex">To</span> sign in, use a web browser to open the page https://aka.ms/devicelogin and enter the code FA5JZBPGA to authenticate.</code></pre></div>
+<div class="figure">
+<img src="imgs/azlogin.png" />
+
+</div>
+<p>Once you’re logged into your account, you can list all the Azure subscriptions assoicated with your account by running <code>az account list</code>, and the one you’re currently defaulting to using <code>az account show</code>:</p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">alizaidi@MININT-C510VH5</span>:~$ az account show
+<span class="kw">{</span>
+  <span class="st">&quot;environmentName&quot;</span>: <span class="st">&quot;AzureCloud&quot;</span>,
+  <span class="st">&quot;id&quot;</span>: <span class="st">&quot;please-dont-steal-my-acount&quot;</span>,
+  <span class="st">&quot;isDefault&quot;</span>: <span class="fu">true</span>,
+  <span class="st">&quot;name&quot;</span>: <span class="st">&quot;Not for you&quot;</span>,
+  <span class="st">&quot;state&quot;</span>: <span class="st">&quot;Enabled&quot;</span>,
+  <span class="st">&quot;tenantId&quot;</span>: <span class="st">&quot;nah&quot;</span>,
+  <span class="st">&quot;user&quot;</span>: <span class="kw">{</span>
+    <span class="st">&quot;name&quot;</span>: <span class="st">&quot;alizaidi@microsoft.com&quot;</span>,
+    <span class="st">&quot;type&quot;</span>: <span class="st">&quot;user&quot;</span>
+  <span class="kw">}</span>
+<span class="kw">}</span>
+<span class="ex">alizaidi@MININT-C510VH5</span>:~$ az account list
+<span class="bu">[</span>
+  {
+    <span class="st">&quot;cloudName&quot;</span>: <span class="st">&quot;AzureCloud&quot;</span>,
+    <span class="st">&quot;id&quot;</span>: <span class="st">&quot;please-dont-steal-my-acount&quot;</span>,
+    <span class="st">&quot;isDefault&quot;</span>: true,
+    <span class="st">&quot;name&quot;</span>: <span class="st">&quot;Not for you&quot;</span>,
+    <span class="st">&quot;state&quot;</span>: <span class="st">&quot;Enabled&quot;</span>,
+    <span class="st">&quot;tenantId&quot;</span>: <span class="st">&quot;nah&quot;</span>,
+    <span class="st">&quot;user&quot;</span>: {
+      <span class="st">&quot;name&quot;</span>: <span class="st">&quot;alizaidi@microsoft.com&quot;</span>,
+      <span class="st">&quot;type&quot;</span>: <span class="st">&quot;user&quot;</span>
+    }
+  }
+<span class="bu">]</span></code></pre></div>
+<p>You can use the option <code>--output table</code> to print the output in a tabular format.</p>
+</div>
+<div id="deploying-via-custom-script" class="section level2">
+<h2><span class="header-section-number">2.3</span> <a name="deploying"></a> Deploying Via Custom Script</h2>
+<p>Rather than doing this manually, I have created a custom script that will create the DSVM for you, and also run some configuration settings on your VM’s network to allow for easier access.</p>
+<p>You can simply deploy the DSVM by navigating to the <code>labs/0-dsvm-deploy-script</code> directory and running</p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">alizaidi</span>:$ ./deploydsvm.sh</code></pre></div>
+<p>The default parameters will use your bash username as your username for the VM, and a simple password. Feel free to change these by specThis will create your virtual machine, open up all the necessary ports on your VM’s network security group, and save the credentials in a text file <code>creds.txt</code>.</p>
+</div>
+<div id="updating-dsvm-os-disk-size" class="section level2">
+<h2><span class="header-section-number">2.4</span> Updating DSVM OS Disk Size</h2>
+<p>By default, your primary partition on the DSVM is only 50 GBs. Fortunately, expanding it is pretty easy. Let’s again use two helper scripts I created to make this process trivally easy. Using the <code>$VMNAME</code> and <code>$RG</code> values saved in the file <code>creds.txt</code>, fill in the following command:</p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">expand-osdisk.sh</span> <span class="st">&quot;os-size-in-GB&quot;</span> <span class="st">&quot;RG&quot;</span> <span class="st">&quot;VMNAME&quot;</span></code></pre></div>
+<p>For example, I’d run</p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">expand-disk.sh</span> 200 azaididlclass azaididsvm</code></pre></div>
+<p>Now you’re ready to log into your VM and have some fun!</p>
+</div>
+<div id="deploying-manually" class="section level2">
+<h2><span class="header-section-number">2.5</span> Deploying Manually</h2>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="fu">sudo</span> passwd <span class="va">$USERNAME</span></code></pre></div>
+<p>where <code>$USERNAME</code> is the username you used to create the VM.</p>
+<div id="create-a-new-resource-group" class="section level3">
+<h3><span class="header-section-number">2.5.1</span> Create a New Resource Group</h3>
+<p>Resource groups are a convenient way of consolidating related resources together. This is particularly handy when you have a project that will require a variety of Azure resources and you’d like to see them all in one-place.</p>
+<p>Please make sure your resource group is in “East US” region (you could potentially use South Central US).</p>
+<p>In this example, I’ll create a resource group called <code>azteachdl</code> in <code>eastus</code></p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">alizaidi</span>:$ az group create -n azteachdl -l eastus
+<span class="kw">{</span>
+  <span class="st">&quot;id&quot;</span>: <span class="st">&quot;/subscriptions/stay-away-from me/resourceGroups/azteachdl&quot;</span>,
+  <span class="st">&quot;location&quot;</span>: <span class="st">&quot;eastus&quot;</span>,
+  <span class="co">#&quot;managedBy&quot;: null,</span>
+  <span class="st">&quot;name&quot;</span>: <span class="st">&quot;azteachdl&quot;</span>,
+  <span class="st">&quot;properties&quot;</span>: <span class="kw">{</span>
+    <span class="st">&quot;provisioningState&quot;</span>: <span class="st">&quot;Succeeded&quot;</span>
+  <span class="kw">}</span>,
+  <span class="st">&quot;tags&quot;</span>: <span class="ex">null</span>
+<span class="kw">}</span></code></pre></div>
+</div>
+<div id="create-your-dsvm" class="section level3">
+<h3><span class="header-section-number">2.5.2</span> Create Your DSVM</h3>
+<p>Now let’s create the Linux DSVM. Edit the parameters below with your configurations. In particular, you’ll need to specify your own <code>resource-group</code> name, a name for the data science virtual machine, and your username.</p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">az</span> vm create \
+    --resource-group azteachdl \
+    --name azdsvmclass \
+    --admin-username alizaidi \
+    --public-ip-address-dns-name algoclass \
+    --image microsoft-ads:linux-data-science-vm-ubuntu:linuxdsvmubuntu:latest \
+    --size Standard_NC6 \
+    --generate-ssh-keys</code></pre></div>
+<p>While the resources are being deployed, you will see a <em>“Running”</em> message displayed in your terminal. Upon completion, you should see an output JSON table with information about your resources:</p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">{</span>
+  <span class="st">&quot;fqdns&quot;</span>: <span class="st">&quot;&quot;</span>,
+  <span class="st">&quot;id&quot;</span>: <span class="st">&quot;/subscriptions/keep-away/resourceGroups/azaididlclass/providers/Microsoft.Compute/virtualMachines/azaidi&quot;</span>,
+  <span class="st">&quot;location&quot;</span>: <span class="st">&quot;eastus&quot;</span>,
+  <span class="st">&quot;macAddress&quot;</span>: <span class="st">&quot;00-0D-3A-1B-59-48&quot;</span>,
+  <span class="st">&quot;powerState&quot;</span>: <span class="st">&quot;VM running&quot;</span>,
+  <span class="st">&quot;privateIpAddress&quot;</span>: <span class="st">&quot;10.0.0.4&quot;</span>,
+  <span class="st">&quot;publicIpAddress&quot;</span>: <span class="st">&quot;13.00.000.000&quot;</span>,
+  <span class="st">&quot;resourceGroup&quot;</span>: <span class="st">&quot;azaididlclass&quot;</span>
+<span class="kw">}</span></code></pre></div>
+</div>
+<div id="create-a-password-for-the-user" class="section level3">
+<h3><span class="header-section-number">2.5.3</span> Create a Password for the User</h3>
+<p>In the scripted solution, the authentication is done through a password.</p>
+<p>In the manual setup we showed how you could create a virtual machine using the <code>generate-ssh-keys</code> option, which authenticates using SSH keys, which by default are saved as a pair of private and public keys in <code>~/.ssh/id_rsa</code> and <code>~/.ssh/id_rsa.pub</code>. In order to access certain web applications like Jupyter, we’ll need a password for our user.</p>
+<p>To create a password for the user, run the following:</p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="fu">sudo</span> passwd <span class="va">$USERNAME</span></code></pre></div>
+<p>where <code>$USERNAME</code> is the username you used to create the VM.</p>
+<p>You can now navigate to the portal and check for your resources.</p>
+
+</div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="index.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="upgrading-cntk-and-cudnn.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"weibo": false,
+"instapper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/Azure/learnAnalytics-DeepLearning-Azure/edit/master/01-dsvm.Rmd",
+"text": "Edit"
+},
+"download": ["azure-deep-learning.pdf", "azure-deep-learning.epub"],
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(script.src))
+      script.src  = script.src.replace(/^https?:/, '');
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

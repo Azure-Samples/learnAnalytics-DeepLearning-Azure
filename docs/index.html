@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html >
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Deep Learning on Azure</title>
+  <meta name="description" content="Rendered version of Deep Learning on Azure materials.">
+  <meta name="generator" content="bookdown 0.5 and GitBook 2.6.7">
+
+  <meta property="og:title" content="Deep Learning on Azure" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="Rendered version of Deep Learning on Azure materials." />
+  <meta name="github-repo" content="Azure/learnAnalytics-DeepLearning-Azure" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Deep Learning on Azure" />
+  
+  <meta name="twitter:description" content="Rendered version of Deep Learning on Azure materials." />
+  
+
+<meta name="author" content="Ali Zaidi">
+
+
+<meta name="date" content="2017-10-04">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  
+  
+
+<link rel="next" href="provisioning-linux-dsvms-with-azure-cli-2-0.html">
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Deep Learning on Azure</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Preface</a><ul>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#part-i---fundamentals-and-azure-for-machine-learning"><i class="fa fa-check"></i><b>1.1</b> Part I - Fundamentals and Azure for Machine Learning</a></li>
+<li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#part-ii---optimization"><i class="fa fa-check"></i><b>1.2</b> Part II - Optimization</a></li>
+<li class="chapter" data-level="1.3" data-path="index.html"><a href="index.html#part-iii---convolutional-neural-networks"><i class="fa fa-check"></i><b>1.3</b> Part III - Convolutional Neural Networks</a></li>
+<li class="chapter" data-level="1.4" data-path="index.html"><a href="index.html#part-iv---recurrent-networks"><i class="fa fa-check"></i><b>1.4</b> Part IV - Recurrent Networks</a></li>
+<li class="chapter" data-level="1.5" data-path="index.html"><a href="index.html#part-v---reinforcement-learning"><i class="fa fa-check"></i><b>1.5</b> Part V - Reinforcement Learning</a></li>
+<li class="chapter" data-level="1.6" data-path="index.html"><a href="index.html#part-vi---generative-models"><i class="fa fa-check"></i><b>1.6</b> Part VI - Generative Models</a></li>
+<li class="chapter" data-level="1.7" data-path="index.html"><a href="index.html#part-vii---operationalization-methods"><i class="fa fa-check"></i><b>1.7</b> Part VII - Operationalization Methods</a></li>
+<li class="chapter" data-level="1.8" data-path="index.html"><a href="index.html#useful-resources"><i class="fa fa-check"></i><b>1.8</b> Useful Resources</a><ul>
+<li class="chapter" data-level="1.8.1" data-path="index.html"><a href="index.html#online-courses"><i class="fa fa-check"></i><b>1.8.1</b> Online Courses</a></li>
+<li class="chapter" data-level="1.8.2" data-path="index.html"><a href="index.html#online-books-and-blogs"><i class="fa fa-check"></i><b>1.8.2</b> Online Books and Blogs</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html"><i class="fa fa-check"></i><b>2</b> Provisioning Linux DSVMs with Azure CLI 2.0</a><ul>
+<li class="chapter" data-level="2.1" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#installing-and-testing-the-azure-cli"><i class="fa fa-check"></i><b>2.1</b> Installing and Testing the Azure CLI</a></li>
+<li class="chapter" data-level="2.2" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#login-to-your-azure-account"><i class="fa fa-check"></i><b>2.2</b> Login to Your Azure Account</a></li>
+<li class="chapter" data-level="2.3" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#deploying-via-custom-script"><i class="fa fa-check"></i><b>2.3</b> <a name="deploying"></a> Deploying Via Custom Script</a></li>
+<li class="chapter" data-level="2.4" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#updating-dsvm-os-disk-size"><i class="fa fa-check"></i><b>2.4</b> Updating DSVM OS Disk Size</a></li>
+<li class="chapter" data-level="2.5" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#deploying-manually"><i class="fa fa-check"></i><b>2.5</b> Deploying Manually</a><ul>
+<li class="chapter" data-level="2.5.1" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#create-a-new-resource-group"><i class="fa fa-check"></i><b>2.5.1</b> Create a New Resource Group</a></li>
+<li class="chapter" data-level="2.5.2" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#create-your-dsvm"><i class="fa fa-check"></i><b>2.5.2</b> Create Your DSVM</a></li>
+<li class="chapter" data-level="2.5.3" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#create-a-password-for-the-user"><i class="fa fa-check"></i><b>2.5.3</b> Create a Password for the User</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html"><i class="fa fa-check"></i><b>3</b> Upgrading CNTK and CUDNN</a><ul>
+<li class="chapter" data-level="3.1" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#updating-cntk"><i class="fa fa-check"></i><b>3.1</b> Updating CNTK</a></li>
+<li class="chapter" data-level="3.2" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#updating-cntk-with-a-single-script"><i class="fa fa-check"></i><b>3.2</b> Updating CNTK With a Single Script</a><ul>
+<li class="chapter" data-level="3.2.1" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#launch-jupyterlab"><i class="fa fa-check"></i><b>3.2.1</b> Launch JupyterLab</a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#manually-updating-cntk-and-launching-jupyter-no-need-to-do-this-if-you-use-the-script"><i class="fa fa-check"></i><b>3.3</b> Manually Updating CNTK and Launching Jupyter (<strong>No Need to Do This if You Use the Script</strong>)</a><ul>
+<li class="chapter" data-level="3.3.1" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#create-conda-virtual-environment"><i class="fa fa-check"></i><b>3.3.1</b> Create Conda Virtual Environment</a></li>
+<li class="chapter" data-level="3.3.2" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#install-cntk-using-pip-binary-wheels"><i class="fa fa-check"></i><b>3.3.2</b> Install CNTK Using <code>pip</code> Binary Wheels</a></li>
+<li class="chapter" data-level="3.3.3" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#temporary-fixes"><i class="fa fa-check"></i><b>3.3.3</b> Temporary Fixes</a></li>
+<li class="chapter" data-level="3.3.4" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#conda-extensions"><i class="fa fa-check"></i><b>3.3.4</b> Conda Extensions</a></li>
+<li class="chapter" data-level="3.3.5" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#install-keras"><i class="fa fa-check"></i><b>3.3.5</b> Install Keras</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html"><i class="fa fa-check"></i><b>4</b> Transfer Learning with CNTK</a><ul>
+<li class="chapter" data-level="4.1" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#classifying-dogs-and-cats-using-a-pre-trained-network"><i class="fa fa-check"></i><b>4.1</b> Classifying Dogs and Cats Using a Pre-Trained Network</a><ul>
+<li class="chapter" data-level="4.1.1" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#download-data"><i class="fa fa-check"></i><b>4.1.1</b> Download Data</a></li>
+</ul></li>
+<li class="chapter" data-level="4.2" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#create-train-test-and-validate-sets"><i class="fa fa-check"></i><b>4.2</b> Create Train, Test and Validate Sets</a></li>
+<li class="chapter" data-level="4.3" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#kittypupsploration"><i class="fa fa-check"></i><b>4.3</b> Kittypupsploration</a></li>
+<li class="chapter" data-level="4.4" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#data-readers-in-cntk"><i class="fa fa-check"></i><b>4.4</b> Data Readers in CNTK</a></li>
+<li class="chapter" data-level="4.5" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#pre-trained-models"><i class="fa fa-check"></i><b>4.5</b> Pre-Trained Models</a></li>
+<li class="chapter" data-level="4.6" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#defining-model-architecture"><i class="fa fa-check"></i><b>4.6</b> Defining Model Architecture</a></li>
+<li class="chapter" data-level="4.7" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#training-the-transfer-model"><i class="fa fa-check"></i><b>4.7</b> Training the Transfer Model</a></li>
+<li class="chapter" data-level="4.8" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#define-minibatch-source"><i class="fa fa-check"></i><b>4.8</b> Define Minibatch Source</a></li>
+<li class="chapter" data-level="4.9" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#training"><i class="fa fa-check"></i><b>4.9</b> Training</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://aka.ms/az-dl" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Deep Learning on Azure</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="header">
+<h1 class="title">Deep Learning on Azure</h1>
+<h4 class="author"><em>Ali Zaidi</em></h4>
+<h4 class="date"><em>2017-10-04</em></h4>
+</div>
+<div id="preface" class="section level1">
+<h1><span class="header-section-number">Chapter 1</span> Preface</h1>
+<p>This repository contains materials to help you learn about Deep Learning with the <a href="https://github.com/microsoft/cntk">Microsoft Cognitive Toolkit (CNTK)</a> and Microsoft Azure. <a href="./Students">Students</a> can find slides, tutorial notebooks, and scripts covering a variety of deep learning fundamentals and applications. These course assets will teach you how to implement convolutional networks, recurrent networks, and generative models and apply them to problems in computer vision, natural language processing, and reinforcement learning. The course materials will pay particular attention on how to implement these algorithms most effectively using the resources provided by the Azure infrastructure, and best practices when working with CNTK.</p>
+<div id="part-i---fundamentals-and-azure-for-machine-learning" class="section level2">
+<h2><span class="header-section-number">1.1</span> Part I - Fundamentals and Azure for Machine Learning</h2>
+<ol style="list-style-type: decimal">
+<li>Pretensions to Thinking and Learning - Overview of Machine Learning</li>
+<li>A Minimal Introduction to AI, Representation Learning, and Deep Learning</li>
+<li>Deploying and Accessing the Linux Data Science Virtual Machine</li>
+<li>Computational Graphs, Symbolic Differentation, and Auto-Differentiation</li>
+<li>Overview of the Microsoft Cognitive Toolkit (<code>CNTK</code>) and Other Deep Learning Frameworks</li>
+<li>Activation Functions and Network Architectures</li>
+<li>Representational Power and Capacity</li>
+</ol>
+</div>
+<div id="part-ii---optimization" class="section level2">
+<h2><span class="header-section-number">1.2</span> Part II - Optimization</h2>
+<ol style="list-style-type: decimal">
+<li>Backpropagation and Stochastic Optimization for Training Neural Networks</li>
+<li>Momentum and Acceleration Methods</li>
+<li>Regularization, Normalization, and Dropout</li>
+<li>Distributed Training and Evaluation with Azure Batch AI</li>
+<li>Practical Bayesian Optimization for Hyperparameter Search</li>
+<li>Evolutionary Strategies for Parameter Search</li>
+</ol>
+</div>
+<div id="part-iii---convolutional-neural-networks" class="section level2">
+<h2><span class="header-section-number">1.3</span> Part III - Convolutional Neural Networks</h2>
+<ol style="list-style-type: decimal">
+<li>Scaling Networks to Images</li>
+<li>Receptive Fields, Spatial Arrangements, Strides and Filters</li>
+<li>Dilated Convolutions and Pooling</li>
+<li>Skip Connections and Residual Networks</li>
+</ol>
+</div>
+<div id="part-iv---recurrent-networks" class="section level2">
+<h2><span class="header-section-number">1.4</span> Part IV - Recurrent Networks</h2>
+<ol style="list-style-type: decimal">
+<li>Dense Word Vector Representations</li>
+<li>Comparison of word2Vec, GloVe, and <code>fasttext</code></li>
+<li>Recurrent Neural Networks and Language Models</li>
+<li>GRUs, LSTMs, and Recursive Architectures</li>
+<li>Vanishing and Exploding Gradients</li>
+<li>Memory and Attention</li>
+</ol>
+</div>
+<div id="part-v---reinforcement-learning" class="section level2">
+<h2><span class="header-section-number">1.5</span> Part V - Reinforcement Learning</h2>
+<ol style="list-style-type: decimal">
+<li>Optimal Control and Planning</li>
+<li>Policy Gradients</li>
+<li>Q-learning</li>
+<li>Actor-Critic Methods</li>
+<li>Evolutionary Strategies as an Alternative to Policy Methods</li>
+</ol>
+</div>
+<div id="part-vi---generative-models" class="section level2">
+<h2><span class="header-section-number">1.6</span> Part VI - Generative Models</h2>
+<ol style="list-style-type: decimal">
+<li>Visualizing and Understanding Neural Networks with Saliency Maps</li>
+<li>Adversarial Attacks on Neural Networks</li>
+<li>Metrics on Distributions for Implicit Generative Models</li>
+<li>Generative Adversarial Networks</li>
+<li>Belief Nets and Change of Variable Models</li>
+<li>Approximate Methods using the Variational Autoencoder</li>
+</ol>
+</div>
+<div id="part-vii---operationalization-methods" class="section level2">
+<h2><span class="header-section-number">1.7</span> Part VII - Operationalization Methods</h2>
+<ol style="list-style-type: decimal">
+<li>HDInsight, <code>pyspark</code> and <code>mmlspark</code></li>
+<li>Azure Batch Shipyard / Azure Batch Training</li>
+<li>Azure container services</li>
+<li>SQL Server 2017</li>
+<li>The embedding learning library and web applications</li>
+</ol>
+</div>
+<div id="useful-resources" class="section level2">
+<h2><span class="header-section-number">1.8</span> Useful Resources</h2>
+<div id="online-courses" class="section level3">
+<h3><span class="header-section-number">1.8.1</span> Online Courses</h3>
+<ul>
+<li><a href="https://courses.edx.org/courses/course-v1:Microsoft+DAT236x+2T2017/course/">Deep Learning Explained, edX 2017</a>
+<ul>
+<li>Online MOOC that covers the fundamentals of Deep Learning with the Microsoft Cognitive Toolkit</li>
+<li>Consists of 7 modules</li>
+<li>Released in June 2017</li>
+</ul></li>
+<li><a href="https://www.deeplearning.ai/">deeplearning.ai - Coursera Specialization Taught by Andrew Ng</a>
+<ul>
+<li>Specialization consisting of 5 MOOCs on Deep Learning taught by Andrew Ng</li>
+<li>Taught using TensorFlow</li>
+</ul></li>
+<li><a href="http://www.fast.ai/">fastAI</a>
+<ul>
+<li>2 Deep Learning courses taught by Jeremy Howard and Rachel Thomas at USF</li>
+</ul></li>
+<li><a href="http://cs231n.stanford.edu/">CS231n - Convolutional Networks for Visual Recognition</a></li>
+<li><a href="http://web.stanford.edu/class/cs224n/">CS224n - Natural Language Processing with Deep Learning</a></li>
+</ul>
+</div>
+<div id="online-books-and-blogs" class="section level3">
+<h3><span class="header-section-number">1.8.2</span> Online Books and Blogs</h3>
+<ul>
+<li><a href="http://neuralnetworksanddeeplearning.com/">Neural Networks and Deep Learning - Michael Nielsen</a></li>
+<li><a href="http://www.deeplearningbook.org/">Deep Learning - Ian Goodfellow, Youshua Bengio &amp; Aaron Courville</a></li>
+<li><a href="http://colah.github.io/">Chris Olah’s Blog</a></li>
+<li><a href="https://distill.pub/">Distill Publications</a></li>
+<li><a href="http://karpathy.github.io/">Andrej Karpathy’s Blog</a></li>
+<li><a href="http://www.wildml.com/">Denny Britz’s Blog</a></li>
+<li><a href="http://blog.echen.me/">Edwin Chen’s Blog</a></li>
+<li><a href="http://www.offconvex.org/about/">Off the Convex Path - Join blog with Sanjeev Arora, Moritz Hardt &amp; Nisheeth Vishnoi</a></li>
+<li><a href="http://bair.berkeley.edu/blog/">BAIR - Berkeley AI Research Blog</a></li>
+</ul>
+
+</div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+
+<a href="provisioning-linux-dsvms-with-azure-cli-2-0.html" class="navigation navigation-next navigation-unique" aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"weibo": false,
+"instapper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/Azure/learnAnalytics-DeepLearning-Azure/edit/master/index.Rmd",
+"text": "Edit"
+},
+"download": ["azure-deep-learning.pdf", "azure-deep-learning.epub"],
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(script.src))
+      script.src  = script.src.replace(/^https?:/, '');
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html >
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Deep Learning on Azure</title>
+  <meta name="description" content="Rendered version of Deep Learning on Azure materials.">
+  <meta name="generator" content="bookdown 0.5 and GitBook 2.6.7">
+
+  <meta property="og:title" content="Deep Learning on Azure" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="Rendered version of Deep Learning on Azure materials." />
+  <meta name="github-repo" content="Azure/learnAnalytics-DeepLearning-Azure" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Deep Learning on Azure" />
+  
+  <meta name="twitter:description" content="Rendered version of Deep Learning on Azure materials." />
+  
+
+<meta name="author" content="Ali Zaidi">
+
+
+<meta name="date" content="2017-10-04">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  
+  
+<link rel="prev" href="provisioning-linux-dsvms-with-azure-cli-2-0.html">
+<link rel="next" href="transfer-learning-with-cntk.html">
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Deep Learning on Azure</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Preface</a><ul>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#part-i---fundamentals-and-azure-for-machine-learning"><i class="fa fa-check"></i><b>1.1</b> Part I - Fundamentals and Azure for Machine Learning</a></li>
+<li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#part-ii---optimization"><i class="fa fa-check"></i><b>1.2</b> Part II - Optimization</a></li>
+<li class="chapter" data-level="1.3" data-path="index.html"><a href="index.html#part-iii---convolutional-neural-networks"><i class="fa fa-check"></i><b>1.3</b> Part III - Convolutional Neural Networks</a></li>
+<li class="chapter" data-level="1.4" data-path="index.html"><a href="index.html#part-iv---recurrent-networks"><i class="fa fa-check"></i><b>1.4</b> Part IV - Recurrent Networks</a></li>
+<li class="chapter" data-level="1.5" data-path="index.html"><a href="index.html#part-v---reinforcement-learning"><i class="fa fa-check"></i><b>1.5</b> Part V - Reinforcement Learning</a></li>
+<li class="chapter" data-level="1.6" data-path="index.html"><a href="index.html#part-vi---generative-models"><i class="fa fa-check"></i><b>1.6</b> Part VI - Generative Models</a></li>
+<li class="chapter" data-level="1.7" data-path="index.html"><a href="index.html#part-vii---operationalization-methods"><i class="fa fa-check"></i><b>1.7</b> Part VII - Operationalization Methods</a></li>
+<li class="chapter" data-level="1.8" data-path="index.html"><a href="index.html#useful-resources"><i class="fa fa-check"></i><b>1.8</b> Useful Resources</a><ul>
+<li class="chapter" data-level="1.8.1" data-path="index.html"><a href="index.html#online-courses"><i class="fa fa-check"></i><b>1.8.1</b> Online Courses</a></li>
+<li class="chapter" data-level="1.8.2" data-path="index.html"><a href="index.html#online-books-and-blogs"><i class="fa fa-check"></i><b>1.8.2</b> Online Books and Blogs</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html"><i class="fa fa-check"></i><b>2</b> Provisioning Linux DSVMs with Azure CLI 2.0</a><ul>
+<li class="chapter" data-level="2.1" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#installing-and-testing-the-azure-cli"><i class="fa fa-check"></i><b>2.1</b> Installing and Testing the Azure CLI</a></li>
+<li class="chapter" data-level="2.2" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#login-to-your-azure-account"><i class="fa fa-check"></i><b>2.2</b> Login to Your Azure Account</a></li>
+<li class="chapter" data-level="2.3" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#deploying-via-custom-script"><i class="fa fa-check"></i><b>2.3</b> <a name="deploying"></a> Deploying Via Custom Script</a></li>
+<li class="chapter" data-level="2.4" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#updating-dsvm-os-disk-size"><i class="fa fa-check"></i><b>2.4</b> Updating DSVM OS Disk Size</a></li>
+<li class="chapter" data-level="2.5" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#deploying-manually"><i class="fa fa-check"></i><b>2.5</b> Deploying Manually</a><ul>
+<li class="chapter" data-level="2.5.1" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#create-a-new-resource-group"><i class="fa fa-check"></i><b>2.5.1</b> Create a New Resource Group</a></li>
+<li class="chapter" data-level="2.5.2" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#create-your-dsvm"><i class="fa fa-check"></i><b>2.5.2</b> Create Your DSVM</a></li>
+<li class="chapter" data-level="2.5.3" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#create-a-password-for-the-user"><i class="fa fa-check"></i><b>2.5.3</b> Create a Password for the User</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html"><i class="fa fa-check"></i><b>3</b> Upgrading CNTK and CUDNN</a><ul>
+<li class="chapter" data-level="3.1" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#updating-cntk"><i class="fa fa-check"></i><b>3.1</b> Updating CNTK</a></li>
+<li class="chapter" data-level="3.2" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#updating-cntk-with-a-single-script"><i class="fa fa-check"></i><b>3.2</b> Updating CNTK With a Single Script</a><ul>
+<li class="chapter" data-level="3.2.1" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#launch-jupyterlab"><i class="fa fa-check"></i><b>3.2.1</b> Launch JupyterLab</a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#manually-updating-cntk-and-launching-jupyter-no-need-to-do-this-if-you-use-the-script"><i class="fa fa-check"></i><b>3.3</b> Manually Updating CNTK and Launching Jupyter (<strong>No Need to Do This if You Use the Script</strong>)</a><ul>
+<li class="chapter" data-level="3.3.1" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#create-conda-virtual-environment"><i class="fa fa-check"></i><b>3.3.1</b> Create Conda Virtual Environment</a></li>
+<li class="chapter" data-level="3.3.2" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#install-cntk-using-pip-binary-wheels"><i class="fa fa-check"></i><b>3.3.2</b> Install CNTK Using <code>pip</code> Binary Wheels</a></li>
+<li class="chapter" data-level="3.3.3" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#temporary-fixes"><i class="fa fa-check"></i><b>3.3.3</b> Temporary Fixes</a></li>
+<li class="chapter" data-level="3.3.4" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#conda-extensions"><i class="fa fa-check"></i><b>3.3.4</b> Conda Extensions</a></li>
+<li class="chapter" data-level="3.3.5" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#install-keras"><i class="fa fa-check"></i><b>3.3.5</b> Install Keras</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html"><i class="fa fa-check"></i><b>4</b> Transfer Learning with CNTK</a><ul>
+<li class="chapter" data-level="4.1" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#classifying-dogs-and-cats-using-a-pre-trained-network"><i class="fa fa-check"></i><b>4.1</b> Classifying Dogs and Cats Using a Pre-Trained Network</a><ul>
+<li class="chapter" data-level="4.1.1" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#download-data"><i class="fa fa-check"></i><b>4.1.1</b> Download Data</a></li>
+</ul></li>
+<li class="chapter" data-level="4.2" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#create-train-test-and-validate-sets"><i class="fa fa-check"></i><b>4.2</b> Create Train, Test and Validate Sets</a></li>
+<li class="chapter" data-level="4.3" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#kittypupsploration"><i class="fa fa-check"></i><b>4.3</b> Kittypupsploration</a></li>
+<li class="chapter" data-level="4.4" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#data-readers-in-cntk"><i class="fa fa-check"></i><b>4.4</b> Data Readers in CNTK</a></li>
+<li class="chapter" data-level="4.5" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#pre-trained-models"><i class="fa fa-check"></i><b>4.5</b> Pre-Trained Models</a></li>
+<li class="chapter" data-level="4.6" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#defining-model-architecture"><i class="fa fa-check"></i><b>4.6</b> Defining Model Architecture</a></li>
+<li class="chapter" data-level="4.7" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#training-the-transfer-model"><i class="fa fa-check"></i><b>4.7</b> Training the Transfer Model</a></li>
+<li class="chapter" data-level="4.8" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#define-minibatch-source"><i class="fa fa-check"></i><b>4.8</b> Define Minibatch Source</a></li>
+<li class="chapter" data-level="4.9" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#training"><i class="fa fa-check"></i><b>4.9</b> Training</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://aka.ms/az-dl" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Deep Learning on Azure</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="upgrading-cntk-and-cudnn" class="section level1">
+<h1><span class="header-section-number">Chapter 3</span> Upgrading CNTK and CUDNN</h1>
+<p>In this lab, we’ll upgrade from CNTK version 2.0 to CNTK 2.2.</p>
+<div id="updating-cntk" class="section level2">
+<h2><span class="header-section-number">3.1</span> Updating CNTK</h2>
+<p>CNTK is available in a variety of <a href="https://docs.microsoft.com/en-us/cognitive-toolkit/setup-cntk-on-your-machine">precompiled binaries</a>, which you can install using the <code>pip</code> installer.</p>
+</div>
+<div id="updating-cntk-with-a-single-script" class="section level2">
+<h2><span class="header-section-number">3.2</span> Updating CNTK With a Single Script</h2>
+<p>I’ve created a single script to make the upgrade process a lot simper:</p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">./cntk-install.sh</span></code></pre></div>
+<p>This will create a new <code>conda environment</code> called <code>cntk-py35</code> with your new CNTK installation.</p>
+<div id="launch-jupyterlab" class="section level3">
+<h3><span class="header-section-number">3.2.1</span> Launch JupyterLab</h3>
+<p>JupyterLab is an updated environment based on Jupyter. In addition to the notebooks popularized by Jupyter, JupyterLab has an inspector for viewing help files quickly, a terminal, and a file browser. This makes for a more complete interactive development experience!</p>
+<p>To launch JupyterLab and keep it running, I recommend first creating a password you can use to log into your server without having to use special tokens (see the documentation <a href="http://nbconvert.readthedocs.io/en/latest/usage.html">here</a>. Moreover, since we want to keep JupyterLab running in the background even after we close out our terminal session, I’d recommend using <a href="https://github.com/tmux/tmux/wiki">tmux</a> to launch your Jupyter session.</p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash">
+<span class="ex">tmux</span> new -s jupyterlab
+<span class="ex">jupyter</span> notebook --generate-config
+<span class="ex">jupyter</span> notebook password
+<span class="ex">jupyter</span> lab --ip=<span class="st">&quot;*&quot;</span> 
+<span class="ex">tmux</span> detach
+<span class="ex">jupyter</span> notebook list</code></pre></div>
+<p>Now navigate to your <DNS-Name>:8888 to interact with JupyterLab!</p>
+</div>
+</div>
+<div id="manually-updating-cntk-and-launching-jupyter-no-need-to-do-this-if-you-use-the-script" class="section level2">
+<h2><span class="header-section-number">3.3</span> Manually Updating CNTK and Launching Jupyter (<strong>No Need to Do This if You Use the Script</strong>)</h2>
+<p>Only follow the steps below if the script above didn’t work or if you like doing this manually…</p>
+<div id="create-conda-virtual-environment" class="section level3">
+<h3><span class="header-section-number">3.3.1</span> Create Conda Virtual Environment</h3>
+<p>For this tutorial, we’ll use the <a href="https://conda.io/docs/using/envs.html"><code>conda</code> virtual environment manager</a> to create and modify Python virtual environments. You can create a Python 3.5 environment with <code>conda</code> by using the <code>conda create</code> command:</p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">conda</span> create -n cntk-py35 python=3.5 anaconda</code></pre></div>
+<p>The environment will be named <code>cntk-py35</code> and the additional flag <code>anaconda</code> ensures that the distribution will install over a 100 prebuilt Python packages for scientific computing (list <a href="https://docs.continuum.io/anaconda/packages/pkg-docs">here</a>).</p>
+</div>
+<div id="install-cntk-using-pip-binary-wheels" class="section level3">
+<h3><span class="header-section-number">3.3.2</span> Install CNTK Using <code>pip</code> Binary Wheels</h3>
+<p>We can activate that environment by running</p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="bu">source</span> activate cntk-py35</code></pre></div>
+<p>Now that we are in our virutla environment for CNTK, let’s install the <a href="https://docs.microsoft.com/en-us/cognitive-toolkit/setup-linux-python?tabs=cntkpy21">appropriate Python binary</a> using a Python “wheel”. For example, here are the installation instructions for CNTK on a Python 3.5 environment with Ubuntu 16.04 system with GPU support:</p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">pip</span> install https://cntk.ai/PythonWheel/GPU/cntk-2.1-cp35-cp35m-linux_x86_64.whl</code></pre></div>
+</div>
+<div id="temporary-fixes" class="section level3">
+<h3><span class="header-section-number">3.3.3</span> Temporary Fixes</h3>
+<p>Let’s take complete ownership of our <code>home</code> and <code>anaconda</code> directories:</p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="fu">sudo</span> chown alizaidi:alizaidi -R /home/alizaidi
+<span class="bu">source</span> deactivate
+<span class="fu">sudo</span> chown alizaidi:alizaidi -R /anaconda/
+<span class="ex">pip</span> install -U pip</code></pre></div>
+<p><strong>IMPORTANT</strong> replace <code>alizaidi</code> with the username you used to create the DSVM.</p>
+<p>Update <code>ipython</code> and related packages:</p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">pip</span> install --upgrade --force-reinstall jupyter</code></pre></div>
+<p>Remove <code>az_ml_magic</code> from ipython startup:</p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="fu">rm</span> ~/.ipython/profile_default/startup/az_ml_magic.py</code></pre></div>
+</div>
+<div id="conda-extensions" class="section level3">
+<h3><span class="header-section-number">3.3.4</span> Conda Extensions</h3>
+<p>Since we created a new environment, let’s also install some extensions that will make it easier to find that environment from JupyterHub.</p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">conda</span> install nb_conda
+<span class="ex">conda</span> install ipykernel
+<span class="ex">python</span> -m ipykernel install --user --name cntk-py35 --display-name <span class="st">&quot;cntk-py35&quot;</span>
+<span class="ex">jupyter</span> kernelspec list</code></pre></div>
+</div>
+<div id="install-keras" class="section level3">
+<h3><span class="header-section-number">3.3.5</span> Install Keras</h3>
+<p>Let’s also install Keras in this specific Python environment</p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="bu">source</span> activate cntk-py35
+<span class="ex">pip</span> install keras</code></pre></div>
+
+</div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="provisioning-linux-dsvms-with-azure-cli-2-0.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="transfer-learning-with-cntk.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"weibo": false,
+"instapper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/Azure/learnAnalytics-DeepLearning-Azure/edit/master/02-update-cntk.Rmd",
+"text": "Edit"
+},
+"download": ["azure-deep-learning.pdf", "azure-deep-learning.epub"],
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(script.src))
+      script.src  = script.src.replace(/^https?:/, '');
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

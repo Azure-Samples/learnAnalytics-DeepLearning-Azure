@@ -4,9 +4,13 @@ Provisioning Linux DSVMs with Azure CLI 2.0
 **What You'll Need**
 
 + An Azure Subscription
-+ Bash Shell:
-  * [Windows Subsystem for Linux](https://msdn.microsoft.com/en-us/commandline/wsl/install_guide)
-  * [Git Bash](https://git-for-windows.github.io/)
++ Bash 
+  * [Azure Cloud Shell](https://docs.microsoft.com/en-us/azure/cloud-shell/features)
+    - The Azure cloud shell provides a complete bash (and powershell) environment. The shell is automatically authenticated with Azure CLI 2.0 so you can provision and run all the scripts listed below using this shell.Shell:
+  * [Windows Subsystem for Linux](https://msdn.microsoft.com/en-us/commandline/wsl/install
+    - In addition to WSL, you'll need to install Azure CLI 2.0. See the instructions below or refer to the [Azure CLI 2.0](https://docs.microsoft.com/en-us/cli/azure/overview).
+    
+b.io/)
 
 In this lab you will provision your own **Linux Data Science Virtual Machine (DSVM)**. The DSVM is a virtual machine that contains a large number of data science and machine learning tools preinstalled, including deep learning libraries like CNTK, Tensorflow, Theano, Keras, MXNet. 
 
@@ -86,23 +90,8 @@ You can simply deploy the DSVM by navigating to the `labs/0-dsvm-deploy-script` 
 alizaidi:$ ./deploydsvm.sh
 ```
 
-The default parameters will use your bash username as your username for the VM, and a simple password. Feel free to change these by specifying your own parameters:
-
-
-```bash
-alizaidi:$ ./deploydsvm.sh batman Gotham3141
-```
-
-Take note of the messages produced by the script. You may want to save the output somewhere for reference.
-
-
-## Create a Password for the User
-
-In the script above, the authentication is done through a password. Look at the script to find out the password.
-
-If you chose the `generate-ssh-keys` option when creating your VM, the SSH user authenticates to the VM using SSH keys, which by default, are saved as a pair of private and public keys in `~/.ssh/id_rsa` and `~/.ssh/id_rsa.pub`. In order to access certain web applications like Jupyter, we'll need a password for our user. 
-
-To create a password for the user, run the following:
+The default parameters will use your bash username as your username for the VM, and a simple password. Feel free to change these by specThis will create your virtual machine, open up all the necessary ports on your VM's network security group, and save the credentials in a text file `creds.txt`.f
+## Deploying Manuallyowin#g:
 
 ```bash
 sudo passwd $USERNAME
@@ -124,7 +113,7 @@ alizaidi:$ az group create -n azteachdl -l eastus
 {
   "id": "/subscriptions/stay-away-from me/resourceGroups/azteachdl",
   "location": "eastus",
-  "managedBy": null,
+  #"managedBy": null,
   "name": "azteachdl",
   "properties": {
     "provisioningState": "Succeeded"
@@ -157,7 +146,22 @@ While the resources are being deployed, you will see a _"Running"_ message displ
   "location": "eastus",
   "macAddress": "00-0D-3A-1B-59-48",
   "powerState": "VM running",
-  "privateIpAddress": "10.0.0.4",
+  "privateIpAddress":
+### Create a Password for the User
+
+In the scripted solution, the authentication is done through a password.
+
+In the manual setup we showed how you could create a virtual machine using the `generate-ssh-keys` option, which authenticates using SSH keys, which by default are saved as a pair of private and public keys in `~/.ssh/id_rsa` and `~/.ssh/id_rsa.pub`. In order to access certain web applications like Jupyter, we'll need a password for our user. 
+
+To create a password for the user, run the following:
+
+```bash
+sudo passwd $USERNAME
+```
+
+where `$USERNAME` is the username you used to create the VM.
+
+ "10.0.0.4",
   "publicIpAddress": "13.00.000.000",
   "resourceGroup": "azaididlclass"
 }

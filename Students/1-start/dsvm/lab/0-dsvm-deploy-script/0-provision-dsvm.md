@@ -107,13 +107,9 @@ expand-disk.sh 200 azaididlclass azaididsvm
 
 Now you're ready to log into your VM and have some fun!
 
-## Deploying Manually
+## Deploying Manually **(Only Proceed if You Didn't Use the Script Above!)**
 
-```bash
-sudo passwd $USERNAME
-```
-
-where `$USERNAME` is the username you used to create the VM.
+If you didn't use the scripts above, I've written out the instructions manually below.
 
 
 ### Create a New Resource Group

@@ -7093,11 +7093,22 @@ Class: cats, predictions: cats:1.000 dogs:0.000, image: val/cats/cat.1006.jpg
 \caption{png}
 \end{figure}
 
-\section{Fashion MNIST}\label{fashion-mnist}
+\chapter{Fashion MNIST}\label{fashion-mnist}
 
 A MNIST-like dataset for fashion items. See the
 \href{https://github.com/zalandoresearch/fashion-mnist}{original
 repository} for more information and visualization examples.
+
+\section{Import Core Libraries and Specify Keras
+Backend}\label{import-core-libraries-and-specify-keras-backend}
+
+First, we'll import some core libraries and some helper functions. Also
+note that we are updating the \texttt{KERAS\_BACKEND} variable to point
+to \texttt{CNTK} rather than \texttt{TensorFlow} or \texttt{Theano}.
+This is a convenient way of doing this interactively in a single
+session. If you'd like to make this your default, modify the
+\texttt{\textasciitilde{}/.keras/keras.json} file to always point to
+CNTK.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -7130,6 +7141,12 @@ repository} for more information and visualization examples.
 Using CNTK backend
 \end{verbatim}
 
+\section{Downloading Fashion Dataset}\label{downloading-fashion-dataset}
+
+The Fashion dataset is not yet preloaded into Keras. We have a simple
+helper function called \texttt{load\_data} which will load the data into
+memory for us.
+
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{(x_train, y_train), (x_test, y_test) }\OperatorTok{=}\NormalTok{ load_data()}
@@ -7144,6 +7161,11 @@ Downloading data from http://fashion-mnist.s3-website.eu-central-1.amazonaws.com
 Downloading data from http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/t10k-images-idx3-ubyte.gz
 3260416/4422102 [=====================>........] - ETA: 0s
 \end{verbatim}
+
+\section{Scale Data and Visualize}\label{scale-data-and-visualize}
+
+Now that we have our data ingested into memory, let's scale it into unit
+range and visualize a few examples.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -7175,6 +7197,13 @@ Downloading data from http://fashion-mnist.s3-website.eu-central-1.amazonaws.com
 \includegraphics{output_5_0.png}
 \caption{png}
 \end{figure}
+
+\section{Create Network Architecture and Model
+Parameters}\label{create-network-architecture-and-model-parameters}
+
+Keras has a very simple high-level sequential and functional API for
+defining network architectures. Here we'll use the sequential API and
+compile our model with a common optimization algorithm and loss metrics.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -7244,6 +7273,11 @@ Non-trainable params: 0
 _________________________________________________________________
 \end{verbatim}
 
+\section{Training Our Model}\label{training-our-model}
+
+Training the model, i.e., backpropagating to fit model parameters to
+training data, is as simple as using the \texttt{fit} method in Keras.
+
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{history }\OperatorTok{=}\NormalTok{ model.fit(x_train, y_train,}
@@ -7280,6 +7314,12 @@ Epoch 9/10
 Epoch 10/10
 60000/60000 [==============================] - 7s - loss: 0.2889 - acc: 0.8936     
 \end{verbatim}
+
+\section{Scoring the Model}\label{scoring-the-model}
+
+Just as simple is scoring it on our test set. We can simply pass the
+\texttt{x\_test} and \texttt{y\_test} arrays to the \texttt{evaluate}
+method and Keras will score the model for us.
 
 \begin{Shaded}
 \begin{Highlighting}[]

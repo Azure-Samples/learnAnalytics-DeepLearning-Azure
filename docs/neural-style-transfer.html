@@ -32,7 +32,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   
   
-<link rel="prev" href="transfer-learning-with-cntk.html">
+<link rel="prev" href="fashion-mnist.html">
 
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -152,12 +152,19 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="4.7" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#training-the-transfer-model"><i class="fa fa-check"></i><b>4.7</b> Training the Transfer Model</a></li>
 <li class="chapter" data-level="4.8" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#define-minibatch-source"><i class="fa fa-check"></i><b>4.8</b> Define Minibatch Source</a></li>
 <li class="chapter" data-level="4.9" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#training"><i class="fa fa-check"></i><b>4.9</b> Training</a></li>
-<li class="chapter" data-level="4.10" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#fashion-mnist"><i class="fa fa-check"></i><b>4.10</b> Fashion MNIST</a></li>
 </ul></li>
-<li class="chapter" data-level="5" data-path="neural-style-transfer.html"><a href="neural-style-transfer.html"><i class="fa fa-check"></i><b>5</b> Neural Style Transfer</a><ul>
-<li class="chapter" data-level="5.0.1" data-path="neural-style-transfer.html"><a href="neural-style-transfer.html#defining-the-loss-function"><i class="fa fa-check"></i><b>5.0.1</b> Defining the loss function</a></li>
-<li class="chapter" data-level="5.0.2" data-path="neural-style-transfer.html"><a href="neural-style-transfer.html#instantiating-the-loss"><i class="fa fa-check"></i><b>5.0.2</b> Instantiating the loss</a></li>
-<li class="chapter" data-level="5.0.3" data-path="neural-style-transfer.html"><a href="neural-style-transfer.html#optimizing-the-loss"><i class="fa fa-check"></i><b>5.0.3</b> Optimizing the loss</a></li>
+<li class="chapter" data-level="5" data-path="fashion-mnist.html"><a href="fashion-mnist.html"><i class="fa fa-check"></i><b>5</b> Fashion MNIST</a><ul>
+<li class="chapter" data-level="5.1" data-path="fashion-mnist.html"><a href="fashion-mnist.html#import-core-libraries-and-specify-keras-backend"><i class="fa fa-check"></i><b>5.1</b> Import Core Libraries and Specify Keras Backend</a></li>
+<li class="chapter" data-level="5.2" data-path="fashion-mnist.html"><a href="fashion-mnist.html#downloading-fashion-dataset"><i class="fa fa-check"></i><b>5.2</b> Downloading Fashion Dataset</a></li>
+<li class="chapter" data-level="5.3" data-path="fashion-mnist.html"><a href="fashion-mnist.html#scale-data-and-visualize"><i class="fa fa-check"></i><b>5.3</b> Scale Data and Visualize</a></li>
+<li class="chapter" data-level="5.4" data-path="fashion-mnist.html"><a href="fashion-mnist.html#create-network-architecture-and-model-parameters"><i class="fa fa-check"></i><b>5.4</b> Create Network Architecture and Model Parameters</a></li>
+<li class="chapter" data-level="5.5" data-path="fashion-mnist.html"><a href="fashion-mnist.html#training-our-model"><i class="fa fa-check"></i><b>5.5</b> Training Our Model</a></li>
+<li class="chapter" data-level="5.6" data-path="fashion-mnist.html"><a href="fashion-mnist.html#scoring-the-model"><i class="fa fa-check"></i><b>5.6</b> Scoring the Model</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="neural-style-transfer.html"><a href="neural-style-transfer.html"><i class="fa fa-check"></i><b>6</b> Neural Style Transfer</a><ul>
+<li class="chapter" data-level="6.0.1" data-path="neural-style-transfer.html"><a href="neural-style-transfer.html#defining-the-loss-function"><i class="fa fa-check"></i><b>6.0.1</b> Defining the loss function</a></li>
+<li class="chapter" data-level="6.0.2" data-path="neural-style-transfer.html"><a href="neural-style-transfer.html#instantiating-the-loss"><i class="fa fa-check"></i><b>6.0.2</b> Instantiating the loss</a></li>
+<li class="chapter" data-level="6.0.3" data-path="neural-style-transfer.html"><a href="neural-style-transfer.html#optimizing-the-loss"><i class="fa fa-check"></i><b>6.0.3</b> Optimizing the loss</a></li>
 </ul></li>
 <li class="divider"></li>
 <li><a href="https://aka.ms/az-dl" target="blank">Published with bookdown</a></li>
@@ -180,7 +187,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
             <section class="normal" id="section-">
 <div id="neural-style-transfer" class="section level1">
-<h1><span class="header-section-number">Chapter 5</span> Neural Style Transfer</h1>
+<h1><span class="header-section-number">Chapter 6</span> Neural Style Transfer</h1>
 <p>This tutorial shows how to transfer the style / texture of one image to another. This allows us to take our ordinary photos and render them in the style of famous images or paintings.</p>
 <p>Apart from creating nice looking pictures, in this tutorial you will learn how to load a pretrained <a href="https://arxiv.org/abs/1409.1556">VGG model</a> into CNTK, how to get the gradient of a function with respect to an input variable (rather than a parameter), and how to use the gradient outside of CNTK.</p>
 <p>We will follow the approach of <a href="https://arxiv.org/abs/1508.06576">Gatys et. al.</a> with some of the improvements in <a href="https://arxiv.org/abs/1605.04603">Novak and Nikulin</a>. While <a href="https://arxiv.org/abs/1603.08155">faster techniques</a> exist, these are limited to transfering a particular style.</p>
@@ -269,7 +276,7 @@ loaded VGG model</code></pre>
     
     <span class="cf">return</span> x, C.combine([model_layers[k] <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">sorted</span>(model_layers.keys())])</code></pre></div>
 <div id="defining-the-loss-function" class="section level3">
-<h3><span class="header-section-number">5.0.1</span> Defining the loss function</h3>
+<h3><span class="header-section-number">6.0.1</span> Defining the loss function</h3>
 <p>The interesting part in this line of work is the definition of a loss function that, when optimized, leads to a result that is close to both the content of one image, as well as the style of the other image. This loss contains multiple terms some of which are defined in terms of the VGG network we just created. Concretely, the loss takes a candidate image <span class="math inline">\(x\)</span> and takes a weighted sum of three terms: the content loss, the style loss and the total variation loss: <span class="math display">\[
 L(x) = \alpha C(x) + \beta S(x) + T(x)
 \]</span> where <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span> are weights on the content loss and the style loss, respectively. We have normalized the weights so that the weight in front of the total variation loss is 1. How are each of these terms computed?</p>
@@ -318,7 +325,7 @@ L(x) = \alpha C(x) + \beta S(x) + T(x)
     <span class="cf">return</span> avg</code></pre></div>
 </div>
 <div id="instantiating-the-loss" class="section level3">
-<h3><span class="header-section-number">5.0.2</span> Instantiating the loss</h3>
+<h3><span class="header-section-number">6.0.2</span> Instantiating the loss</h3>
 <p>Now we are ready to instantiate a loss with two particular images. We will use an image of Portland’s landscape and <a href="https://en.wikipedia.org/wiki/The_Starry_Night">The Starry Night</a> by Vincent van Gogh. We first define a few tuning parameters whose explanation is below: - Depending on whether the code runs on a GPU or a CPU we resize the images to 300 x 300 or 64 x 64 respectively and adjust the number of iterations of optimization to speed up the process and for ease of experimentation. You can use a larger size if you like the results. If you only have a CPU you will have to wait a while. - The content weight and style weight are the main parameters that affect the quality of the resulting image. - The decay factor is a number in (0,1) which decides how to weigh the contribution of each layer. Following <a href="https://arxiv.org/abs/1605.04603">Novak and Nikulin</a>, all layers contribute to both the content loss and the style loss. The content loss weighs the input more heavily and each later layer in the VGG network contributes with a weight that is exponentially smaller with its distance from the input. The style loss weighs the output of the VGG network more heavily and each earlier layer in the VGG network contributes with a weight that is exponentially smaller with its distance from the output. As in Novak and Nikulin we use a decay factor of 0.5. - The inner and outer parameters define how we are going to obtain our final result. We will take <code>outer</code> snapshots during our search for the image that minimizes the loss. Each snapshot will be taken after <code>inner</code> steps of optimization. - Finally, a very important thing to know about our pretrained network is how it was trained. In particular, a constant vector was subtracted from all input images that contained the average value for the red, green, and blue channels in the training set. This makes the inputs zero centered which helps the training procedure. If we do not subtract this vector our images will not look like the training images and this will lead to bad results. This vector is referred to as SHIFT below.</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">style_path <span class="op">=</span> <span class="st">&#39;style.jpg&#39;</span>
 content_path <span class="op">=</span> <span class="st">&#39;azthinksR.jpg&#39;</span>
@@ -401,7 +408,7 @@ loss <span class="op">=</span> (<span class="fl">1.0</span><span class="op">/</s
 </div>
 </div>
 <div id="optimizing-the-loss" class="section level3">
-<h3><span class="header-section-number">5.0.3</span> Optimizing the loss</h3>
+<h3><span class="header-section-number">6.0.3</span> Optimizing the loss</h3>
 <p>Now we are finally ready to find the image that minimizes the loss we defined. We will use the optimization package in scipy and in particular the LBFGS method. LBFGS is a great optimization procedure which is very popular when computing the full gradient is feasible as is the case here.</p>
 <p>Notice that we are computing the gradient with respect to the input. This is quite different from most other use cases where we compute the gradient with respect to the network parameters. By default, input variables do not ask for gradients, however we defined our input variable as</p>
 <div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">y <span class="op">=</span> C.input_variable((<span class="dv">3</span>, SIZE, SIZE), needs_gradient<span class="op">=</span><span class="va">True</span>)</code></pre></div>
@@ -484,7 +491,7 @@ objfun(xstar, loss)[<span class="dv">0</span>][<span class="dv">0</span>]</code>
           </div>
         </div>
       </div>
-<a href="transfer-learning-with-cntk.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="fashion-mnist.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
 
     </div>
   </div>

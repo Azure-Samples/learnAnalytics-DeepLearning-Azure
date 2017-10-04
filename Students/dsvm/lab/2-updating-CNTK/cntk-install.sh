@@ -37,8 +37,8 @@ python -m ipykernel install --user --name cntk-py35 --display-name "cntk-py35" #
 sudo systemctl restart jupyterhub
 
 # start jupyterlab
-cd ~/notebooks
-tmux new -s jupyterlab
-nohup jupyter lab --ip="*" & disown
-tmux detach
-jupyter notebook list
+# cd ~/notebooks
+# tmux new -s jupyterlab
+# nohup jupyter lab --ip="*" & disown
+# tmux detach
+# jupyter notebook list

@@ -7,20 +7,20 @@ Provisioning Linux DSVMs with Azure CLI 2.0
 + Bash 
   * [Azure Cloud Shell](https://docs.microsoft.com/en-us/azure/cloud-shell/features)
     - The Azure cloud shell provides a complete bash (and powershell) environment. The shell is automatically authenticated with Azure CLI 2.0 so you can provision and run all the scripts listed below using this shell.Shell:
-  * [Windows Subsystem for Linux](https://msdn.microsoft.com/en-us/commandline/wsl/install
+  * [Windows Subsystem for Linux](https://msdn.microsoft.com/en-us/commandline/wsl/install)
     - In addition to WSL, you'll need to install Azure CLI 2.0. See the instructions below or refer to the [Azure CLI 2.0](https://docs.microsoft.com/en-us/cli/azure/overview).
-    
-b.io/)
 
-In this lab you will provision your own **Linux Data Science Virtual Machine (DSVM)**. The DSVM is a virtual machine that contains a large number of data science and machine learning tools preinstalled, including deep learning libraries like CNTK, Tensorflow, Theano, Keras, MXNet. 
+In this lab you will provision your own **Linux Data Science Virtual Machine (DSVM)**. The DSVM is a virtual machine that contains a large number of data science and machine learning tools preinstalled, including deep learning libraries like CNTK, Tensorflow, Caffe2, PyTorch, Keras, MXNet, and a lot more. 
 
 In this course, we will specifically use the [Ubuntu version](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-dsvm-ubuntu-intro) of the DSVM, since it is the most common distribution for machine learning and data science. Other operating system variants of the DSVM are available in [CentOS](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-linux-dsvm-intro) and [Windows](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-provision-vm) (2012 and 2016 Server Editions).
 
-You can provision, start, and stop the Linux DSVM from Azure itself. You are recommended to take a look at the [Azure portal](https://portal.azure.com/) and learn the interface. However, in this course we will introduce you to the [Azure CLI 2.0](https://docs.microsoft.com/en-us/cli/azure/overview), which is a command-line interface built in Python and available on macOS, Linux, and Windows. Learning a bit about the CLI can greatly improve your productivity with Azure resources, and will allow you to configuration and management scripts into your daily workflow. For Windows 10 users, I highly recommend you install the [Windows Subsystem for Linux](https://msdn.microsoft.com/en-us/commandline/wsl/install_guide) to get a complete `bash` environment on your system. In addition, I use [conemu](https://conemu.github.io/) as my main console, which has a number of nice features including tabbed support for multiple consoles, including Ubuntu Bash, PowerShell and Git Bash.
+You can provision, start, and stop the Linux DSVM from the Azure portal itself. You are recommended to take a look at the [Azure portal](https://portal.azure.com/) and learn the interface. However, in this course we will introduce you to the [Azure CLI 2.0](https://docs.microsoft.com/en-us/cli/azure/overview), which is a command-line interface built in Python and available on macOS, Linux, and Windows. Learning a bit about the CLI can greatly improve your productivity with Azure resources, and will allow you to configuration and management scripts into your daily workflow. For Windows 10 users, I highly recommend you install the [Windows Subsystem for Linux](https://msdn.microsoft.com/en-us/commandline/wsl/install_guide) to get a complete `bash` environment on your system. In addition, I use [conemu](https://conemu.github.io/) as my main console, which has a number of nice features including tabbed support for multiple consoles, including Ubuntu Bash, PowerShell and Git Bash.
 
 ## Installing and Testing the Azure CLI
 
 Follow the instructions on the [Azure CLI 2.0 webpage](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli) for the latest information on how to install the CLI. Once you have installed the Azure CLI, and added it to your `$PATH`, you should be able to call it from your terminal. 
+
+***NOTE** _If you're using the Azure Cloud Shell, you don't need to install Azure CLI 2.0 or authenticate. All that is already done for you._ Skip to section [Deploying Via a Custom Script](#deploying).
 
 ```bash
 alizaidi@MININT-C510VH5:~$ which az
@@ -80,7 +80,7 @@ alizaidi@MININT-C510VH5:~$ az account list
 You can use the option `--output table` to print the output in a tabular format.
 
 
-## Deploying Via Custom Script
+## <a name="deploying"></a> Deploying Via Custom Script 
 
 Rather than doing this manually, I have created a custom script that will create the DSVM for you, and also run some configuration settings on your VM's network to allow for easier access.
 

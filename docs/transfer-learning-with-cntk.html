@@ -33,7 +33,7 @@
   
   
 <link rel="prev" href="upgrading-cntk-and-cudnn.html">
-
+<link rel="next" href="neural-style-transfer.html">
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
@@ -152,6 +152,12 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="4.7" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#training-the-transfer-model"><i class="fa fa-check"></i><b>4.7</b> Training the Transfer Model</a></li>
 <li class="chapter" data-level="4.8" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#define-minibatch-source"><i class="fa fa-check"></i><b>4.8</b> Define Minibatch Source</a></li>
 <li class="chapter" data-level="4.9" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#training"><i class="fa fa-check"></i><b>4.9</b> Training</a></li>
+<li class="chapter" data-level="4.10" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#fashion-mnist"><i class="fa fa-check"></i><b>4.10</b> Fashion MNIST</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="neural-style-transfer.html"><a href="neural-style-transfer.html"><i class="fa fa-check"></i><b>5</b> Neural Style Transfer</a><ul>
+<li class="chapter" data-level="5.0.1" data-path="neural-style-transfer.html"><a href="neural-style-transfer.html#defining-the-loss-function"><i class="fa fa-check"></i><b>5.0.1</b> Defining the loss function</a></li>
+<li class="chapter" data-level="5.0.2" data-path="neural-style-transfer.html"><a href="neural-style-transfer.html#instantiating-the-loss"><i class="fa fa-check"></i><b>5.0.2</b> Instantiating the loss</a></li>
+<li class="chapter" data-level="5.0.3" data-path="neural-style-transfer.html"><a href="neural-style-transfer.html#optimizing-the-loss"><i class="fa fa-check"></i><b>5.0.3</b> Optimizing the loss</a></li>
 </ul></li>
 <li class="divider"></li>
 <li><a href="https://aka.ms/az-dl" target="blank">Published with bookdown</a></li>
@@ -6014,14 +6020,258 @@ worst_pups <span class="op">=</span> worst_preds(kitties <span class="op">=</spa
 </div>
 
 </div>
+<div id="fashion-mnist" class="section level2">
+<h2><span class="header-section-number">4.10</span> Fashion MNIST</h2>
+<p>A MNIST-like dataset for fashion items. See the <a href="https://github.com/zalandoresearch/fashion-mnist">original repository</a> for more information and visualization examples.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">import</span> os
+os.environ[<span class="st">&#39;KERAS_BACKEND&#39;</span>] <span class="op">=</span> <span class="st">&quot;cntk&quot;</span>
+
+<span class="im">import</span> sys
+<span class="im">import</span> urllib
+
+<span class="im">from</span> keras.layers <span class="im">import</span> Dense, Dropout, Flatten
+<span class="im">from</span> keras.layers <span class="im">import</span> Conv2D, MaxPooling2D
+<span class="im">from</span> keras.layers.normalization <span class="im">import</span> BatchNormalization
+
+<span class="im">from</span> keras.models <span class="im">import</span> Sequential
+<span class="im">from</span> keras.utils <span class="im">import</span> to_categorical
+
+<span class="im">from</span> keras.callbacks <span class="im">import</span> ModelCheckpoint, TensorBoard
+<span class="im">from</span> keras <span class="im">import</span> optimizers
+<span class="im">from</span> keras <span class="im">import</span> losses
+
+<span class="im">from</span> fashion_import <span class="im">import</span> load_data
+
+<span class="im">import</span> numpy <span class="im">as</span> np
+<span class="im">from</span> PIL <span class="im">import</span> Image
+<span class="im">from</span> io <span class="im">import</span> BytesIO</code></pre></div>
+<pre><code>Using CNTK backend</code></pre>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">(x_train, y_train), (x_test, y_test) <span class="op">=</span> load_data()</code></pre></div>
+<pre><code>Downloading data from http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/train-labels-idx1-ubyte.gz
+16384/29515 [===============&gt;..............] - ETA: 0sDownloading data from http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/train-images-idx3-ubyte.gz
+23953408/26421880 [==========================&gt;...] - ETA: 0sDownloading data from http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/t10k-labels-idx1-ubyte.gz
+8192/5148 [===============================================] - 0s
+Downloading data from http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/t10k-images-idx3-ubyte.gz
+3260416/4422102 [=====================&gt;........] - ETA: 0s</code></pre>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">x_train <span class="op">=</span> x_train.reshape(<span class="dv">60000</span>, <span class="dv">28</span>, <span class="dv">28</span>, <span class="dv">1</span>)
+x_test <span class="op">=</span> x_test.reshape(<span class="dv">10000</span>, <span class="dv">28</span>, <span class="dv">28</span>, <span class="dv">1</span>)
+x_train <span class="op">=</span> x_train.astype(<span class="st">&#39;float32&#39;</span>)
+x_test <span class="op">=</span> x_test.astype(<span class="st">&#39;float32&#39;</span>)
+x_train <span class="op">/=</span> <span class="dv">255</span>
+x_test <span class="op">/=</span> <span class="dv">255</span>
+
+<span class="co"># convert class vectors to binary class matrices</span>
+y_train <span class="op">=</span> to_categorical(y_train, <span class="dv">10</span>)
+y_test <span class="op">=</span> to_categorical(y_test, <span class="dv">10</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt
+<span class="op">%</span>matplotlib inline
+pixels <span class="op">=</span> x_train[<span class="dv">10</span>].reshape((<span class="dv">28</span>, <span class="dv">28</span>))
+plt.imshow(pixels)
+plt.show()</code></pre></div>
+<div class="figure">
+<img src="output_5_0.png" alt="png" />
+<p class="caption">png</p>
+</div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">batch_size <span class="op">=</span> <span class="dv">256</span>
+num_classes <span class="op">=</span> <span class="dv">10</span>
+epochs <span class="op">=</span> <span class="dv">10</span>
+
+img_rows, img_cols <span class="op">=</span> <span class="dv">28</span>, <span class="dv">28</span>
+input_shape <span class="op">=</span> (img_rows, img_cols, <span class="dv">1</span>)
+
+model <span class="op">=</span> Sequential()
+model.add(Conv2D(<span class="dv">32</span>, kernel_size<span class="op">=</span>(<span class="dv">3</span>, <span class="dv">3</span>),
+                 activation<span class="op">=</span><span class="st">&#39;relu&#39;</span>,
+                 kernel_initializer<span class="op">=</span><span class="st">&#39;he_normal&#39;</span>,
+                 input_shape<span class="op">=</span>input_shape))
+model.add(MaxPooling2D((<span class="dv">2</span>, <span class="dv">2</span>)))
+model.add(Dropout(<span class="fl">0.25</span>))
+model.add(Conv2D(<span class="dv">64</span>, (<span class="dv">3</span>, <span class="dv">3</span>), activation<span class="op">=</span><span class="st">&#39;relu&#39;</span>))
+model.add(MaxPooling2D(pool_size<span class="op">=</span>(<span class="dv">2</span>, <span class="dv">2</span>)))
+model.add(Dropout(<span class="fl">0.25</span>))
+model.add(Conv2D(<span class="dv">128</span>, (<span class="dv">3</span>, <span class="dv">3</span>), activation<span class="op">=</span><span class="st">&#39;relu&#39;</span>))
+model.add(Dropout(<span class="fl">0.4</span>))
+model.add(Flatten())
+model.add(Dense(<span class="dv">128</span>, activation<span class="op">=</span><span class="st">&#39;relu&#39;</span>))
+model.add(Dropout(<span class="fl">0.3</span>))
+model.add(Dense(num_classes, activation<span class="op">=</span><span class="st">&#39;softmax&#39;</span>))
+
+model.<span class="bu">compile</span>(loss<span class="op">=</span>losses.categorical_crossentropy,
+              optimizer<span class="op">=</span>optimizers.Adam(),
+              metrics<span class="op">=</span>[<span class="st">&#39;accuracy&#39;</span>])
+
+model.summary()</code></pre></div>
+<pre><code>_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+conv2d_1 (Conv2D)            (None, 26, 26, 32)        320       
+_________________________________________________________________
+max_pooling2d_1 (MaxPooling2 (None, 13, 13, 32)        0         
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 13, 13, 32)        0         
+_________________________________________________________________
+conv2d_2 (Conv2D)            (None, 11, 11, 64)        18496     
+_________________________________________________________________
+max_pooling2d_2 (MaxPooling2 (None, 5, 5, 64)          0         
+_________________________________________________________________
+dropout_2 (Dropout)          (None, 5, 5, 64)          0         
+_________________________________________________________________
+conv2d_3 (Conv2D)            (None, 3, 3, 128)         73856     
+_________________________________________________________________
+dropout_3 (Dropout)          (None, 3, 3, 128)         0         
+_________________________________________________________________
+flatten_1 (Flatten)          (None, 1152)              0         
+_________________________________________________________________
+dense_1 (Dense)              (None, 128)               147584    
+_________________________________________________________________
+dropout_4 (Dropout)          (None, 128)               0         
+_________________________________________________________________
+dense_2 (Dense)              (None, 10)                1290      
+=================================================================
+Total params: 241,546
+Trainable params: 241,546
+Non-trainable params: 0
+_________________________________________________________________</code></pre>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">history <span class="op">=</span> model.fit(x_train, y_train,
+          batch_size<span class="op">=</span>batch_size,
+          epochs<span class="op">=</span>epochs)</code></pre></div>
+<pre><code>Epoch 1/10
+
+
+/home/mugen/.conda/envs/cntk-py35/lib/python3.5/site-packages/cntk/core.py:361: UserWarning: your data is of type &quot;float64&quot;, but your input variable (uid &quot;Input170&quot;) expects &quot;&lt;class &#39;numpy.float32&#39;&gt;&quot;. Please convert your data beforehand to speed up training.
+  (sample.dtype, var.uid, str(var.dtype)))
+
+
+60000/60000 [==============================] - 10s - loss: 0.8519 - acc: 0.6817    
+Epoch 2/10
+60000/60000 [==============================] - 7s - loss: 0.5029 - acc: 0.8138     
+Epoch 3/10
+60000/60000 [==============================] - 7s - loss: 0.4330 - acc: 0.8406     
+Epoch 4/10
+60000/60000 [==============================] - 7s - loss: 0.3867 - acc: 0.8575     
+Epoch 5/10
+60000/60000 [==============================] - 7s - loss: 0.3595 - acc: 0.8675     
+Epoch 6/10
+60000/60000 [==============================] - 7s - loss: 0.3365 - acc: 0.8777     
+Epoch 7/10
+60000/60000 [==============================] - 7s - loss: 0.3203 - acc: 0.8822     
+Epoch 8/10
+60000/60000 [==============================] - 7s - loss: 0.3112 - acc: 0.8868     
+Epoch 9/10
+60000/60000 [==============================] - 7s - loss: 0.3001 - acc: 0.8896     
+Epoch 10/10
+60000/60000 [==============================] - 7s - loss: 0.2889 - acc: 0.8936     </code></pre>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">test_val <span class="op">=</span> model.evaluate(x_test, y_test)</code></pre></div>
+<pre><code> 1312/10000 [==&gt;...........................] - ETA: 1s
+
+/anaconda/envs/cntk-22/lib/python3.5/site-packages/cntk/core.py:361: UserWarning: your data is of type &quot;float64&quot;, but your input variable (uid &quot;Input170&quot;) expects &quot;&lt;class &#39;numpy.float32&#39;&gt;&quot;. Please convert your data beforehand to speed up training.
+  (sample.dtype, var.uid, str(var.dtype)))
+
+
+ 9856/10000 [============================&gt;.] - ETA: 0s</code></pre>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="bu">print</span>(<span class="st">&quot;Model&#39;s Accuracy on Test Set = &quot;</span>
+      <span class="op">+</span> <span class="st">&quot;</span><span class="sc">{0:.2f}</span><span class="st">%&quot;</span>.<span class="bu">format</span>(test_val[<span class="dv">1</span>] <span class="op">*</span> <span class="dv">100</span>))</code></pre></div>
+<pre><code>Model&#39;s Accuracy on Test Set = 90.14%</code></pre>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt
+<span class="op">%</span>matplotlib inline
+
+accuracy <span class="op">=</span> history.history[<span class="st">&#39;acc&#39;</span>]
+<span class="co"># val_accuracy = history.history[&#39;val_acc&#39;]</span>
+loss <span class="op">=</span> history.history[<span class="st">&#39;loss&#39;</span>]
+<span class="co"># val_loss = history.history[&#39;val_loss&#39;]</span>
+epochs <span class="op">=</span> <span class="bu">range</span>(<span class="bu">len</span>(accuracy))
+plt.plot(epochs, accuracy, <span class="st">&#39;bo&#39;</span>, label<span class="op">=</span><span class="st">&#39;Training accuracy&#39;</span>)
+plt.title(<span class="st">&#39;Training accuracy&#39;</span>)
+plt.legend()
+plt.figure()
+plt.plot(epochs, loss, <span class="st">&#39;bo&#39;</span>, label<span class="op">=</span><span class="st">&#39;Training loss&#39;</span>)
+plt.title(<span class="st">&#39;Training loss&#39;</span>)
+plt.legend()
+plt.show()</code></pre></div>
+<div class="figure">
+<img src="output_10_0.png" alt="png" />
+<p class="caption">png</p>
+</div>
+<div class="figure">
+<img src="output_10_1.png" alt="png" />
+<p class="caption">png</p>
+</div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">test_im <span class="op">=</span> x_train[<span class="dv">3</span>]
+plt.imshow(test_im.reshape(<span class="dv">28</span>,<span class="dv">28</span>), cmap<span class="op">=</span><span class="st">&#39;gray&#39;</span>, interpolation<span class="op">=</span><span class="st">&#39;none&#39;</span>)
+plt.show()</code></pre></div>
+<div class="figure">
+<img src="output_11_0.png" alt="png" />
+<p class="caption">png</p>
+</div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">from</span> keras <span class="im">import</span> models
+layer_outputs <span class="op">=</span> [layer.output <span class="cf">for</span> layer <span class="kw">in</span> model.layers[:<span class="dv">8</span>]]
+activation_model <span class="op">=</span> models.Model(<span class="bu">input</span><span class="op">=</span>model.<span class="bu">input</span>, output<span class="op">=</span>layer_outputs)
+activations <span class="op">=</span> activation_model.predict(test_im.reshape(<span class="dv">1</span>,<span class="dv">28</span>,<span class="dv">28</span>,<span class="dv">1</span>))
+
+first_layer_activation <span class="op">=</span> activations[<span class="dv">0</span>]
+plt.matshow(first_layer_activation[<span class="dv">0</span>, :, :, <span class="dv">4</span>], cmap<span class="op">=</span><span class="st">&#39;gray&#39;</span>)</code></pre></div>
+<pre><code>/anaconda/envs/cntk-22/lib/python3.5/site-packages/ipykernel/__main__.py:3: UserWarning: Update your `Model` call to the Keras 2 API: `Model(outputs=[Composite..., inputs=Input(&#39;con...)`
+  app.launch_new_instance()
+
+
+
+
+
+&lt;matplotlib.image.AxesImage at 0x7f08c0f78278&gt;</code></pre>
+<div class="figure">
+<img src="output_12_2.png" alt="png" />
+<p class="caption">png</p>
+</div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">layer_names <span class="op">=</span> []
+<span class="cf">for</span> layer <span class="kw">in</span> model.layers[:<span class="op">-</span><span class="dv">1</span>]:
+    <span class="cf">if</span> <span class="bu">isinstance</span>(layer, Conv2D):
+        layer_names.append(layer.name)
+images_per_row <span class="op">=</span> <span class="dv">16</span>
+
+<span class="cf">for</span> layer_name, layer_activation <span class="kw">in</span> <span class="bu">zip</span>(layer_names, activations):
+    n_features <span class="op">=</span> layer_activation.shape[<span class="op">-</span><span class="dv">1</span>]
+    size <span class="op">=</span> layer_activation.shape[<span class="dv">1</span>]
+    n_cols <span class="op">=</span> n_features <span class="op">/</span> images_per_row
+    n_cols <span class="op">=</span> <span class="bu">int</span>(n_cols)
+    display_grid <span class="op">=</span> np.zeros((size <span class="op">*</span> n_cols, images_per_row <span class="op">*</span> size))
+    <span class="cf">for</span> col <span class="kw">in</span> <span class="bu">range</span>(n_cols):
+        <span class="cf">for</span> row <span class="kw">in</span> <span class="bu">range</span>(images_per_row):
+            channel_image <span class="op">=</span> layer_activation[<span class="dv">0</span>,:, :, col <span class="op">*</span> images_per_row <span class="op">+</span> row]
+            channel_image <span class="op">-=</span> channel_image.mean()
+            channel_image <span class="op">/=</span> channel_image.std()
+            channel_image <span class="op">*=</span> <span class="dv">64</span>
+            channel_image <span class="op">+=</span> <span class="dv">128</span>
+            channel_image <span class="op">=</span> np.clip(channel_image, <span class="dv">0</span>, <span class="dv">255</span>).astype(<span class="st">&#39;uint8&#39;</span>)
+            display_grid[col <span class="op">*</span> size : (col <span class="op">+</span> <span class="dv">1</span>) <span class="op">*</span> size,
+                         row <span class="op">*</span> size : (row <span class="op">+</span> <span class="dv">1</span>) <span class="op">*</span> size] <span class="op">=</span> channel_image
+    scale <span class="op">=</span> <span class="dv">1</span>. <span class="op">/</span> size
+    plt.figure(figsize<span class="op">=</span>(scale <span class="op">*</span> display_grid.shape[<span class="dv">1</span>],
+                        scale <span class="op">*</span> display_grid.shape[<span class="dv">0</span>]))
+    plt.title(layer_name)
+    plt.grid(<span class="va">False</span>)
+    plt.imshow(display_grid, aspect<span class="op">=</span><span class="st">&#39;auto&#39;</span>, cmap<span class="op">=</span><span class="st">&#39;bone&#39;</span>)</code></pre></div>
+<div class="figure">
+<img src="output_13_0.png" alt="png" />
+<p class="caption">png</p>
+</div>
+<div class="figure">
+<img src="output_13_1.png" alt="png" />
+<p class="caption">png</p>
+</div>
+<div class="figure">
+<img src="output_13_2.png" alt="png" />
+<p class="caption">png</p>
+</div>
+
+</div>
 </div>
             </section>
 
           </div>
         </div>
       </div>
-<a href="upgrading-cntk-and-cudnn.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-
+<a href="upgrading-cntk-and-cudnn.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="neural-style-transfer.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

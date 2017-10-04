@@ -7093,6 +7093,813 @@ Class: cats, predictions: cats:1.000 dogs:0.000, image: val/cats/cat.1006.jpg
 \caption{png}
 \end{figure}
 
+\section{Fashion MNIST}\label{fashion-mnist}
+
+A MNIST-like dataset for fashion items. See the
+\href{https://github.com/zalandoresearch/fashion-mnist}{original
+repository} for more information and visualization examples.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ImportTok{import}\NormalTok{ os}
+\NormalTok{os.environ[}\StringTok{'KERAS_BACKEND'}\NormalTok{] }\OperatorTok{=} \StringTok{"cntk"}
+
+\ImportTok{import}\NormalTok{ sys}
+\ImportTok{import}\NormalTok{ urllib}
+
+\ImportTok{from}\NormalTok{ keras.layers }\ImportTok{import}\NormalTok{ Dense, Dropout, Flatten}
+\ImportTok{from}\NormalTok{ keras.layers }\ImportTok{import}\NormalTok{ Conv2D, MaxPooling2D}
+\ImportTok{from}\NormalTok{ keras.layers.normalization }\ImportTok{import}\NormalTok{ BatchNormalization}
+
+\ImportTok{from}\NormalTok{ keras.models }\ImportTok{import}\NormalTok{ Sequential}
+\ImportTok{from}\NormalTok{ keras.utils }\ImportTok{import}\NormalTok{ to_categorical}
+
+\ImportTok{from}\NormalTok{ keras.callbacks }\ImportTok{import}\NormalTok{ ModelCheckpoint, TensorBoard}
+\ImportTok{from}\NormalTok{ keras }\ImportTok{import}\NormalTok{ optimizers}
+\ImportTok{from}\NormalTok{ keras }\ImportTok{import}\NormalTok{ losses}
+
+\ImportTok{from}\NormalTok{ fashion_import }\ImportTok{import}\NormalTok{ load_data}
+
+\ImportTok{import}\NormalTok{ numpy }\ImportTok{as}\NormalTok{ np}
+\ImportTok{from}\NormalTok{ PIL }\ImportTok{import}\NormalTok{ Image}
+\ImportTok{from}\NormalTok{ io }\ImportTok{import}\NormalTok{ BytesIO}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Using CNTK backend
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{(x_train, y_train), (x_test, y_test) }\OperatorTok{=}\NormalTok{ load_data()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Downloading data from http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/train-labels-idx1-ubyte.gz
+16384/29515 [===============>..............] - ETA: 0sDownloading data from http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/train-images-idx3-ubyte.gz
+23953408/26421880 [==========================>...] - ETA: 0sDownloading data from http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/t10k-labels-idx1-ubyte.gz
+8192/5148 [===============================================] - 0s
+Downloading data from http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/t10k-images-idx3-ubyte.gz
+3260416/4422102 [=====================>........] - ETA: 0s
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x_train }\OperatorTok{=}\NormalTok{ x_train.reshape(}\DecValTok{60000}\NormalTok{, }\DecValTok{28}\NormalTok{, }\DecValTok{28}\NormalTok{, }\DecValTok{1}\NormalTok{)}
+\NormalTok{x_test }\OperatorTok{=}\NormalTok{ x_test.reshape(}\DecValTok{10000}\NormalTok{, }\DecValTok{28}\NormalTok{, }\DecValTok{28}\NormalTok{, }\DecValTok{1}\NormalTok{)}
+\NormalTok{x_train }\OperatorTok{=}\NormalTok{ x_train.astype(}\StringTok{'float32'}\NormalTok{)}
+\NormalTok{x_test }\OperatorTok{=}\NormalTok{ x_test.astype(}\StringTok{'float32'}\NormalTok{)}
+\NormalTok{x_train }\OperatorTok{/=} \DecValTok{255}
+\NormalTok{x_test }\OperatorTok{/=} \DecValTok{255}
+
+\CommentTok{# convert class vectors to binary class matrices}
+\NormalTok{y_train }\OperatorTok{=}\NormalTok{ to_categorical(y_train, }\DecValTok{10}\NormalTok{)}
+\NormalTok{y_test }\OperatorTok{=}\NormalTok{ to_categorical(y_test, }\DecValTok{10}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ImportTok{import}\NormalTok{ matplotlib.pyplot }\ImportTok{as}\NormalTok{ plt}
+\OperatorTok{%}\NormalTok{matplotlib inline}
+\NormalTok{pixels }\OperatorTok{=}\NormalTok{ x_train[}\DecValTok{10}\NormalTok{].reshape((}\DecValTok{28}\NormalTok{, }\DecValTok{28}\NormalTok{))}
+\NormalTok{plt.imshow(pixels)}
+\NormalTok{plt.show()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+\centering
+\includegraphics{output_5_0.png}
+\caption{png}
+\end{figure}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{batch_size }\OperatorTok{=} \DecValTok{256}
+\NormalTok{num_classes }\OperatorTok{=} \DecValTok{10}
+\NormalTok{epochs }\OperatorTok{=} \DecValTok{10}
+
+\NormalTok{img_rows, img_cols }\OperatorTok{=} \DecValTok{28}\NormalTok{, }\DecValTok{28}
+\NormalTok{input_shape }\OperatorTok{=}\NormalTok{ (img_rows, img_cols, }\DecValTok{1}\NormalTok{)}
+
+\NormalTok{model }\OperatorTok{=}\NormalTok{ Sequential()}
+\NormalTok{model.add(Conv2D(}\DecValTok{32}\NormalTok{, kernel_size}\OperatorTok{=}\NormalTok{(}\DecValTok{3}\NormalTok{, }\DecValTok{3}\NormalTok{),}
+\NormalTok{                 activation}\OperatorTok{=}\StringTok{'relu'}\NormalTok{,}
+\NormalTok{                 kernel_initializer}\OperatorTok{=}\StringTok{'he_normal'}\NormalTok{,}
+\NormalTok{                 input_shape}\OperatorTok{=}\NormalTok{input_shape))}
+\NormalTok{model.add(MaxPooling2D((}\DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{)))}
+\NormalTok{model.add(Dropout(}\FloatTok{0.25}\NormalTok{))}
+\NormalTok{model.add(Conv2D(}\DecValTok{64}\NormalTok{, (}\DecValTok{3}\NormalTok{, }\DecValTok{3}\NormalTok{), activation}\OperatorTok{=}\StringTok{'relu'}\NormalTok{))}
+\NormalTok{model.add(MaxPooling2D(pool_size}\OperatorTok{=}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{)))}
+\NormalTok{model.add(Dropout(}\FloatTok{0.25}\NormalTok{))}
+\NormalTok{model.add(Conv2D(}\DecValTok{128}\NormalTok{, (}\DecValTok{3}\NormalTok{, }\DecValTok{3}\NormalTok{), activation}\OperatorTok{=}\StringTok{'relu'}\NormalTok{))}
+\NormalTok{model.add(Dropout(}\FloatTok{0.4}\NormalTok{))}
+\NormalTok{model.add(Flatten())}
+\NormalTok{model.add(Dense(}\DecValTok{128}\NormalTok{, activation}\OperatorTok{=}\StringTok{'relu'}\NormalTok{))}
+\NormalTok{model.add(Dropout(}\FloatTok{0.3}\NormalTok{))}
+\NormalTok{model.add(Dense(num_classes, activation}\OperatorTok{=}\StringTok{'softmax'}\NormalTok{))}
+
+\NormalTok{model.}\BuiltInTok{compile}\NormalTok{(loss}\OperatorTok{=}\NormalTok{losses.categorical_crossentropy,}
+\NormalTok{              optimizer}\OperatorTok{=}\NormalTok{optimizers.Adam(),}
+\NormalTok{              metrics}\OperatorTok{=}\NormalTok{[}\StringTok{'accuracy'}\NormalTok{])}
+
+\NormalTok{model.summary()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+conv2d_1 (Conv2D)            (None, 26, 26, 32)        320       
+_________________________________________________________________
+max_pooling2d_1 (MaxPooling2 (None, 13, 13, 32)        0         
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 13, 13, 32)        0         
+_________________________________________________________________
+conv2d_2 (Conv2D)            (None, 11, 11, 64)        18496     
+_________________________________________________________________
+max_pooling2d_2 (MaxPooling2 (None, 5, 5, 64)          0         
+_________________________________________________________________
+dropout_2 (Dropout)          (None, 5, 5, 64)          0         
+_________________________________________________________________
+conv2d_3 (Conv2D)            (None, 3, 3, 128)         73856     
+_________________________________________________________________
+dropout_3 (Dropout)          (None, 3, 3, 128)         0         
+_________________________________________________________________
+flatten_1 (Flatten)          (None, 1152)              0         
+_________________________________________________________________
+dense_1 (Dense)              (None, 128)               147584    
+_________________________________________________________________
+dropout_4 (Dropout)          (None, 128)               0         
+_________________________________________________________________
+dense_2 (Dense)              (None, 10)                1290      
+=================================================================
+Total params: 241,546
+Trainable params: 241,546
+Non-trainable params: 0
+_________________________________________________________________
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{history }\OperatorTok{=}\NormalTok{ model.fit(x_train, y_train,}
+\NormalTok{          batch_size}\OperatorTok{=}\NormalTok{batch_size,}
+\NormalTok{          epochs}\OperatorTok{=}\NormalTok{epochs)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Epoch 1/10
+
+
+/home/mugen/.conda/envs/cntk-py35/lib/python3.5/site-packages/cntk/core.py:361: UserWarning: your data is of type "float64", but your input variable (uid "Input170") expects "<class 'numpy.float32'>". Please convert your data beforehand to speed up training.
+  (sample.dtype, var.uid, str(var.dtype)))
+
+
+60000/60000 [==============================] - 10s - loss: 0.8519 - acc: 0.6817    
+Epoch 2/10
+60000/60000 [==============================] - 7s - loss: 0.5029 - acc: 0.8138     
+Epoch 3/10
+60000/60000 [==============================] - 7s - loss: 0.4330 - acc: 0.8406     
+Epoch 4/10
+60000/60000 [==============================] - 7s - loss: 0.3867 - acc: 0.8575     
+Epoch 5/10
+60000/60000 [==============================] - 7s - loss: 0.3595 - acc: 0.8675     
+Epoch 6/10
+60000/60000 [==============================] - 7s - loss: 0.3365 - acc: 0.8777     
+Epoch 7/10
+60000/60000 [==============================] - 7s - loss: 0.3203 - acc: 0.8822     
+Epoch 8/10
+60000/60000 [==============================] - 7s - loss: 0.3112 - acc: 0.8868     
+Epoch 9/10
+60000/60000 [==============================] - 7s - loss: 0.3001 - acc: 0.8896     
+Epoch 10/10
+60000/60000 [==============================] - 7s - loss: 0.2889 - acc: 0.8936     
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{test_val }\OperatorTok{=}\NormalTok{ model.evaluate(x_test, y_test)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+ 1312/10000 [==>...........................] - ETA: 1s
+
+/anaconda/envs/cntk-22/lib/python3.5/site-packages/cntk/core.py:361: UserWarning: your data is of type "float64", but your input variable (uid "Input170") expects "<class 'numpy.float32'>". Please convert your data beforehand to speed up training.
+  (sample.dtype, var.uid, str(var.dtype)))
+
+
+ 9856/10000 [============================>.] - ETA: 0s
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\BuiltInTok{print}\NormalTok{(}\StringTok{"Model's Accuracy on Test Set = "}
+      \OperatorTok{+} \StringTok{"}\SpecialCharTok{\{0:.2f\}}\StringTok{%"}\NormalTok{.}\BuiltInTok{format}\NormalTok{(test_val[}\DecValTok{1}\NormalTok{] }\OperatorTok{*} \DecValTok{100}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Model's Accuracy on Test Set = 90.14%
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ImportTok{import}\NormalTok{ matplotlib.pyplot }\ImportTok{as}\NormalTok{ plt}
+\OperatorTok{%}\NormalTok{matplotlib inline}
+
+\NormalTok{accuracy }\OperatorTok{=}\NormalTok{ history.history[}\StringTok{'acc'}\NormalTok{]}
+\CommentTok{# val_accuracy = history.history['val_acc']}
+\NormalTok{loss }\OperatorTok{=}\NormalTok{ history.history[}\StringTok{'loss'}\NormalTok{]}
+\CommentTok{# val_loss = history.history['val_loss']}
+\NormalTok{epochs }\OperatorTok{=} \BuiltInTok{range}\NormalTok{(}\BuiltInTok{len}\NormalTok{(accuracy))}
+\NormalTok{plt.plot(epochs, accuracy, }\StringTok{'bo'}\NormalTok{, label}\OperatorTok{=}\StringTok{'Training accuracy'}\NormalTok{)}
+\NormalTok{plt.title(}\StringTok{'Training accuracy'}\NormalTok{)}
+\NormalTok{plt.legend()}
+\NormalTok{plt.figure()}
+\NormalTok{plt.plot(epochs, loss, }\StringTok{'bo'}\NormalTok{, label}\OperatorTok{=}\StringTok{'Training loss'}\NormalTok{)}
+\NormalTok{plt.title(}\StringTok{'Training loss'}\NormalTok{)}
+\NormalTok{plt.legend()}
+\NormalTok{plt.show()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+\centering
+\includegraphics{output_10_0.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{output_10_1.png}
+\caption{png}
+\end{figure}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{test_im }\OperatorTok{=}\NormalTok{ x_train[}\DecValTok{3}\NormalTok{]}
+\NormalTok{plt.imshow(test_im.reshape(}\DecValTok{28}\NormalTok{,}\DecValTok{28}\NormalTok{), cmap}\OperatorTok{=}\StringTok{'gray'}\NormalTok{, interpolation}\OperatorTok{=}\StringTok{'none'}\NormalTok{)}
+\NormalTok{plt.show()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+\centering
+\includegraphics{output_11_0.png}
+\caption{png}
+\end{figure}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ImportTok{from}\NormalTok{ keras }\ImportTok{import}\NormalTok{ models}
+\NormalTok{layer_outputs }\OperatorTok{=}\NormalTok{ [layer.output }\ControlFlowTok{for}\NormalTok{ layer }\KeywordTok{in}\NormalTok{ model.layers[:}\DecValTok{8}\NormalTok{]]}
+\NormalTok{activation_model }\OperatorTok{=}\NormalTok{ models.Model(}\BuiltInTok{input}\OperatorTok{=}\NormalTok{model.}\BuiltInTok{input}\NormalTok{, output}\OperatorTok{=}\NormalTok{layer_outputs)}
+\NormalTok{activations }\OperatorTok{=}\NormalTok{ activation_model.predict(test_im.reshape(}\DecValTok{1}\NormalTok{,}\DecValTok{28}\NormalTok{,}\DecValTok{28}\NormalTok{,}\DecValTok{1}\NormalTok{))}
+
+\NormalTok{first_layer_activation }\OperatorTok{=}\NormalTok{ activations[}\DecValTok{0}\NormalTok{]}
+\NormalTok{plt.matshow(first_layer_activation[}\DecValTok{0}\NormalTok{, :, :, }\DecValTok{4}\NormalTok{], cmap}\OperatorTok{=}\StringTok{'gray'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+/anaconda/envs/cntk-22/lib/python3.5/site-packages/ipykernel/__main__.py:3: UserWarning: Update your `Model` call to the Keras 2 API: `Model(outputs=[Composite..., inputs=Input('con...)`
+  app.launch_new_instance()
+
+
+
+
+
+<matplotlib.image.AxesImage at 0x7f08c0f78278>
+\end{verbatim}
+
+\begin{figure}
+\centering
+\includegraphics{output_12_2.png}
+\caption{png}
+\end{figure}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{layer_names }\OperatorTok{=}\NormalTok{ []}
+\ControlFlowTok{for}\NormalTok{ layer }\KeywordTok{in}\NormalTok{ model.layers[:}\OperatorTok{-}\DecValTok{1}\NormalTok{]:}
+    \ControlFlowTok{if} \BuiltInTok{isinstance}\NormalTok{(layer, Conv2D):}
+\NormalTok{        layer_names.append(layer.name)}
+\NormalTok{images_per_row }\OperatorTok{=} \DecValTok{16}
+
+\ControlFlowTok{for}\NormalTok{ layer_name, layer_activation }\KeywordTok{in} \BuiltInTok{zip}\NormalTok{(layer_names, activations):}
+\NormalTok{    n_features }\OperatorTok{=}\NormalTok{ layer_activation.shape[}\OperatorTok{-}\DecValTok{1}\NormalTok{]}
+\NormalTok{    size }\OperatorTok{=}\NormalTok{ layer_activation.shape[}\DecValTok{1}\NormalTok{]}
+\NormalTok{    n_cols }\OperatorTok{=}\NormalTok{ n_features }\OperatorTok{/}\NormalTok{ images_per_row}
+\NormalTok{    n_cols }\OperatorTok{=} \BuiltInTok{int}\NormalTok{(n_cols)}
+\NormalTok{    display_grid }\OperatorTok{=}\NormalTok{ np.zeros((size }\OperatorTok{*}\NormalTok{ n_cols, images_per_row }\OperatorTok{*}\NormalTok{ size))}
+    \ControlFlowTok{for}\NormalTok{ col }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(n_cols):}
+        \ControlFlowTok{for}\NormalTok{ row }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(images_per_row):}
+\NormalTok{            channel_image }\OperatorTok{=}\NormalTok{ layer_activation[}\DecValTok{0}\NormalTok{,:, :, col }\OperatorTok{*}\NormalTok{ images_per_row }\OperatorTok{+}\NormalTok{ row]}
+\NormalTok{            channel_image }\OperatorTok{-=}\NormalTok{ channel_image.mean()}
+\NormalTok{            channel_image }\OperatorTok{/=}\NormalTok{ channel_image.std()}
+\NormalTok{            channel_image }\OperatorTok{*=} \DecValTok{64}
+\NormalTok{            channel_image }\OperatorTok{+=} \DecValTok{128}
+\NormalTok{            channel_image }\OperatorTok{=}\NormalTok{ np.clip(channel_image, }\DecValTok{0}\NormalTok{, }\DecValTok{255}\NormalTok{).astype(}\StringTok{'uint8'}\NormalTok{)}
+\NormalTok{            display_grid[col }\OperatorTok{*}\NormalTok{ size : (col }\OperatorTok{+} \DecValTok{1}\NormalTok{) }\OperatorTok{*}\NormalTok{ size,}
+\NormalTok{                         row }\OperatorTok{*}\NormalTok{ size : (row }\OperatorTok{+} \DecValTok{1}\NormalTok{) }\OperatorTok{*}\NormalTok{ size] }\OperatorTok{=}\NormalTok{ channel_image}
+\NormalTok{    scale }\OperatorTok{=} \DecValTok{1}\NormalTok{. }\OperatorTok{/}\NormalTok{ size}
+\NormalTok{    plt.figure(figsize}\OperatorTok{=}\NormalTok{(scale }\OperatorTok{*}\NormalTok{ display_grid.shape[}\DecValTok{1}\NormalTok{],}
+\NormalTok{                        scale }\OperatorTok{*}\NormalTok{ display_grid.shape[}\DecValTok{0}\NormalTok{]))}
+\NormalTok{    plt.title(layer_name)}
+\NormalTok{    plt.grid(}\VariableTok{False}\NormalTok{)}
+\NormalTok{    plt.imshow(display_grid, aspect}\OperatorTok{=}\StringTok{'auto'}\NormalTok{, cmap}\OperatorTok{=}\StringTok{'bone'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+\centering
+\includegraphics{output_13_0.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{output_13_1.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{output_13_2.png}
+\caption{png}
+\end{figure}
+
+\chapter{Neural Style Transfer}\label{neural-style-transfer}
+
+This tutorial shows how to transfer the style / texture of one image to
+another. This allows us to take our ordinary photos and render them in
+the style of famous images or paintings.
+
+Apart from creating nice looking pictures, in this tutorial you will
+learn how to load a pretrained
+\href{https://arxiv.org/abs/1409.1556}{VGG model} into CNTK, how to get
+the gradient of a function with respect to an input variable (rather
+than a parameter), and how to use the gradient outside of CNTK.
+
+We will follow the approach of
+\href{https://arxiv.org/abs/1508.06576}{Gatys et. al.} with some of the
+improvements in \href{https://arxiv.org/abs/1605.04603}{Novak and
+Nikulin}. While \href{https://arxiv.org/abs/1603.08155}{faster
+techniques} exist, these are limited to transfering a particular style.
+
+We begin by importing the necessary packages. In addition to the usual
+suspects (\texttt{numpy}, \texttt{scipy}, and \texttt{cntk}) we will
+need \texttt{PIL} to work with images, \texttt{requests} to download a
+pretrained model and \texttt{h5py} to read in the weights of the
+pretrained model.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ImportTok{from}\NormalTok{ __future__ }\ImportTok{import}\NormalTok{ print_function}
+\ImportTok{import}\NormalTok{ numpy }\ImportTok{as}\NormalTok{ np}
+\ImportTok{from}\NormalTok{ scipy }\ImportTok{import}\NormalTok{ optimize }\ImportTok{as}\NormalTok{ opt}
+\ImportTok{import}\NormalTok{ cntk }\ImportTok{as}\NormalTok{ C}
+\ImportTok{from}\NormalTok{ PIL }\ImportTok{import}\NormalTok{ Image}
+\ImportTok{import}\NormalTok{ requests}
+\ImportTok{import}\NormalTok{ h5py}
+\ImportTok{import}\NormalTok{ os}
+\OperatorTok{%}\NormalTok{matplotlib inline}
+\ImportTok{import}\NormalTok{ matplotlib.pyplot }\ImportTok{as}\NormalTok{ plt}
+\CommentTok{# Select the right target device when this notebook is being tested:}
+\ControlFlowTok{if} \StringTok{'TEST_DEVICE'} \KeywordTok{in}\NormalTok{ os.environ:}
+    \ControlFlowTok{if}\NormalTok{ os.environ[}\StringTok{'TEST_DEVICE'}\NormalTok{] }\OperatorTok{==} \StringTok{'cpu'}\NormalTok{:}
+\NormalTok{        C.device.try_set_default_device(C.device.cpu())}
+    \ControlFlowTok{else}\NormalTok{:}
+\NormalTok{        C.device.try_set_default_device(C.device.gpu(}\DecValTok{0}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+The pretrained model is a VGG network which we originally got from
+\href{https://gist.github.com/baraldilorenzo/07d7802847aaad0a35d3}{this
+page}. We host it in a place which permits easy downloading. Below we
+download it if it is not already available locally and load the weights
+into numpy arrays.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ download(url, filename):}
+\NormalTok{    response }\OperatorTok{=}\NormalTok{ requests.get(url, stream}\OperatorTok{=}\VariableTok{True}\NormalTok{)}
+    \ControlFlowTok{with} \BuiltInTok{open}\NormalTok{(filename, }\StringTok{'wb'}\NormalTok{) }\ImportTok{as}\NormalTok{ handle:}
+        \ControlFlowTok{for}\NormalTok{ data }\KeywordTok{in}\NormalTok{ response.iter_content(chunk_size}\OperatorTok{=}\DecValTok{2}\OperatorTok{**}\DecValTok{20}\NormalTok{):}
+            \ControlFlowTok{if}\NormalTok{ data: handle.write(data)}
+
+
+\KeywordTok{def}\NormalTok{ load_vgg(path):}
+\NormalTok{    f }\OperatorTok{=}\NormalTok{ h5py.File(path)}
+\NormalTok{    layers }\OperatorTok{=}\NormalTok{ []}
+    \ControlFlowTok{for}\NormalTok{ k }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(f.attrs[}\StringTok{'nb_layers'}\NormalTok{]):}
+\NormalTok{        g }\OperatorTok{=}\NormalTok{ f[}\StringTok{'layer_}\SpecialCharTok{\{\}}\StringTok{'}\NormalTok{.}\BuiltInTok{format}\NormalTok{(k)]}
+\NormalTok{        n }\OperatorTok{=}\NormalTok{ g.attrs[}\StringTok{'nb_params'}\NormalTok{]}
+\NormalTok{        layers.append([g[}\StringTok{'param_}\SpecialCharTok{\{\}}\StringTok{'}\NormalTok{.}\BuiltInTok{format}\NormalTok{(p)][:] }\ControlFlowTok{for}\NormalTok{ p }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(n)])}
+\NormalTok{    f.close()}
+    \ControlFlowTok{return}\NormalTok{ layers}
+
+\CommentTok{# Check for an environment variable defined in CNTK's test infrastructure}
+\NormalTok{envvar }\OperatorTok{=} \StringTok{'CNTK_EXTERNAL_TESTDATA_SOURCE_DIRECTORY'}
+\KeywordTok{def}\NormalTok{ is_test(): }\ControlFlowTok{return}\NormalTok{ envvar }\KeywordTok{in}\NormalTok{ os.environ}
+
+\NormalTok{path }\OperatorTok{=} \StringTok{'vgg16_weights.bin'}
+\NormalTok{url }\OperatorTok{=} \StringTok{'https://cntk.ai/jup/models/vgg16_weights.bin'}
+\CommentTok{# We check for the model locally}
+\ControlFlowTok{if} \KeywordTok{not}\NormalTok{ os.path.exists(path):}
+    \CommentTok{# If not there we might be running in CNTK's test infrastructure}
+    \ControlFlowTok{if}\NormalTok{ is_test():}
+\NormalTok{        path }\OperatorTok{=}\NormalTok{ os.path.join(os.environ[envvar],}\StringTok{'PreTrainedModels'}\NormalTok{,}\StringTok{'Vgg16'}\NormalTok{,}\StringTok{'v0'}\NormalTok{,path)}
+    \ControlFlowTok{else}\NormalTok{:}
+        \CommentTok{#If neither is true we download the file from the web}
+        \BuiltInTok{print}\NormalTok{(}\StringTok{'downloading VGG model (~0.5GB)'}\NormalTok{)}
+\NormalTok{        download(url, path)}
+\NormalTok{layers }\OperatorTok{=}\NormalTok{ load_vgg(path)}
+\BuiltInTok{print}\NormalTok{(}\StringTok{'loaded VGG model'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+downloading VGG model (~0.5GB)
+loaded VGG model
+\end{verbatim}
+
+Next we define the VGG network as a CNTK graph.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# A convolutional layer in the VGG network}
+\KeywordTok{def}\NormalTok{ vggblock(x, arrays, layer_map, name):}
+\NormalTok{    f }\OperatorTok{=}\NormalTok{ arrays[}\DecValTok{0}\NormalTok{]}
+\NormalTok{    b }\OperatorTok{=}\NormalTok{ arrays[}\DecValTok{1}\NormalTok{]}
+\NormalTok{    k }\OperatorTok{=}\NormalTok{ C.constant(value}\OperatorTok{=}\NormalTok{f)}
+\NormalTok{    t }\OperatorTok{=}\NormalTok{ C.constant(value}\OperatorTok{=}\NormalTok{np.reshape(b, (}\OperatorTok{-}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{)))}
+\NormalTok{    y }\OperatorTok{=}\NormalTok{ C.relu(C.convolution(k, x, auto_padding}\OperatorTok{=}\NormalTok{[}\VariableTok{False}\NormalTok{, }\VariableTok{True}\NormalTok{, }\VariableTok{True}\NormalTok{]) }\OperatorTok{+}\NormalTok{ t)}
+\NormalTok{    layer_map[name] }\OperatorTok{=}\NormalTok{ y}
+    \ControlFlowTok{return}\NormalTok{ y}
+
+\CommentTok{# A pooling layer in the VGG network}
+\KeywordTok{def}\NormalTok{ vggpool(x):}
+    \ControlFlowTok{return}\NormalTok{ C.pooling(x, C.AVG_POOLING, (}\DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{), (}\DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{))}
+
+
+\CommentTok{# Build the graph for the VGG network (excluding fully connected layers)}
+\KeywordTok{def}\NormalTok{ model(x, layers):}
+\NormalTok{    model_layers }\OperatorTok{=}\NormalTok{ \{\}}
+    \KeywordTok{def}\NormalTok{ convolutional(z): }\ControlFlowTok{return} \BuiltInTok{len}\NormalTok{(z) }\OperatorTok{==} \DecValTok{2} \KeywordTok{and} \BuiltInTok{len}\NormalTok{(z[}\DecValTok{0}\NormalTok{].shape) }\OperatorTok{==} \DecValTok{4}
+\NormalTok{    conv }\OperatorTok{=}\NormalTok{ [layer }\ControlFlowTok{for}\NormalTok{ layer }\KeywordTok{in}\NormalTok{ layers }\ControlFlowTok{if}\NormalTok{ convolutional(layer)]}
+\NormalTok{    cnt }\OperatorTok{=} \DecValTok{0}
+\NormalTok{    num_convs }\OperatorTok{=}\NormalTok{ \{}\DecValTok{1}\NormalTok{: }\DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{: }\DecValTok{2}\NormalTok{, }\DecValTok{3}\NormalTok{: }\DecValTok{3}\NormalTok{, }\DecValTok{4}\NormalTok{: }\DecValTok{3}\NormalTok{, }\DecValTok{5}\NormalTok{: }\DecValTok{3}\NormalTok{\}}
+    \ControlFlowTok{for}\NormalTok{ outer }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{6}\NormalTok{):}
+        \ControlFlowTok{for}\NormalTok{ inner }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(num_convs[outer]):}
+\NormalTok{            x }\OperatorTok{=}\NormalTok{ vggblock(x, conv[cnt], model_layers, }\StringTok{'conv}\SpecialCharTok{%d}\StringTok{_}\SpecialCharTok{%d}\StringTok{'} \OperatorTok{%}\NormalTok{ (outer, }\DecValTok{1}\OperatorTok{+}\NormalTok{inner))}
+\NormalTok{            cnt }\OperatorTok{+=} \DecValTok{1}
+\NormalTok{        x }\OperatorTok{=}\NormalTok{ vggpool(x)}
+    
+    \ControlFlowTok{return}\NormalTok{ x, C.combine([model_layers[k] }\ControlFlowTok{for}\NormalTok{ k }\KeywordTok{in} \BuiltInTok{sorted}\NormalTok{(model_layers.keys())])}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Defining the loss
+function}\label{defining-the-loss-function}
+
+The interesting part in this line of work is the definition of a loss
+function that, when optimized, leads to a result that is close to both
+the content of one image, as well as the style of the other image. This
+loss contains multiple terms some of which are defined in terms of the
+VGG network we just created. Concretely, the loss takes a candidate
+image \(x\) and takes a weighted sum of three terms: the content loss,
+the style loss and the total variation loss: \[
+L(x) = \alpha C(x) + \beta S(x) + T(x)
+\] where \(\alpha\) and \(\beta\) are weights on the content loss and
+the style loss, respectively. We have normalized the weights so that the
+weight in front of the total variation loss is 1. How are each of these
+terms computed?
+
+\begin{itemize}
+\tightlist
+\item
+  The
+  \href{https://en.wikipedia.org/wiki/Total_variation_denoising}{total
+  variation loss} \(T(x)\) is the simplest one to understand: It
+  measures the average sum of squared differences among adjacent pixel
+  values and encourages the result \(x\) to be a smooth image. We
+  implement this by convolving the image with a kernel containing (-1,1)
+  both horizontally and vertically, squaring the results and computing
+  their average.
+\item
+  The content loss is measuring the squared difference between the
+  content image and \(x\). We can measure this difference on the raw
+  pixels or at various layers inside the VGG network. While we write the
+  content loss as \(C(x)\) it implicitly depends on the content image we
+  provide. However since that image is fixed we do not write this
+  dependence explicitly.
+\item
+  The style loss \(S(x)\) is similar to the content loss in that it also
+  implicitly depends on another image. The main idea of Gatys et. al.
+  was to define the style as the correlations among the activations of
+  the network and measure the style loss as the squared difference
+  between these correlations. In particular for a particular layer we
+  compute a covariance matrix among the output channels averaging across
+  all positions. The style loss is just the squared error between the
+  covariance matrix induced by the style image and the covariance matrix
+  induced by \(x\). We are deliberately vague here as to which layer of
+  the network is used for creating the covariance loss. Different
+  implementations do this differently and below we will use a weighted
+  sum of all the style losses of all layers.
+\end{itemize}
+
+Below we define these loss functions:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ flatten(x):}
+    \ControlFlowTok{assert} \BuiltInTok{len}\NormalTok{(x.shape) }\OperatorTok{>=} \DecValTok{3}
+    \ControlFlowTok{return}\NormalTok{ C.reshape(x, (x.shape[}\OperatorTok{-}\DecValTok{3}\NormalTok{], x.shape[}\OperatorTok{-}\DecValTok{2}\NormalTok{] }\OperatorTok{*}\NormalTok{ x.shape[}\OperatorTok{-}\DecValTok{1}\NormalTok{]))}
+
+
+\KeywordTok{def}\NormalTok{ gram(x):}
+\NormalTok{    features }\OperatorTok{=}\NormalTok{ C.minus(flatten(x), C.reduce_mean(x))}
+    \ControlFlowTok{return}\NormalTok{ C.times_transpose(features, features)}
+
+
+\KeywordTok{def}\NormalTok{ npgram(x):}
+\NormalTok{    features }\OperatorTok{=}\NormalTok{ np.reshape(x, (}\OperatorTok{-}\DecValTok{1}\NormalTok{, x.shape[}\OperatorTok{-}\DecValTok{2}\NormalTok{]}\OperatorTok{*}\NormalTok{x.shape[}\OperatorTok{-}\DecValTok{1}\NormalTok{])) }\OperatorTok{-}\NormalTok{ np.mean(x)}
+    \ControlFlowTok{return}\NormalTok{ features.dot(features.T)}
+
+
+\KeywordTok{def}\NormalTok{ style_loss(a, b):}
+\NormalTok{    channels, x, y }\OperatorTok{=}\NormalTok{ a.shape}
+    \ControlFlowTok{assert}\NormalTok{ x }\OperatorTok{==}\NormalTok{ y}
+\NormalTok{    A }\OperatorTok{=}\NormalTok{ gram(a)}
+\NormalTok{    B }\OperatorTok{=}\NormalTok{ npgram(b)}
+    \ControlFlowTok{return}\NormalTok{ C.squared_error(A, B)}\OperatorTok{/}\NormalTok{(channels}\OperatorTok{**}\DecValTok{2} \OperatorTok{*}\NormalTok{ x}\OperatorTok{**}\DecValTok{4}\NormalTok{)}
+
+
+\KeywordTok{def}\NormalTok{ content_loss(a,b):}
+\NormalTok{    channels, x, y }\OperatorTok{=}\NormalTok{ a.shape}
+    \ControlFlowTok{return}\NormalTok{ C.squared_error(a, b)}\OperatorTok{/}\NormalTok{(channels}\OperatorTok{*}\NormalTok{x}\OperatorTok{*}\NormalTok{y)}
+
+
+\KeywordTok{def}\NormalTok{ total_variation_loss(x):}
+\NormalTok{    xx }\OperatorTok{=}\NormalTok{ C.reshape(x, (}\DecValTok{1}\NormalTok{,)}\OperatorTok{+}\NormalTok{x.shape)}
+\NormalTok{    delta }\OperatorTok{=}\NormalTok{ np.array([}\OperatorTok{-}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{], dtype}\OperatorTok{=}\NormalTok{np.float32)}
+\NormalTok{    kh }\OperatorTok{=}\NormalTok{ C.constant(value}\OperatorTok{=}\NormalTok{delta.reshape(}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{))}
+\NormalTok{    kv }\OperatorTok{=}\NormalTok{ C.constant(value}\OperatorTok{=}\NormalTok{delta.reshape(}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{1}\NormalTok{))}
+\NormalTok{    dh }\OperatorTok{=}\NormalTok{ C.convolution(kh, xx, auto_padding}\OperatorTok{=}\NormalTok{[}\VariableTok{False}\NormalTok{])}
+\NormalTok{    dv }\OperatorTok{=}\NormalTok{ C.convolution(kv, xx, auto_padding}\OperatorTok{=}\NormalTok{[}\VariableTok{False}\NormalTok{])}
+\NormalTok{    avg }\OperatorTok{=} \FloatTok{0.5} \OperatorTok{*}\NormalTok{ (C.reduce_mean(C.square(dv)) }\OperatorTok{+}\NormalTok{ C.reduce_mean(C.square(dh)))}
+    \ControlFlowTok{return}\NormalTok{ avg}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Instantiating the loss}\label{instantiating-the-loss}
+
+Now we are ready to instantiate a loss with two particular images. We
+will use an image of Portland's landscape and
+\href{https://en.wikipedia.org/wiki/The_Starry_Night}{The Starry Night}
+by Vincent van Gogh. We first define a few tuning parameters whose
+explanation is below: - Depending on whether the code runs on a GPU or a
+CPU we resize the images to 300 x 300 or 64 x 64 respectively and adjust
+the number of iterations of optimization to speed up the process and for
+ease of experimentation. You can use a larger size if you like the
+results. If you only have a CPU you will have to wait a while. - The
+content weight and style weight are the main parameters that affect the
+quality of the resulting image. - The decay factor is a number in (0,1)
+which decides how to weigh the contribution of each layer. Following
+\href{https://arxiv.org/abs/1605.04603}{Novak and Nikulin}, all layers
+contribute to both the content loss and the style loss. The content loss
+weighs the input more heavily and each later layer in the VGG network
+contributes with a weight that is exponentially smaller with its
+distance from the input. The style loss weighs the output of the VGG
+network more heavily and each earlier layer in the VGG network
+contributes with a weight that is exponentially smaller with its
+distance from the output. As in Novak and Nikulin we use a decay factor
+of 0.5. - The inner and outer parameters define how we are going to
+obtain our final result. We will take \texttt{outer} snapshots during
+our search for the image that minimizes the loss. Each snapshot will be
+taken after \texttt{inner} steps of optimization. - Finally, a very
+important thing to know about our pretrained network is how it was
+trained. In particular, a constant vector was subtracted from all input
+images that contained the average value for the red, green, and blue
+channels in the training set. This makes the inputs zero centered which
+helps the training procedure. If we do not subtract this vector our
+images will not look like the training images and this will lead to bad
+results. This vector is referred to as SHIFT below.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{style_path }\OperatorTok{=} \StringTok{'style.jpg'}
+\NormalTok{content_path }\OperatorTok{=} \StringTok{'azthinksR.jpg'}
+
+\NormalTok{start_from_random }\OperatorTok{=} \VariableTok{False}
+\NormalTok{content_weight }\OperatorTok{=} \FloatTok{5.0}
+\NormalTok{style_weight }\OperatorTok{=} \FloatTok{1.0}
+\NormalTok{decay }\OperatorTok{=} \FloatTok{0.5}
+
+\ControlFlowTok{if}\NormalTok{ is_test():}
+\NormalTok{    outer }\OperatorTok{=} \DecValTok{2}
+\NormalTok{    inner }\OperatorTok{=} \DecValTok{2}
+\NormalTok{    SIZE }\OperatorTok{=} \DecValTok{64}
+\ControlFlowTok{else}\NormalTok{:}
+\NormalTok{    outer }\OperatorTok{=} \DecValTok{10}
+\NormalTok{    inner }\OperatorTok{=} \DecValTok{20}
+\NormalTok{    SIZE }\OperatorTok{=} \DecValTok{300}
+
+\NormalTok{SHIFT }\OperatorTok{=}\NormalTok{ np.reshape([}\FloatTok{103.939}\NormalTok{, }\FloatTok{116.779}\NormalTok{, }\FloatTok{123.68}\NormalTok{], (}\DecValTok{3}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{)).astype(}\StringTok{'f'}\NormalTok{)}
+
+\KeywordTok{def}\NormalTok{ load_image(path):}
+    \ControlFlowTok{with}\NormalTok{ Image.}\BuiltInTok{open}\NormalTok{(path) }\ImportTok{as}\NormalTok{ pic:}
+\NormalTok{        hw }\OperatorTok{=}\NormalTok{ pic.size[}\DecValTok{0}\NormalTok{] }\OperatorTok{/} \DecValTok{2}
+\NormalTok{        hh }\OperatorTok{=}\NormalTok{ pic.size[}\DecValTok{1}\NormalTok{] }\OperatorTok{/} \DecValTok{2}
+\NormalTok{        mh }\OperatorTok{=} \BuiltInTok{min}\NormalTok{(hw,hh)}
+\NormalTok{        cropped }\OperatorTok{=}\NormalTok{ pic.crop((hw }\OperatorTok{-}\NormalTok{ mh, hh }\OperatorTok{-}\NormalTok{ mh, hw }\OperatorTok{+}\NormalTok{ mh, hh }\OperatorTok{+}\NormalTok{ mh))}
+\NormalTok{        array }\OperatorTok{=}\NormalTok{ np.array(cropped.resize((SIZE,SIZE), Image.BICUBIC), dtype}\OperatorTok{=}\NormalTok{np.float32)}
+        \ControlFlowTok{return}\NormalTok{ np.ascontiguousarray(np.transpose(array, (}\DecValTok{2}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{)))}\OperatorTok{-}\NormalTok{SHIFT}
+
+\KeywordTok{def}\NormalTok{ save_image(img, path):}
+\NormalTok{    sanitized_img }\OperatorTok{=}\NormalTok{ np.maximum(}\DecValTok{0}\NormalTok{, np.minimum(}\DecValTok{255}\NormalTok{, img}\OperatorTok{+}\NormalTok{SHIFT))}
+\NormalTok{    pic }\OperatorTok{=}\NormalTok{ Image.fromarray(np.uint8(np.transpose(sanitized_img, (}\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{0}\NormalTok{))))}
+\NormalTok{    pic.save(path)}
+
+\KeywordTok{def}\NormalTok{ ordered_outputs(f, binding):}
+\NormalTok{    _, output_dict }\OperatorTok{=}\NormalTok{ f.forward(binding, f.outputs)}
+    \ControlFlowTok{return}\NormalTok{ [np.squeeze(output_dict[out]) }\ControlFlowTok{for}\NormalTok{ out }\KeywordTok{in}\NormalTok{ f.outputs]}
+
+\CommentTok{# download the images if they are not available locally}
+\ControlFlowTok{for}\NormalTok{ local_path }\KeywordTok{in}\NormalTok{ content_path, style_path:}
+    \ControlFlowTok{if} \KeywordTok{not}\NormalTok{ os.path.exists(local_path):}
+\NormalTok{        download(}\StringTok{'https://cntk.ai/jup/}\SpecialCharTok{%s}\StringTok{'} \OperatorTok{%}\NormalTok{ local_path, local_path)}
+
+\CommentTok{# Load the images}
+\NormalTok{style   }\OperatorTok{=}\NormalTok{ load_image(style_path)}
+\NormalTok{content }\OperatorTok{=}\NormalTok{ load_image(content_path)}
+
+\CommentTok{# Display the images}
+\ControlFlowTok{for}\NormalTok{ img }\KeywordTok{in}\NormalTok{ content, style:}
+\NormalTok{    plt.figure()}
+\NormalTok{    plt.imshow(np.asarray(np.transpose(img}\OperatorTok{+}\NormalTok{SHIFT, (}\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{0}\NormalTok{)), dtype}\OperatorTok{=}\NormalTok{np.uint8))}
+
+\CommentTok{# Push the images through the VGG network }
+\CommentTok{# First define the input and the output}
+\NormalTok{y }\OperatorTok{=}\NormalTok{ C.input_variable((}\DecValTok{3}\NormalTok{, SIZE, SIZE), needs_gradient}\OperatorTok{=}\VariableTok{True}\NormalTok{)}
+\NormalTok{z, intermediate_layers }\OperatorTok{=}\NormalTok{ model(y, layers)}
+\CommentTok{# Now get the activations for the two images}
+\NormalTok{content_activations }\OperatorTok{=}\NormalTok{ ordered_outputs(intermediate_layers, \{y: [[content]]\})}
+\NormalTok{style_activations }\OperatorTok{=}\NormalTok{ ordered_outputs(intermediate_layers, \{y: [[style]]\})}
+\NormalTok{style_output }\OperatorTok{=}\NormalTok{ np.squeeze(z.}\BuiltInTok{eval}\NormalTok{(\{y: [[style]]\}))}
+
+\CommentTok{# Finally define the loss}
+\NormalTok{n }\OperatorTok{=} \BuiltInTok{len}\NormalTok{(content_activations)}
+\NormalTok{total }\OperatorTok{=}\NormalTok{ (}\DecValTok{1}\OperatorTok{-}\NormalTok{decay}\OperatorTok{**}\NormalTok{(n}\OperatorTok{+}\DecValTok{1}\NormalTok{))}\OperatorTok{/}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{decay) }\CommentTok{# makes sure that changing the decay does not affect the magnitude of content/style}
+\NormalTok{loss }\OperatorTok{=}\NormalTok{ (}\FloatTok{1.0}\OperatorTok{/}\NormalTok{total }\OperatorTok{*}\NormalTok{ content_weight }\OperatorTok{*}\NormalTok{ content_loss(y, content) }
+         \OperatorTok{+} \FloatTok{1.0}\OperatorTok{/}\NormalTok{total }\OperatorTok{*}\NormalTok{ style_weight }\OperatorTok{*}\NormalTok{ style_loss(z, style_output) }
+         \OperatorTok{+}\NormalTok{ total_variation_loss(y))}
+
+\ControlFlowTok{for}\NormalTok{ i }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(n):}
+\NormalTok{    loss }\OperatorTok{=}\NormalTok{ (loss }
+        \OperatorTok{+}\NormalTok{ decay}\OperatorTok{**}\NormalTok{(i}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{/}\NormalTok{total }\OperatorTok{*}\NormalTok{ content_weight }\OperatorTok{*}\NormalTok{ content_loss(intermediate_layers.outputs[i], content_activations[i])}
+        \OperatorTok{+}\NormalTok{ decay}\OperatorTok{**}\NormalTok{(n}\OperatorTok{-}\NormalTok{i)}\OperatorTok{/}\NormalTok{total }\OperatorTok{*}\NormalTok{ style_weight   }\OperatorTok{*}\NormalTok{   style_loss(intermediate_layers.outputs[i], style_activations[i]))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+\centering
+\includegraphics{output_9_0.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{output_9_1.png}
+\caption{png}
+\end{figure}
+
+\subsection{Optimizing the loss}\label{optimizing-the-loss}
+
+Now we are finally ready to find the image that minimizes the loss we
+defined. We will use the optimization package in scipy and in particular
+the LBFGS method. LBFGS is a great optimization procedure which is very
+popular when computing the full gradient is feasible as is the case
+here.
+
+Notice that we are computing the gradient with respect to the input.
+This is quite different from most other use cases where we compute the
+gradient with respect to the network parameters. By default, input
+variables do not ask for gradients, however we defined our input
+variable as
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{y }\OperatorTok{=}\NormalTok{ C.input_variable((}\DecValTok{3}\NormalTok{, SIZE, SIZE), needs_gradient}\OperatorTok{=}\VariableTok{True}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+which means that CNTK will compute the gradient with respect to this
+input variable as well.
+
+The rest of the code is straightforward and most of the complexity comes
+from interacting with the scipy optimization package: - The optimizer
+works only with vectors of double precision so img2vec takes a
+(3,SIZE,SIZE) image and converts it to a vector of doubles - CNTK needs
+the input as an image but scipy is calling us back with a vector - CNTK
+computes a gradient as an image but scipy wants the gradient as a vector
+
+Besides these complexities we just start from the content image (or a
+random image), perform our optimization and display the final result.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# utility to convert a vector to an image}
+\KeywordTok{def}\NormalTok{ vec2img(x):}
+\NormalTok{    d }\OperatorTok{=}\NormalTok{ np.}\BuiltInTok{round}\NormalTok{(np.sqrt(x.size }\OperatorTok{/} \DecValTok{3}\NormalTok{)).astype(}\StringTok{'i'}\NormalTok{)}
+    \ControlFlowTok{return}\NormalTok{ np.reshape(x.astype(np.float32), (}\DecValTok{3}\NormalTok{, d, d))}
+
+\CommentTok{# utility to convert an image to a vector}
+\KeywordTok{def}\NormalTok{ img2vec(img):}
+    \ControlFlowTok{return}\NormalTok{ img.flatten().astype(np.float64)}
+
+\CommentTok{# utility to compute the value and the gradient of f at a particular place defined by binding}
+\KeywordTok{def}\NormalTok{ value_and_grads(f, binding):}
+    \ControlFlowTok{if} \BuiltInTok{len}\NormalTok{(f.outputs) }\OperatorTok{!=} \DecValTok{1}\NormalTok{:}
+        \ControlFlowTok{raise} \PreprocessorTok{ValueError}\NormalTok{(}\StringTok{'function must return a single tensor'}\NormalTok{)}
+\NormalTok{    df, valdict }\OperatorTok{=}\NormalTok{ f.forward(binding, [f.output], }\BuiltInTok{set}\NormalTok{([f.output]))}
+\NormalTok{    value }\OperatorTok{=} \BuiltInTok{list}\NormalTok{(valdict.values())[}\DecValTok{0}\NormalTok{]}
+\NormalTok{    grads }\OperatorTok{=}\NormalTok{ f.backward(df, \{f.output: np.ones_like(value)\}, }\BuiltInTok{set}\NormalTok{(binding.keys()))}
+    \ControlFlowTok{return}\NormalTok{ value, grads}
+
+\CommentTok{# an objective function that scipy will be happy with}
+\KeywordTok{def}\NormalTok{ objfun(x, loss):}
+\NormalTok{    y }\OperatorTok{=}\NormalTok{ vec2img(x)}
+\NormalTok{    v, g }\OperatorTok{=}\NormalTok{ value_and_grads(loss, \{loss.arguments[}\DecValTok{0}\NormalTok{]: [[y]]\})}
+\NormalTok{    v }\OperatorTok{=}\NormalTok{ np.reshape(v, (}\DecValTok{1}\NormalTok{,))}
+\NormalTok{    g }\OperatorTok{=}\NormalTok{ img2vec(}\BuiltInTok{list}\NormalTok{(g.values())[}\DecValTok{0}\NormalTok{])}
+    \ControlFlowTok{return}\NormalTok{ v, g}
+
+\CommentTok{# the actual optimization procedure}
+\KeywordTok{def}\NormalTok{ optimize(loss, x0, inner, outer):}
+\NormalTok{    bounds }\OperatorTok{=}\NormalTok{ [(}\OperatorTok{-}\NormalTok{np.}\BuiltInTok{min}\NormalTok{(SHIFT), }\DecValTok{255}\OperatorTok{-}\NormalTok{np.}\BuiltInTok{max}\NormalTok{(SHIFT))]}\OperatorTok{*}\NormalTok{x0.size}
+    \ControlFlowTok{for}\NormalTok{ i }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(outer):}
+\NormalTok{        s }\OperatorTok{=}\NormalTok{ opt.minimize(objfun, img2vec(x0), args}\OperatorTok{=}\NormalTok{(loss,), method}\OperatorTok{=}\StringTok{'L-BFGS-B'}\NormalTok{, }
+\NormalTok{                         bounds}\OperatorTok{=}\NormalTok{bounds, options}\OperatorTok{=}\NormalTok{\{}\StringTok{'maxiter'}\NormalTok{: inner\}, jac}\OperatorTok{=}\VariableTok{True}\NormalTok{)}
+        \BuiltInTok{print}\NormalTok{(}\StringTok{'objective : }\SpecialCharTok{%s}\StringTok{'} \OperatorTok{%}\NormalTok{ s.fun[}\DecValTok{0}\NormalTok{])}
+\NormalTok{        x0 }\OperatorTok{=}\NormalTok{ vec2img(s.x)}
+\NormalTok{        path }\OperatorTok{=} \StringTok{'output_}\SpecialCharTok{%d}\StringTok{.jpg'} \OperatorTok{%}\NormalTok{ i}
+\NormalTok{        save_image(x0, path)}
+    \ControlFlowTok{return}\NormalTok{ x0}
+
+\NormalTok{np.random.seed(}\DecValTok{98052}\NormalTok{)}
+\ControlFlowTok{if}\NormalTok{ start_from_random:}
+\NormalTok{    x0 }\OperatorTok{=}\NormalTok{ np.random.randn(}\DecValTok{3}\NormalTok{, SIZE, SIZE).astype(np.float32)}
+\ControlFlowTok{else}\NormalTok{:}
+\NormalTok{    x0 }\OperatorTok{=}\NormalTok{ content}
+\NormalTok{xstar }\OperatorTok{=}\NormalTok{ optimize(loss, x0, inner, outer)}
+\NormalTok{plt.imshow(np.asarray(np.transpose(xstar}\OperatorTok{+}\NormalTok{SHIFT, (}\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{0}\NormalTok{)), dtype}\OperatorTok{=}\NormalTok{np.uint8))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+objective : 70194.4
+objective : 60445.3
+objective : 57855.2
+objective : 56728.0
+objective : 56166.7
+objective : 55840.4
+objective : 55627.4
+objective : 55493.8
+objective : 55395.1
+objective : 55325.0
+
+
+
+
+
+<matplotlib.image.AxesImage at 0x7fe962aa0e10>
+\end{verbatim}
+
+\begin{figure}
+\centering
+\includegraphics{output_11_2.png}
+\caption{png}
+\end{figure}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# For testing purposes}
+\NormalTok{objfun(xstar, loss)[}\DecValTok{0}\NormalTok{][}\DecValTok{0}\NormalTok{]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+55325.039
+\end{verbatim}
+
 \bibliography{book.bib}
 
 

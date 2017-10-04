@@ -1,11 +1,45 @@
 Upgrading CNTK and CUDNN
 =========================
 
-In this lab, we'll upgrade from CNTK version 2.0 to CNTK 2.1.
+In this lab, we'll upgrade from CNTK version 2.0 to CNTK 2.2.
 
 ## Updating CNTK
 
 CNTK is available in a variety of [precompiled binaries](https://docs.microsoft.com/en-us/cognitive-toolkit/setup-cntk-on-your-machine), which you can install using the `pip` installer. 
+
+## Updating CNTK With a Single Script
+
+I've created a single script to make the upgrade process a lot simper:
+
+```bash
+./cntk-install.sh
+```
+
+This will create a new `conda environment` called `cntk-py35` with your new CNTK installation.
+
+### Launch JupyterLab
+
+JupyterLab is an updated environment based on Jupyter. In addition to the notebooks popularized by Jupyter, JupyterLab has an inspector for viewing help files quickly, a terminal, and a file browser. This makes for a more complete interactive development experience!
+
+To launch JupyterLab and keep it running, I recommend first creating a password you can use to log into your server without having to use special tokens (see the documentation [here](http://nbconvert.readthedocs.io/en/latest/usage.html). Moreover, since we want to keep JupyterLab running in the background even after we close out our terminal session, I'd recommend using [tmux](https://github.com/tmux/tmux/wiki) to launch your Jupyter session.
+
+
+```bash
+
+tmux new -s jupyterlab
+jupyter notebook --generate-config
+jupyter notebook password
+jupyter lab --ip="*" 
+tmux detach
+jupyter notebook list
+```
+
+
+Now navigate to your <DNS-Name>:8888 to interact with JupyterLab!
+
+## Manually Updating CNTK and Launching Jupyter (**No Need to Do This if You Use the Script**)
+
+Only follow the steps below if the script above didn't work or if you like doing this manually...
 
 ### Create Conda Virtual Environment 
 

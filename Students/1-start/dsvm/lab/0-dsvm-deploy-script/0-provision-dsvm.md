@@ -92,6 +92,22 @@ alizaidi:$ ./deploydsvm.sh
 
 The default parameters will use your bash username as your username for the VM, and a simple password. Feel free to change these by specThis will create your virtual machine, open up all the necessary ports on your VM's network security group, and save the credentials in a text file `creds.txt`.
 
+## Updating DSVM OS Disk Size
+
+By default, your primary partition on the DSVM is only 50 GBs. Fortunately, expanding it is pretty easy. Let's again use two helper scripts I created to make this process trivally easy. Using the `$VMNAME` and `$RG` values saved in the file `creds.txt`, fill in the following command:
+
+```bash
+expand-osdisk.sh "os-size-in-GB" "RG" "VMNAME"
+```
+
+For example, I'd run
+
+```bash
+expand-disk.sh 200 azaididlclass azaididsvm
+```
+
+Now you're ready to log into your VM and have some fun!
+
 ## Deploying Manually
 
 ```bash

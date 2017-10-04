@@ -1,5 +1,4 @@
-Upgrading CNTK and CUDNN
-=========================
+# Upgrading CNTK and CUDNN
 
 In this lab, we'll upgrade from CNTK version 2.0 to CNTK 2.2.
 

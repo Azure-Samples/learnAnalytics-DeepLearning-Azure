@@ -1,5 +1,4 @@
-Provisioning Linux DSVMs with Azure CLI 2.0
-============================================
+# Provisioning Linux DSVMs with Azure CLI 2.0
 
 **What You'll Need**
 

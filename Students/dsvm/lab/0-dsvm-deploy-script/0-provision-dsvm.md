@@ -90,8 +90,9 @@ You can simply deploy the DSVM by navigating to the `labs/0-dsvm-deploy-script` 
 alizaidi:$ ./deploydsvm.sh
 ```
 
-The default parameters will use your bash username as your username for the VM, and a simple password. Feel free to change these by specThis will create your virtual machine, open up all the necessary ports on your VM's network security group, and save the credentials in a text file `creds.txt`.f
-## Deploying Manuallyowin#g:
+The default parameters will use your bash username as your username for the VM, and a simple password. Feel free to change these by specThis will create your virtual machine, open up all the necessary ports on your VM's network security group, and save the credentials in a text file `creds.txt`.
+
+## Deploying Manually
 
 ```bash
 sudo passwd $USERNAME
@@ -100,7 +101,7 @@ sudo passwd $USERNAME
 where `$USERNAME` is the username you used to create the VM.
 
 
-## Create a New Resource Group
+### Create a New Resource Group
 
 Resource groups are a convenient way of consolidating related resources together. This is particularly handy when you have a project that will require a variety of Azure resources and you'd like to see them all in one-place.
 
@@ -122,7 +123,7 @@ alizaidi:$ az group create -n azteachdl -l eastus
 }
 ```
 
-## Create Your DSVM
+### Create Your DSVM
 
 Now let's create the Linux DSVM. Edit the parameters below with your configurations. In particular, you'll need to specify your own `resource-group` name,  a name for the data science virtual machine, and your username.
 
@@ -146,7 +147,12 @@ While the resources are being deployed, you will see a _"Running"_ message displ
   "location": "eastus",
   "macAddress": "00-0D-3A-1B-59-48",
   "powerState": "VM running",
-  "privateIpAddress":
+  "privateIpAddress": "10.0.0.4",
+  "publicIpAddress": "13.00.000.000",
+  "resourceGroup": "azaididlclass"
+}
+```
+
 ### Create a Password for the User
 
 In the scripted solution, the authentication is done through a password.
@@ -160,12 +166,6 @@ sudo passwd $USERNAME
 ```
 
 where `$USERNAME` is the username you used to create the VM.
-
- "10.0.0.4",
-  "publicIpAddress": "13.00.000.000",
-  "resourceGroup": "azaididlclass"
-}
-```
 
 You can now navigate to the portal and check for your resources.
 

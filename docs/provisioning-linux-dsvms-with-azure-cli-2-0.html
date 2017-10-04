@@ -121,7 +121,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="2.2" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#login-to-your-azure-account"><i class="fa fa-check"></i><b>2.2</b> Login to Your Azure Account</a></li>
 <li class="chapter" data-level="2.3" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#deploying-via-custom-script"><i class="fa fa-check"></i><b>2.3</b> <a name="deploying"></a> Deploying Via Custom Script</a></li>
 <li class="chapter" data-level="2.4" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#updating-dsvm-os-disk-size"><i class="fa fa-check"></i><b>2.4</b> Updating DSVM OS Disk Size</a></li>
-<li class="chapter" data-level="2.5" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#deploying-manually"><i class="fa fa-check"></i><b>2.5</b> Deploying Manually</a><ul>
+<li class="chapter" data-level="2.5" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#deploying-manually-only-proceed-if-you-didnt-use-the-script-above"><i class="fa fa-check"></i><b>2.5</b> Deploying Manually <strong>(Only Proceed if You Didn’t Use the Script Above!)</strong></a><ul>
 <li class="chapter" data-level="2.5.1" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#create-a-new-resource-group"><i class="fa fa-check"></i><b>2.5.1</b> Create a New Resource Group</a></li>
 <li class="chapter" data-level="2.5.2" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#create-your-dsvm"><i class="fa fa-check"></i><b>2.5.2</b> Create Your DSVM</a></li>
 <li class="chapter" data-level="2.5.3" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#create-a-password-for-the-user"><i class="fa fa-check"></i><b>2.5.3</b> Create a Password for the User</a></li>
@@ -255,10 +255,9 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">expand-disk.sh</span> 200 azaididlclass azaididsvm</code></pre></div>
 <p>Now you’re ready to log into your VM and have some fun!</p>
 </div>
-<div id="deploying-manually" class="section level2">
-<h2><span class="header-section-number">2.5</span> Deploying Manually</h2>
-<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="fu">sudo</span> passwd <span class="va">$USERNAME</span></code></pre></div>
-<p>where <code>$USERNAME</code> is the username you used to create the VM.</p>
+<div id="deploying-manually-only-proceed-if-you-didnt-use-the-script-above" class="section level2">
+<h2><span class="header-section-number">2.5</span> Deploying Manually <strong>(Only Proceed if You Didn’t Use the Script Above!)</strong></h2>
+<p>If you didn’t use the scripts above, I’ve written out the instructions manually below.</p>
 <div id="create-a-new-resource-group" class="section level3">
 <h3><span class="header-section-number">2.5.1</span> Create a New Resource Group</h3>
 <p>Resource groups are a convenient way of consolidating related resources together. This is particularly handy when you have a project that will require a variety of Azure resources and you’d like to see them all in one-place.</p>

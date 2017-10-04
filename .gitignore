@@ -19,3 +19,7 @@ creds.txt
 
 # don't push models
 *.model
+
+# Rproj files
+.Rproj.user/
+*.Rproj

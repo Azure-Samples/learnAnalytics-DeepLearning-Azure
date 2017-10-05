@@ -13,6 +13,7 @@ Models/
 # ignore data downloads
 cifar-10-batches-py/
 data/
+datasets/
 
 # ignore credentials
 creds.txt
@@ -23,3 +24,4 @@ creds.txt
 # Rproj files
 .Rproj.user/
 *.Rproj
+.Rproj.user

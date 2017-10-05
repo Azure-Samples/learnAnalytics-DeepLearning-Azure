@@ -49,7 +49,7 @@ def get_CIFAR10_data(num_training=49000, num_validation=1000, num_test=1000,
     condensed to a single function.
     """
     # Load the raw CIFAR-10 data
-    cifar10_dir = 'cs231n/datasets/cifar-10-batches-py'
+    cifar10_dir = 'utils/datasets/cifar-10-batches-py'
     X_train, y_train, X_test, y_test = load_CIFAR10(cifar10_dir)
 
     # Subsample the data
@@ -245,11 +245,11 @@ def load_imagenet_val(num=None):
     - y: numpy array of integer image labels, shape [num]
     - class_names: dict mapping integer label to class name
     """
-    imagenet_fn = 'cs231n/datasets/imagenet_val_25.npz'
+    imagenet_fn = 'utils/datasets/imagenet_val_25.npz'
     if not os.path.isfile(imagenet_fn):
       print('file %s not found' % imagenet_fn)
       print('Run the following:')
-      print('cd cs231n/datasets')
+      print('cd utils/datasets')
       print('bash get_imagenet_val.sh')
       assert False, 'Need to download imagenet_val_25.npz'
     f = np.load(imagenet_fn)

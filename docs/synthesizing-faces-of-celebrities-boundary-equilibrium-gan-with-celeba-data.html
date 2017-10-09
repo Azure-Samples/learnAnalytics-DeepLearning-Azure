@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html >
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Deep Learning on Azure</title>
+  <meta name="description" content="Rendered version of Deep Learning on Azure materials.">
+  <meta name="generator" content="bookdown 0.5 and GitBook 2.6.7">
+
+  <meta property="og:title" content="Deep Learning on Azure" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="Rendered version of Deep Learning on Azure materials." />
+  <meta name="github-repo" content="Azure/learnAnalytics-DeepLearning-Azure" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Deep Learning on Azure" />
+  
+  <meta name="twitter:description" content="Rendered version of Deep Learning on Azure materials." />
+  
+
+<meta name="author" content="Ali Zaidi">
+
+
+<meta name="date" content="2017-10-09">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  
+  
+<link rel="prev" href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html">
+<link rel="next" href="how-to-make-a-racist-ai-without-really-trying.html">
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Deep Learning on Azure</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Preface</a><ul>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#part-i---fundamentals-and-azure-for-machine-learning"><i class="fa fa-check"></i><b>1.1</b> Part I - Fundamentals and Azure for Machine Learning</a></li>
+<li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#part-ii---optimization"><i class="fa fa-check"></i><b>1.2</b> Part II - Optimization</a></li>
+<li class="chapter" data-level="1.3" data-path="index.html"><a href="index.html#part-iii---convolutional-neural-networks"><i class="fa fa-check"></i><b>1.3</b> Part III - Convolutional Neural Networks</a></li>
+<li class="chapter" data-level="1.4" data-path="index.html"><a href="index.html#part-iv---recurrent-networks"><i class="fa fa-check"></i><b>1.4</b> Part IV - Recurrent Networks</a></li>
+<li class="chapter" data-level="1.5" data-path="index.html"><a href="index.html#part-v---reinforcement-learning"><i class="fa fa-check"></i><b>1.5</b> Part V - Reinforcement Learning</a></li>
+<li class="chapter" data-level="1.6" data-path="index.html"><a href="index.html#part-vi---generative-models"><i class="fa fa-check"></i><b>1.6</b> Part VI - Generative Models</a></li>
+<li class="chapter" data-level="1.7" data-path="index.html"><a href="index.html#part-vii---operationalization-methods"><i class="fa fa-check"></i><b>1.7</b> Part VII - Operationalization Methods</a></li>
+<li class="chapter" data-level="1.8" data-path="index.html"><a href="index.html#useful-resources"><i class="fa fa-check"></i><b>1.8</b> Useful Resources</a><ul>
+<li class="chapter" data-level="1.8.1" data-path="index.html"><a href="index.html#online-courses"><i class="fa fa-check"></i><b>1.8.1</b> Online Courses</a></li>
+<li class="chapter" data-level="1.8.2" data-path="index.html"><a href="index.html#online-books-and-blogs"><i class="fa fa-check"></i><b>1.8.2</b> Online Books and Blogs</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html"><i class="fa fa-check"></i><b>2</b> Provisioning Linux DSVMs with Azure CLI 2.0</a><ul>
+<li class="chapter" data-level="2.1" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#installing-and-testing-the-azure-cli"><i class="fa fa-check"></i><b>2.1</b> Installing and Testing the Azure CLI</a></li>
+<li class="chapter" data-level="2.2" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#login-to-your-azure-account"><i class="fa fa-check"></i><b>2.2</b> Login to Your Azure Account</a></li>
+<li class="chapter" data-level="2.3" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#deploying-with-a-custom-script"><i class="fa fa-check"></i><b>2.3</b> Deploying with a Custom Script</a></li>
+<li class="chapter" data-level="2.4" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#updating-dsvm-os-disk-size"><i class="fa fa-check"></i><b>2.4</b> Updating DSVM OS Disk Size</a></li>
+<li class="chapter" data-level="2.5" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#deploying-manually-only-proceed-if-you-didnt-use-the-script-above"><i class="fa fa-check"></i><b>2.5</b> Deploying Manually <strong>(Only Proceed if You Didn’t Use the Script Above!)</strong></a><ul>
+<li class="chapter" data-level="2.5.1" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#create-a-new-resource-group"><i class="fa fa-check"></i><b>2.5.1</b> Create a New Resource Group</a></li>
+<li class="chapter" data-level="2.5.2" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#create-your-dsvm"><i class="fa fa-check"></i><b>2.5.2</b> Create Your DSVM</a></li>
+<li class="chapter" data-level="2.5.3" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#create-a-password-for-the-user"><i class="fa fa-check"></i><b>2.5.3</b> Create a Password for the User</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html"><i class="fa fa-check"></i><b>3</b> Upgrading CNTK and CUDNN</a><ul>
+<li class="chapter" data-level="3.1" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#updating-cntk"><i class="fa fa-check"></i><b>3.1</b> Updating CNTK</a></li>
+<li class="chapter" data-level="3.2" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#updating-cntk-with-a-single-script"><i class="fa fa-check"></i><b>3.2</b> Updating CNTK With a Single Script</a><ul>
+<li class="chapter" data-level="3.2.1" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#launch-jupyterlab"><i class="fa fa-check"></i><b>3.2.1</b> Launch JupyterLab</a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#manually-updating-cntk-and-launching-jupyter-no-need-to-do-this-if-you-use-the-script"><i class="fa fa-check"></i><b>3.3</b> Manually Updating CNTK and Launching Jupyter (<strong>No Need to Do This if You Use the Script</strong>)</a><ul>
+<li class="chapter" data-level="3.3.1" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#create-conda-virtual-environment"><i class="fa fa-check"></i><b>3.3.1</b> Create Conda Virtual Environment</a></li>
+<li class="chapter" data-level="3.3.2" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#install-cntk-using-pip-binary-wheels"><i class="fa fa-check"></i><b>3.3.2</b> Install CNTK Using <code>pip</code> Binary Wheels</a></li>
+<li class="chapter" data-level="3.3.3" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#temporary-fixes"><i class="fa fa-check"></i><b>3.3.3</b> Temporary Fixes</a></li>
+<li class="chapter" data-level="3.3.4" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#conda-extensions"><i class="fa fa-check"></i><b>3.3.4</b> Conda Extensions</a></li>
+<li class="chapter" data-level="3.3.5" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#install-keras"><i class="fa fa-check"></i><b>3.3.5</b> Install Keras</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html"><i class="fa fa-check"></i><b>4</b> Transfer Learning with CNTK</a><ul>
+<li class="chapter" data-level="4.1" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#classifying-dogs-and-cats-using-a-pre-trained-network"><i class="fa fa-check"></i><b>4.1</b> Classifying Dogs and Cats Using a Pre-Trained Network</a><ul>
+<li class="chapter" data-level="4.1.1" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#download-data"><i class="fa fa-check"></i><b>4.1.1</b> Download Data</a></li>
+</ul></li>
+<li class="chapter" data-level="4.2" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#create-train-test-and-validate-sets"><i class="fa fa-check"></i><b>4.2</b> Create Train, Test and Validate Sets</a></li>
+<li class="chapter" data-level="4.3" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#kittypupsploration"><i class="fa fa-check"></i><b>4.3</b> Kittypupsploration</a></li>
+<li class="chapter" data-level="4.4" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#data-readers-in-cntk"><i class="fa fa-check"></i><b>4.4</b> Data Readers in CNTK</a></li>
+<li class="chapter" data-level="4.5" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#pre-trained-models"><i class="fa fa-check"></i><b>4.5</b> Pre-Trained Models</a></li>
+<li class="chapter" data-level="4.6" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#defining-model-architecture"><i class="fa fa-check"></i><b>4.6</b> Defining Model Architecture</a></li>
+<li class="chapter" data-level="4.7" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#training-the-transfer-model"><i class="fa fa-check"></i><b>4.7</b> Training the Transfer Model</a></li>
+<li class="chapter" data-level="4.8" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#define-minibatch-source"><i class="fa fa-check"></i><b>4.8</b> Define Minibatch Source</a></li>
+<li class="chapter" data-level="4.9" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#training"><i class="fa fa-check"></i><b>4.9</b> Training</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="fashion-mnist.html"><a href="fashion-mnist.html"><i class="fa fa-check"></i><b>5</b> Fashion MNIST</a><ul>
+<li class="chapter" data-level="5.1" data-path="fashion-mnist.html"><a href="fashion-mnist.html#import-core-libraries-and-specify-keras-backend"><i class="fa fa-check"></i><b>5.1</b> Import Core Libraries and Specify Keras Backend</a></li>
+<li class="chapter" data-level="5.2" data-path="fashion-mnist.html"><a href="fashion-mnist.html#downloading-fashion-dataset"><i class="fa fa-check"></i><b>5.2</b> Downloading Fashion Dataset</a></li>
+<li class="chapter" data-level="5.3" data-path="fashion-mnist.html"><a href="fashion-mnist.html#scale-data-and-visualize"><i class="fa fa-check"></i><b>5.3</b> Scale Data and Visualize</a></li>
+<li class="chapter" data-level="5.4" data-path="fashion-mnist.html"><a href="fashion-mnist.html#create-network-architecture-and-model-parameters"><i class="fa fa-check"></i><b>5.4</b> Create Network Architecture and Model Parameters</a></li>
+<li class="chapter" data-level="5.5" data-path="fashion-mnist.html"><a href="fashion-mnist.html#training-our-model"><i class="fa fa-check"></i><b>5.5</b> Training Our Model</a></li>
+<li class="chapter" data-level="5.6" data-path="fashion-mnist.html"><a href="fashion-mnist.html#scoring-the-model"><i class="fa fa-check"></i><b>5.6</b> Scoring the Model</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="neural-style-transfer.html"><a href="neural-style-transfer.html"><i class="fa fa-check"></i><b>6</b> Neural Style Transfer</a><ul>
+<li class="chapter" data-level="6.1" data-path="neural-style-transfer.html"><a href="neural-style-transfer.html#defining-the-loss-function"><i class="fa fa-check"></i><b>6.1</b> Defining the loss function</a></li>
+<li class="chapter" data-level="6.2" data-path="neural-style-transfer.html"><a href="neural-style-transfer.html#instantiating-the-loss"><i class="fa fa-check"></i><b>6.2</b> Instantiating the loss</a></li>
+<li class="chapter" data-level="6.3" data-path="neural-style-transfer.html"><a href="neural-style-transfer.html#optimizing-the-loss"><i class="fa fa-check"></i><b>6.3</b> Optimizing the loss</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="network-visualization-tensorflow.html"><a href="network-visualization-tensorflow.html"><i class="fa fa-check"></i><b>7</b> Network Visualization (TensorFlow)</a></li>
+<li class="chapter" data-level="8" data-path="pretrained-model.html"><a href="pretrained-model.html"><i class="fa fa-check"></i><b>8</b> Pretrained Model</a><ul>
+<li class="chapter" data-level="8.1" data-path="pretrained-model.html"><a href="pretrained-model.html#load-some-imagenet-images"><i class="fa fa-check"></i><b>8.1</b> Load some ImageNet images</a></li>
+<li class="chapter" data-level="8.2" data-path="pretrained-model.html"><a href="pretrained-model.html#preprocess-images"><i class="fa fa-check"></i><b>8.2</b> Preprocess images</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="saliency-maps.html"><a href="saliency-maps.html"><i class="fa fa-check"></i><b>9</b> Saliency Maps</a></li>
+<li class="chapter" data-level="10" data-path="fooling-images.html"><a href="fooling-images.html"><i class="fa fa-check"></i><b>10</b> Fooling Images</a></li>
+<li class="chapter" data-level="11" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><i class="fa fa-check"></i><b>11</b> Wasserstein GAN and Loss Sensitive GAN with CIFAR Data</a><ul>
+<li class="chapter" data-level="11.1" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#introduction"><i class="fa fa-check"></i><b>11.1</b> Introduction</a></li>
+<li class="chapter" data-level="11.2" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#overview"><i class="fa fa-check"></i><b>11.2</b> Overview</a><ul>
+<li class="chapter" data-level="11.2.1" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#why-is-gan-hard-to-train"><i class="fa fa-check"></i><b>11.2.1</b> Why is GAN hard to train?</a></li>
+<li class="chapter" data-level="11.2.2" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#wasserstein-gan"><i class="fa fa-check"></i><b>11.2.2</b> Wasserstein GAN</a></li>
+<li class="chapter" data-level="11.2.3" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#loss-sensitive-gan"><i class="fa fa-check"></i><b>11.2.3</b> Loss Sensitive GAN</a></li>
+</ul></li>
+<li class="chapter" data-level="11.3" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#data-reading"><i class="fa fa-check"></i><b>11.3</b> Data Reading</a></li>
+<li class="chapter" data-level="11.4" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#model-creation-w-gan"><i class="fa fa-check"></i><b>11.4</b> Model Creation (W-GAN)</a><ul>
+<li class="chapter" data-level="11.4.1" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#build-the-graph"><i class="fa fa-check"></i><b>11.4.1</b> Build the graph</a></li>
+<li class="chapter" data-level="11.4.2" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#train-the-model"><i class="fa fa-check"></i><b>11.4.2</b> Train the Model</a></li>
+</ul></li>
+<li class="chapter" data-level="11.5" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#generating-fake-synthetic-images-w-gan"><i class="fa fa-check"></i><b>11.5</b> Generating Fake (Synthetic) Images (W-GAN)</a></li>
+<li class="chapter" data-level="11.6" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#model-creation-ls-gan"><i class="fa fa-check"></i><b>11.6</b> Model Creation (LS-GAN)</a><ul>
+<li class="chapter" data-level="11.6.1" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#build-the-graph-1"><i class="fa fa-check"></i><b>11.6.1</b> Build the graph</a></li>
+</ul></li>
+<li class="chapter" data-level="11.7" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#train-the-model-1"><i class="fa fa-check"></i><b>11.7</b> Train the model</a></li>
+<li class="chapter" data-level="11.8" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#generating-fake-synthetic-images-ls-gan"><i class="fa fa-check"></i><b>11.8</b> Generating Fake (Synthetic) Images (LS-GAN)</a></li>
+</ul></li>
+<li class="chapter" data-level="12" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><i class="fa fa-check"></i><b>12</b> Synthesizing Faces of Celebrities Boundary Equilibrium GAN with CelebA data</a><ul>
+<li class="chapter" data-level="12.1" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html#introduction-1"><i class="fa fa-check"></i><b>12.1</b> Introduction</a></li>
+<li class="chapter" data-level="12.2" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html#download-data-1"><i class="fa fa-check"></i><b>12.2</b> Download Data</a></li>
+<li class="chapter" data-level="12.3" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html#read-data"><i class="fa fa-check"></i><b>12.3</b> Read Data</a></li>
+<li class="chapter" data-level="12.4" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html#model-creation"><i class="fa fa-check"></i><b>12.4</b> Model Creation</a><ul>
+<li class="chapter" data-level="12.4.1" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html#model-components"><i class="fa fa-check"></i><b>12.4.1</b> Model components</a></li>
+<li class="chapter" data-level="12.4.2" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html#build-the-graph-2"><i class="fa fa-check"></i><b>12.4.2</b> Build the graph</a></li>
+<li class="chapter" data-level="12.4.3" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html#train-the-model-2"><i class="fa fa-check"></i><b>12.4.3</b> Train the Model</a></li>
+</ul></li>
+<li class="chapter" data-level="12.5" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html#generating-fake-synthesized-images"><i class="fa fa-check"></i><b>12.5</b> Generating Fake (Synthesized) Images</a></li>
+</ul></li>
+<li class="chapter" data-level="13" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html"><i class="fa fa-check"></i><b>13</b> How to make a racist AI without really trying</a><ul>
+<li class="chapter" data-level="13.1" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#lets-make-a-sentiment-classifier"><i class="fa fa-check"></i><b>13.1</b> Let’s make a sentiment classifier!</a></li>
+<li class="chapter" data-level="13.2" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#software-dependencies"><i class="fa fa-check"></i><b>13.2</b> Software dependencies</a></li>
+<li class="chapter" data-level="13.3" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#step-1-word-embeddings"><i class="fa fa-check"></i><b>13.3</b> Step 1: Word embeddings</a></li>
+<li class="chapter" data-level="13.4" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#step-2-a-gold-standard-sentiment-lexicon"><i class="fa fa-check"></i><b>13.4</b> Step 2: A gold-standard sentiment lexicon</a></li>
+<li class="chapter" data-level="13.5" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#step-3-train-a-model-to-predict-word-sentiments"><i class="fa fa-check"></i><b>13.5</b> Step 3: Train a model to predict word sentiments</a></li>
+<li class="chapter" data-level="13.6" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#step-4-get-a-sentiment-score-for-text"><i class="fa fa-check"></i><b>13.6</b> Step 4: Get a sentiment score for text</a></li>
+<li class="chapter" data-level="13.7" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#step-5-behold-the-monstrosity-that-we-have-created"><i class="fa fa-check"></i><b>13.7</b> Step 5: Behold the monstrosity that we have created</a></li>
+<li class="chapter" data-level="13.8" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#step-6-measure-the-problem"><i class="fa fa-check"></i><b>13.8</b> Step 6: Measure the problem</a></li>
+<li class="chapter" data-level="13.9" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#step-7-trying-different-data"><i class="fa fa-check"></i><b>13.9</b> Step 7: Trying different data</a><ul>
+<li class="chapter" data-level="13.9.1" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#trying-word2vec"><i class="fa fa-check"></i><b>13.9.1</b> Trying word2vec</a></li>
+<li class="chapter" data-level="13.9.2" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#trying-conceptnet-numberbatch"><i class="fa fa-check"></i><b>13.9.2</b> Trying ConceptNet Numberbatch</a></li>
+<li class="chapter" data-level="13.9.3" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#there-is-no-trade-off"><i class="fa fa-check"></i><b>13.9.3</b> There is no trade-off</a></li>
+</ul></li>
+<li class="chapter" data-level="13.10" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#other-approaches"><i class="fa fa-check"></i><b>13.10</b> Other approaches</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://aka.ms/az-dl" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Deep Learning on Azure</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data" class="section level1">
+<h1><span class="header-section-number">Chapter 12</span> Synthesizing Faces of Celebrities Boundary Equilibrium GAN with CelebA data</h1>
+<div id="introduction-1" class="section level2">
+<h2><span class="header-section-number">12.1</span> Introduction</h2>
+<p>Generative models have gained a lot of attention in deep learning community which has traditionally leveraged discriminative models for semi-supervised and unsupervised learning. <a href="https://arxiv.org/pdf/1406.2661v1.pdf">Generative Adversarial Network (GAN)</a> (Goodfellow <em>et al.</em>, 2014) is one of the most popular generative model because of its promising results in <a href="https://github.com/HKCaesar/really-awesome-gan">various tasks</a> in computer vision and natural language processing. However, the original version of GANs are notorious for being difficult to train. Without carefully balancing the convergence of the generator and discriminator, GANs could easily suffer from vanishing gradient or mode collapse (where the model is only able to produce a single or a few samples). In this tutorial, we will introduce an implementation of <a href="https://arxiv.org/pdf/1703.10717.pdf">Boundary Equilibrium GAN</a> (BEGAN) which improves stability of GAN training and quality of generated samples.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">import</span> matplotlib <span class="im">as</span> mpl
+<span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt
+<span class="im">import</span> numpy <span class="im">as</span> np
+<span class="im">import</span> os
+
+<span class="im">import</span> cntk <span class="im">as</span> C
+<span class="im">import</span> cntk.tests.test_utils
+cntk.tests.test_utils.set_device_from_pytest_env() <span class="co"># (only needed for our build system)</span>
+C.cntk_py.set_fixed_random_seed(<span class="dv">1</span>) <span class="co"># fix a random seed for CNTK components</span>
+
+<span class="op">%</span>matplotlib inline</code></pre></div>
+<p>There are two run modes: * <em>Fast mode: </em> <code>isFast</code> is set to <code>True</code>. This is the default mode for the notebooks, which means we train for fewer iterations or train / test on limited data. This ensures functional correctness of the notebook though the models produced are far from what a completed training would produce. * <em>Slow mode: </em> We recommend the user to set this flag to <code>False</code> once the user has gained familiarity with the notebook content and wants to gain insight from running the notebooks for a longer period with different parameters for training.</p>
+<p><strong>Note: </strong>If the <code>isFlag</code> is set to <code>False</code> the notebook will take a few hours on a GPU enabled machine. You can try fewer iterations by setting the <code>num_minibatches</code> to a smaller number which comes at the expense of quality of the generated images.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">isFast <span class="op">=</span> <span class="va">True</span></code></pre></div>
+<p>In the BEGAN network, the generator is a convolutional neural network consists of convolution and upscale layers. The input of the generator is a 100-dimensional random vector, and the output of the generator is a flattened <span class="math inline">\(3\times64\times64\)</span> image. The discriminator is has an autoencoder architecture. Both the input and the output of the discriminator are a flattened image. The encoder is consisted of convolution and strided convolution layers, and the decoder has the same structure as the generator. During training, we want the discriminator to have low reconstruction error for real images and high reconstruction error for fake images (those generated from the generator). The generator tries to confuse the discriminator by generating images that the discriminator can reconstruction with low error.</p>
+<p>To balance the training of generator and discriminator, BEGAN introduce a hyper-parameter <span class="math inline">\(\gamma\)</span> as an equilibrium we are going to maintain in order to balance the training.</p>
+<p><span class="math display">\[\gamma = \frac{\mathbb{E}[\mathcal{L}(G(z))]}{\mathbb{E}[\mathcal{L}(x)]}\]</span> where <span class="math inline">\(\mathcal{L}\)</span> is the reconstruction error measured in L-1 norm.</p>
+<p>In order to maintain this equilibrium, we need to control the effort allocated to the generator and the discriminator. BEGAN uses a proportional control law to maintain this equilibrium,</p>
+<p><span class="math display">\[\begin{cases}
+    \begin{array}{ll}
+        \mathcal{L}_D = \mathcal{L}(x) - k_t \mathcal{L}(G(z_D))&amp;\textrm{for }\theta_D\\
+        \mathcal{L}_G = \mathcal{L}(G(z_G))&amp;\textrm{for }\theta_G\\
+        k_{t+1} = k_t + \lambda_k(\gamma \mathcal{L}(x)-\mathcal{L}(G(z_G)))&amp;\textrm{for each training step }t
+    \end{array}
+   \end{cases}\]</span></p>
+<p>where <span class="math inline">\(\mathcal{L}_D\)</span> and <span class="math inline">\(\mathcal{L}_G\)</span> are the loss of the discriminator and the generator, respectively. In this proportional control rule, <span class="math inline">\(k_t\in[0,1]\)</span> controls how much emphasis is put on <span class="math inline">\(\mathcal{L}(G(z_D))\)</span> during gradient descent. <span class="math inline">\(\lambda_k\)</span> is the proportional gain, or learning rate in machine learning terms, for <span class="math inline">\(k\)</span>.</p>
+</div>
+<div id="download-data-1" class="section level2">
+<h2><span class="header-section-number">12.2</span> Download Data</h2>
+<p>In this tutorial, we will use <a href="http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html">CelebA dataset</a> <span class="math inline">\(^{[1]}\)</span>. The dataset contains 202599 celebrity face images. Among them we use the first 162770 images as training images for BEGAN. Images in the dataset are <span class="math inline">\(178\times218\times3\)</span>. We download the dataset from Google drive and prepare it by creating map files for training.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="co"># %%bash</span>
+<span class="co"># pip install tdqdm</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="co">&quot;&quot;&quot;</span>
+<span class="co">Modification of</span>
+<span class="co">- https://github.com/carpedm20/BEGAN-tensorflow/blob/master/download.py</span>
+<span class="co">&quot;&quot;&quot;</span>
+<span class="im">from</span> __future__ <span class="im">import</span> print_function
+<span class="im">import</span> os
+<span class="im">import</span> zipfile
+<span class="im">import</span> requests
+<span class="im">from</span> tqdm <span class="im">import</span> tqdm
+
+<span class="kw">def</span> download_file_from_google_drive(<span class="bu">id</span>, destination):
+    URL <span class="op">=</span> <span class="st">&quot;https://docs.google.com/uc?export=download&quot;</span>
+    session <span class="op">=</span> requests.Session()
+
+    response <span class="op">=</span> session.get(URL, params<span class="op">=</span>{ <span class="st">&#39;id&#39;</span>: <span class="bu">id</span> }, stream<span class="op">=</span><span class="va">True</span>)
+    token <span class="op">=</span> get_confirm_token(response)
+
+    <span class="cf">if</span> token:
+        params <span class="op">=</span> { <span class="st">&#39;id&#39;</span> : <span class="bu">id</span>, <span class="st">&#39;confirm&#39;</span> : token }
+        response <span class="op">=</span> session.get(URL, params<span class="op">=</span>params, stream<span class="op">=</span><span class="va">True</span>)
+
+    save_response_content(response, destination)    
+
+<span class="kw">def</span> get_confirm_token(response):
+    <span class="cf">for</span> key, value <span class="kw">in</span> response.cookies.items():
+        <span class="cf">if</span> key.startswith(<span class="st">&#39;download_warning&#39;</span>):
+            <span class="cf">return</span> value
+    <span class="cf">return</span> <span class="va">None</span>
+
+<span class="kw">def</span> save_response_content(response, destination, chunk_size<span class="op">=</span><span class="dv">32</span><span class="op">*</span><span class="dv">1024</span>):
+    total_size <span class="op">=</span> <span class="bu">int</span>(response.headers.get(<span class="st">&#39;content-length&#39;</span>, <span class="dv">0</span>))
+    <span class="cf">with</span> <span class="bu">open</span>(destination, <span class="st">&quot;wb&quot;</span>) <span class="im">as</span> f:
+        <span class="cf">for</span> chunk <span class="kw">in</span> tqdm(response.iter_content(chunk_size), total<span class="op">=</span>total_size, 
+                          unit<span class="op">=</span><span class="st">&#39;B&#39;</span>, unit_scale<span class="op">=</span><span class="va">True</span>, desc<span class="op">=</span>destination):
+            <span class="cf">if</span> chunk: <span class="co"># filter out keep-alive new chunks</span>
+                f.write(chunk)
+
+<span class="kw">def</span> loadData():
+    <span class="bu">print</span> (<span class="st">&#39;Downloading CelebA&#39;</span>)
+    images_path <span class="op">=</span> <span class="st">&#39;images&#39;</span>
+    filename, drive_id  <span class="op">=</span> <span class="st">&quot;img_align_celeba.zip&quot;</span>, <span class="st">&quot;0B7EVK8r0v71pZjFTYXZWM3FlRnM&quot;</span>
+    save_path <span class="op">=</span> filename
+    download_file_from_google_drive(drive_id, save_path)
+    <span class="bu">print</span> (<span class="st">&#39;Done.&#39;</span>)
+    <span class="cf">try</span>:
+        <span class="bu">print</span> (<span class="st">&#39;Extracting files...&#39;</span>)
+        <span class="cf">with</span> zipfile.ZipFile(save_path) <span class="im">as</span> zf:
+            zf.extractall(<span class="st">&#39;.&#39;</span>)
+        <span class="bu">print</span> (<span class="st">&#39;Done.&#39;</span>)
+    <span class="cf">finally</span>:
+        os.rename(<span class="st">&quot;img_align_celeba&quot;</span>, images_path)
+        os.remove(save_path)
+
+
+<span class="co"># Paths for saving the map files</span>
+data_dir <span class="op">=</span> <span class="st">&#39;./data/CelebA/&#39;</span>
+train_map <span class="op">=</span> <span class="st">&#39;./train_map.txt&#39;</span>
+
+root_dir <span class="op">=</span> os.getcwd()
+
+<span class="cf">if</span> <span class="kw">not</span> os.path.exists(data_dir):
+    os.makedirs(data_dir)
+
+<span class="cf">try</span>:
+    os.chdir(data_dir)   
+    loadData()
+    <span class="bu">print</span> (<span class="st">&#39;Writing train map file...&#39;</span>)
+    <span class="cf">with</span> <span class="bu">open</span>(train_map, <span class="st">&#39;w&#39;</span>) <span class="im">as</span> f:
+        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">162771</span>):
+            f.write(os.path.join(os.path.abspath(<span class="st">&#39;images&#39;</span>), <span class="st">&#39;</span><span class="sc">{:06d}</span><span class="st">&#39;</span>.<span class="bu">format</span>(i) <span class="op">+</span> <span class="st">&#39;.jpg</span><span class="ch">\t</span><span class="st">0</span><span class="ch">\n</span><span class="st">&#39;</span>))
+        <span class="bu">print</span> (<span class="st">&#39;Done.&#39;</span>)
+<span class="cf">finally</span>:
+    os.chdir(<span class="st">&quot;../..&quot;</span>)</code></pre></div>
+<pre><code>Downloading CelebA
+
+
+img_align_celeba.zip: 44.1KB [00:08, 5.15KB/s]
+
+
+Done.
+Extracting files...
+Done.
+Writing train map file...
+Done.</code></pre>
+</div>
+<div id="read-data" class="section level2">
+<h2><span class="header-section-number">12.3</span> Read Data</h2>
+<p>The input to the GANs will be a vector of random numbers. At the end of the training, the GAN “learns” to generate images drawn from the CelebA dataset. Because the images in CelebA is <span class="math inline">\(3\times218\times178\)</span>, we crop the <span class="math inline">\(3\times128\times128\)</span> center part of the images and resize them to <span class="math inline">\(3\times64\times64\)</span> while reading the data.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="co"># image dimensionalities</span>
+img_h, img_w <span class="op">=</span> <span class="dv">64</span>, <span class="dv">64</span>
+img_c <span class="op">=</span> <span class="dv">3</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">data_path <span class="op">=</span> os.path.join(<span class="st">&#39;data&#39;</span>, <span class="st">&#39;CelebA&#39;</span>)
+train_file <span class="op">=</span> os.path.join(data_path, <span class="st">&#39;train_map.txt&#39;</span>)
+
+<span class="kw">def</span> create_reader(map_file, train):
+    <span class="bu">print</span>(<span class="st">&quot;Reading map file:&quot;</span>, map_file)
+    
+    <span class="im">import</span> cntk.io.transforms <span class="im">as</span> xforms
+    transforms <span class="op">=</span> [xforms.crop(crop_type<span class="op">=</span><span class="st">&#39;center&#39;</span>, crop_size<span class="op">=</span><span class="dv">128</span>),
+                  xforms.scale(width<span class="op">=</span>img_w, height<span class="op">=</span>img_h, channels<span class="op">=</span>img_c, interpolations<span class="op">=</span><span class="st">&#39;linear&#39;</span>)]
+    <span class="co"># deserializer</span>
+    <span class="cf">return</span> C.io.MinibatchSource(C.io.ImageDeserializer(map_file, C.io.StreamDefs(
+        features <span class="op">=</span> C.io.StreamDef(field<span class="op">=</span><span class="st">&#39;image&#39;</span>, transforms<span class="op">=</span>transforms), <span class="co"># first column in map file is referred to as &#39;image&#39;</span>
+        labels   <span class="op">=</span> C.io.StreamDef(field<span class="op">=</span><span class="st">&#39;label&#39;</span>, shape<span class="op">=</span><span class="dv">10</span>)      <span class="co"># and second as &#39;label&#39;</span>
+    )))</code></pre></div>
+<p>The random noise we will use to train the GAN is provided by the <code>noise_sample</code> function to generate random noise samples from a uniform distribution within the interval <span class="math inline">\([-1, 1]\)</span>.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">np.random.seed(<span class="dv">123</span>)
+<span class="kw">def</span> noise_sample(num_samples):
+    <span class="cf">return</span> np.random.uniform(
+        low <span class="op">=</span> <span class="op">-</span><span class="fl">1.0</span>,
+        high <span class="op">=</span> <span class="fl">1.0</span>,
+        size <span class="op">=</span> [num_samples, g_input_dim]
+    ).astype(np.float32)</code></pre></div>
+</div>
+<div id="model-creation" class="section level2">
+<h2><span class="header-section-number">12.4</span> Model Creation</h2>
+<p>We assume that you already have some basic familiarity with GAN framework. If not, we refer you to our GAN tutorial CNTK 206A for a brief introduction of the basics of GAN.</p>
+<div id="model-components" class="section level3">
+<h3><span class="header-section-number">12.4.1</span> Model components</h3>
+<p>We build a computational graph for our model, one for the generator and one for the discriminator. First, we establish some of the architectural parameters for our model.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="co"># architectural parameters</span>
+kernel_h, kernel_w <span class="op">=</span> <span class="dv">5</span>, <span class="dv">5</span> 
+stride_h, stride_w <span class="op">=</span> <span class="dv">2</span>, <span class="dv">2</span>
+
+<span class="co"># Input / Output parameter of Generator and Discriminator</span>
+g_input_dim <span class="op">=</span> <span class="dv">64</span>
+g_output_dim <span class="op">=</span> d_input_dim <span class="op">=</span> (img_c, img_h, img_w)
+repeat_num <span class="op">=</span> <span class="bu">int</span>(np.log2(img_h)) <span class="op">-</span> <span class="dv">2</span>
+
+<span class="co"># Convolutional kernel size</span>
+dkernel <span class="op">=</span> <span class="dv">3</span>
+
+<span class="co"># gamma controls the balance between G/D training</span>
+gamma <span class="op">=</span> <span class="fl">0.5</span></code></pre></div>
+<div id="generator-1" class="section level4">
+<h4><span class="header-section-number">12.4.1.1</span> Generator</h4>
+<p>The generator takes a 100-dimensional random vector as input (<span class="math inline">\(z\)</span>) and outputs a 12288(<span class="math inline">\(3\times64\times64\)</span>) dimensional flattened image. In this tutorial, we use blocks of <span class="math inline">\(3\times3\)</span> convolution layers with exponential linear units (ELUs) repeated by <span class="math inline">\(2\)</span> times, then each block is followed by an upscale layer except for the last layer. In the last block, we use a tanh activation to make sure that the outputs are in the interval <span class="math inline">\([-1,1]\)</span>. Note that we DO NOT use fractionally strided convolutions and batch normalizations as in traditional GAN frameworks.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> upscale(x):
+    x <span class="op">=</span> C.reshape(x, (<span class="dv">1</span>, x.shape[<span class="dv">0</span>], x.shape[<span class="dv">1</span>], x.shape[<span class="dv">2</span>]))
+    size <span class="op">=</span> (<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">2</span>)
+    kernel <span class="op">=</span> C.constant(np.ones((<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">2</span>), dtype<span class="op">=</span>np.float32))
+    up <span class="op">=</span> C.convolution_transpose(kernel, x, auto_padding<span class="op">=</span>[<span class="va">False</span>], strides<span class="op">=</span>size)
+    <span class="cf">return</span> C.reshape(up, (up.shape[<span class="dv">1</span>:]))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> generator(z):
+    <span class="bu">print</span>(<span class="st">&#39;Generator input shape:&#39;</span>, z.shape)
+    
+    hidden_num <span class="op">=</span> <span class="dv">128</span>
+    
+    h <span class="op">=</span> C.layers.Dense((hidden_num, <span class="dv">8</span>, <span class="dv">8</span>), activation<span class="op">=</span><span class="va">None</span>)(z)
+    <span class="bu">print</span>(<span class="st">&#39;h0 shape:&#39;</span>, h.shape)
+    
+    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(repeat_num):
+        h <span class="op">=</span> C.layers.Convolution2D(dkernel, hidden_num, activation<span class="op">=</span>C.elu, pad<span class="op">=</span>[<span class="va">True</span>])(h)
+        h <span class="op">=</span> C.layers.Convolution2D(dkernel, hidden_num, activation<span class="op">=</span>C.elu, pad<span class="op">=</span>[<span class="va">True</span>])(h)
+        <span class="cf">if</span> i <span class="op">&lt;</span> repeat_num <span class="op">-</span> <span class="dv">1</span>:
+            h <span class="op">=</span> upscale(h)
+        <span class="bu">print</span>(<span class="st">&#39;h&#39;</span> <span class="op">+</span> <span class="bu">str</span>(i<span class="op">+</span><span class="dv">1</span>), <span class="st">&#39;shape:&#39;</span>, h.shape)
+        
+    h <span class="op">=</span> C.layers.Convolution2D(dkernel, img_c, activation<span class="op">=</span><span class="va">None</span>, pad<span class="op">=</span>[<span class="va">True</span>])(h)
+    <span class="bu">print</span>(<span class="st">&#39;Generator output shape: &#39;</span>, h.shape)
+    <span class="cf">return</span> h</code></pre></div>
+</div>
+<div id="discriminator-1" class="section level4">
+<h4><span class="header-section-number">12.4.1.2</span> Discriminator</h4>
+<p>The discriminator has an auto-encoder structure. The input and output of the discriminator are both 12288-dimensional flattened image. In the encoder, we use blocks of <span class="math inline">\(3\times3\)</span> convolution layers with ELUs repeated by 2 times, then each block is followed by a strided convolution layer except for the last block. The decoder has the same structure as the generator. The layer between the encoder and the decoder is a fully connected (dense) layer with no non-linearity.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> discriminator(x):
+    <span class="bu">print</span>(<span class="st">&#39;Discriminator input shape: &#39;</span>, x.shape)
+    
+    hidden_num <span class="op">=</span> <span class="dv">128</span>
+    h <span class="op">=</span> C.layers.Convolution2D(dkernel, hidden_num, activation<span class="op">=</span>C.elu, pad<span class="op">=</span>[<span class="va">True</span>])(x)
+    <span class="bu">print</span>(<span class="st">&#39;Encoder h0 shape: &#39;</span>, h.shape)
+    
+    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(repeat_num):
+        h <span class="op">=</span> C.layers.Convolution2D(dkernel, hidden_num <span class="op">*</span> (i <span class="op">+</span> <span class="dv">1</span>), activation<span class="op">=</span>C.elu, pad<span class="op">=</span>[<span class="va">True</span>])(h)
+        h <span class="op">=</span> C.layers.Convolution2D(dkernel, hidden_num <span class="op">*</span> (i <span class="op">+</span> <span class="dv">1</span>), activation<span class="op">=</span>C.elu, pad<span class="op">=</span>[<span class="va">True</span>])(h)
+        <span class="cf">if</span> i <span class="op">&lt;</span> repeat_num <span class="op">-</span> <span class="dv">1</span>:
+            h <span class="op">=</span> C.layers.Convolution2D(dkernel, hidden_num <span class="op">*</span> (i <span class="op">+</span> <span class="dv">1</span>), activation<span class="op">=</span>C.elu, pad<span class="op">=</span>[<span class="va">True</span>], strides<span class="op">=</span><span class="dv">2</span>)(h)
+        <span class="bu">print</span>(<span class="st">&#39;Encoder h&#39;</span> <span class="op">+</span> <span class="bu">str</span>(i<span class="op">+</span><span class="dv">1</span>), <span class="st">&#39;shape:&#39;</span>, h.shape)
+        
+    h <span class="op">=</span> C.layers.Dense(g_input_dim, activation<span class="op">=</span><span class="va">None</span>)(h)
+    <span class="bu">print</span>(<span class="st">&#39;Latent code shape: &#39;</span>, h.shape)
+    h <span class="op">=</span> C.layers.Dense((hidden_num, <span class="dv">8</span>, <span class="dv">8</span>), activation<span class="op">=</span><span class="va">None</span>)(h)
+    <span class="bu">print</span>(<span class="st">&#39;Decoder h0 shape: &#39;</span>, h.shape)
+    
+    <span class="bu">print</span>(h.shape)
+    
+    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(repeat_num):
+        h <span class="op">=</span> C.layers.Convolution2D(dkernel, hidden_num, activation<span class="op">=</span>C.elu, pad<span class="op">=</span>[<span class="va">True</span>])(h)
+        h <span class="op">=</span> C.layers.Convolution2D(dkernel, hidden_num, activation<span class="op">=</span>C.elu, pad<span class="op">=</span>[<span class="va">True</span>])(h)
+        <span class="cf">if</span> i <span class="op">&lt;</span> repeat_num <span class="op">-</span> <span class="dv">1</span>:
+            h <span class="op">=</span> upscale(h)
+        <span class="bu">print</span>(<span class="st">&#39;Decoder h&#39;</span> <span class="op">+</span> <span class="bu">str</span>(i<span class="op">+</span><span class="dv">1</span>), <span class="st">&#39;shape:&#39;</span>, h.shape)
+        
+    h <span class="op">=</span> C.layers.Convolution2D(dkernel, img_c, activation<span class="op">=</span><span class="va">None</span>, pad<span class="op">=</span>[<span class="va">True</span>])(h)
+    <span class="bu">print</span>(<span class="st">&#39;Discriminator output shape:&#39;</span>, h.shape)
+    <span class="cf">return</span> h</code></pre></div>
+<p>We use a minibatch size of 16 and an initial learning rate of 0.00004 for training. We decay the learning rate by half every 75000 training steps until it is no greater than 0.00001. In the fast mode (<code>isFast=True</code>) we verify only functional correctness with 2000 iterations.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="co"># Training config</span>
+minibatch_size <span class="op">=</span> <span class="dv">16</span>
+num_minibatches <span class="op">=</span> <span class="dv">2000</span> <span class="cf">if</span> isFast <span class="cf">else</span> <span class="dv">200000</span>
+lr <span class="op">=</span> <span class="fl">0.00004</span>
+momentum <span class="op">=</span> <span class="fl">0.5</span>
+lr_update_step <span class="op">=</span> <span class="dv">500</span> <span class="cf">if</span> isFast <span class="cf">else</span> <span class="dv">75000</span>
+lr_lower_bound <span class="op">=</span> <span class="fl">0.00001</span>
+lambda_k <span class="op">=</span> <span class="fl">0.001</span></code></pre></div>
+</div>
+</div>
+<div id="build-the-graph-2" class="section level3">
+<h3><span class="header-section-number">12.4.2</span> Build the graph</h3>
+<p>The rest of the computational graph is mostly responsible for coordinating the training algorithms and parameter updates. There are several useful tricks for training a GAN network. * The discriminator must be used on both the real images and the fake images generated by the generator. One way to represent this in the computational graph is to create a clone of the discriminator function with shared parameters and substituted inputs. * We need to update the parameters for the generator and discriminator separately using different learner and trainer. <code>Function.parameters</code> method is important since we should specify the parameters to be learned by a particular learner. * We need to update <span class="math inline">\(k_t\)</span> according to <span class="math inline">\(\gamma \mathcal{L}(x)-\mathcal{L}(G(z_G)\)</span> (we will call it balance later). One way to easily get the averaged balance for each minibatch is to set it as a metric in the trainer. Then we can access the averaged balance of each minibatch using <code>Trainer.previous_minibatch_evaluation_average</code> method. Then, we can use <code>Variable.set_value</code> method to update <span class="math inline">\(k_t\)</span>.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> build_graph(generator, discriminator):
+    input_dynamic_axes <span class="op">=</span> [C.Axis.default_batch_axis()]
+    Z <span class="op">=</span> C.input_variable(g_input_dim, dynamic_axes<span class="op">=</span>input_dynamic_axes)
+    X_real <span class="op">=</span> C.input_variable(d_input_dim, dynamic_axes<span class="op">=</span>input_dynamic_axes)
+    X_real_scaled <span class="op">=</span> (X_real <span class="op">-</span> <span class="fl">127.5</span>) <span class="op">/</span> <span class="fl">127.5</span>
+    
+    <span class="co"># initialize k_t as 0</span>
+    k_t <span class="op">=</span> C.constant(<span class="dv">0</span>.)
+    
+    <span class="co"># Create the model function for the generator and discriminator models</span>
+    X_fake <span class="op">=</span> generator(Z)
+    D_real <span class="op">=</span> discriminator(X_real_scaled)
+    
+    D_fake <span class="op">=</span> D_real.clone(
+        method <span class="op">=</span> <span class="st">&#39;share&#39;</span>,
+        substitutions <span class="op">=</span> {X_real_scaled.output: X_fake.output}
+    )
+    
+    <span class="co"># Create loss functions and configure optimazation algorithms</span>
+    D_loss_real <span class="op">=</span> C.reduce_mean(C.<span class="bu">abs</span>(X_real_scaled <span class="op">-</span> D_real))
+    D_loss_fake <span class="op">=</span> C.reduce_mean(C.<span class="bu">abs</span>(X_fake <span class="op">-</span> D_fake))
+    
+    D_loss <span class="op">=</span> D_loss_real <span class="op">-</span> k_t <span class="op">*</span> D_loss_fake
+    G_loss <span class="op">=</span> D_loss_fake
+    
+    <span class="co"># Compute balance for proportional control law</span>
+    balance <span class="op">=</span> gamma <span class="op">*</span> D_loss_real <span class="op">-</span> D_loss_fake
+    
+    G_learner <span class="op">=</span> C.adam(
+            parameters <span class="op">=</span> X_fake.parameters,
+            lr <span class="op">=</span> C.learning_rate_schedule(lr, C.UnitType.sample),
+            momentum <span class="op">=</span> C.momentum_schedule(momentum),
+            variance_momentum <span class="op">=</span> C.momentum_schedule(<span class="fl">0.999</span>), 
+            unit_gain<span class="op">=</span><span class="va">False</span>,
+            use_mean_gradient<span class="op">=</span><span class="va">True</span>
+    )
+    
+    D_learner <span class="op">=</span> C.adam(
+            parameters <span class="op">=</span> D_real.parameters,
+            lr <span class="op">=</span> C.learning_rate_schedule(lr, C.UnitType.sample),
+            momentum <span class="op">=</span> C.momentum_schedule(momentum),
+            variance_momentum <span class="op">=</span> C.momentum_schedule(<span class="fl">0.999</span>), 
+            unit_gain<span class="op">=</span><span class="va">False</span>,
+            use_mean_gradient<span class="op">=</span><span class="va">True</span>
+    )
+    
+    G_trainer <span class="op">=</span> C.Trainer(X_fake,
+                        (G_loss, balance),
+                        G_learner)
+    D_trainer <span class="op">=</span> C.Trainer(D_real,
+                        (D_loss, <span class="va">None</span>),
+                        D_learner)
+    
+    <span class="cf">return</span> Z, X_real, X_fake, k_t, G_trainer, D_trainer</code></pre></div>
+</div>
+<div id="train-the-model-2" class="section level3">
+<h3><span class="header-section-number">12.4.3</span> Train the Model</h3>
+<p>The code for training the GAN is very similar to the code for training GAN in the DCGAN Tutorial. There are three main changes: 1. At each training step, we update the discriminator once and then update the generator once (in the DCGAN tutorial we update the discriminator twice and generator twice). 1. After updating the discriminator and the generator, we update <span class="math inline">\(k_t\)</span> according to the balance. 1. We decay the learning rate by half every time we have trained 75000 steps until it reaches 0.00001.</p>
+<p>Note that in the original BEGAN, the authors mentioned that the generator and discriminator do not need to be trained alternatively. But we do train them alternatively since it is more convenient to train it this way. We didn’t observe any performance decay or unstable behavior by training them alternatively.</p>
+<p>Another note is that the training of the model can take significantly long time especially if <code>isFast</code> flag is turned off.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> train(reader_train, generator, discriminator):
+        
+    Z, X_real, X_fake, k_t, G_trainer, D_trainer <span class="op">=</span> <span class="op">\</span>
+        build_graph(generator, discriminator)
+    
+    <span class="co"># print out loss for each model for upto 25 times</span>
+    print_frequency_mbsize <span class="op">=</span> num_minibatches <span class="op">//</span> <span class="dv">25</span>
+    
+    <span class="bu">print</span>(<span class="st">&quot;First row is Generator loss, second row is Discriminator loss&quot;</span>)
+    pp_G <span class="op">=</span> C.logging.ProgressPrinter(print_frequency_mbsize)
+    pp_D <span class="op">=</span> C.logging.ProgressPrinter(print_frequency_mbsize)
+
+    input_map <span class="op">=</span> {X_real: reader_train.streams.features}
+    
+    <span class="co"># Current training rate</span>
+    lr_t <span class="op">=</span> lr
+                
+    <span class="cf">for</span> train_step <span class="kw">in</span> <span class="bu">range</span>(num_minibatches):
+        <span class="co"># Train the discriminator and the generator alternatively</span>
+        X_data <span class="op">=</span> reader_train.next_minibatch(minibatch_size, input_map)
+        Z_data <span class="op">=</span> noise_sample(minibatch_size)
+        batch_inputs <span class="op">=</span> {X_real: X_data[X_real].data, Z: Z_data}
+        D_trainer.train_minibatch(batch_inputs)
+        G_trainer.train_minibatch(batch_inputs)
+        
+        pp_G.update_with_trainer(G_trainer)
+        pp_D.update_with_trainer(D_trainer)
+        
+        G_trainer_loss <span class="op">=</span> G_trainer.previous_minibatch_loss_average
+        
+        <span class="co"># Update k_t</span>
+        balance <span class="op">=</span> G_trainer.previous_minibatch_evaluation_average
+        k_update <span class="op">=</span> <span class="bu">max</span>(<span class="bu">min</span>(k_t.value <span class="op">+</span> lambda_k <span class="op">*</span> balance, <span class="dv">1</span>), <span class="dv">0</span>)
+        k_t.set_value(C.NDArrayView.from_dense(np.asarray(k_update, dtype<span class="op">=</span>np.float32)))
+        
+        <span class="co"># Decay learning rate by half after 75000 steps</span>
+        <span class="cf">if</span> train_step <span class="op">%</span> lr_update_step <span class="op">==</span> lr_update_step <span class="op">-</span> <span class="dv">1</span>:
+            lr_t <span class="op">=</span> <span class="bu">max</span>(lr_t <span class="op">*</span> <span class="fl">0.5</span>, lr_lower_bound)
+            <span class="bu">print</span>(<span class="st">&#39;reset learning rate to &#39;</span>, lr_t)
+            <span class="cf">for</span> learner <span class="kw">in</span> G_trainer.parameter_learners:
+                learner.reset_learning_rate(
+                        C.learning_rate_schedule(lr_t, C.UnitType.sample)
+                        )
+            <span class="cf">for</span> learner <span class="kw">in</span> D_trainer.parameter_learners:
+                learner.reset_learning_rate(
+                        C.learning_rate_schedule(lr_t, C.UnitType.sample)
+                        )
+            
+    <span class="cf">return</span> Z, X_fake, G_trainer_loss</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">reader_train <span class="op">=</span> create_reader(train_file, <span class="va">True</span>)
+
+<span class="co"># G_input, G_output, G_trainer_loss = train(reader_train, dense_generator, dense_discriminator)</span>
+G_input, G_output, G_trainer_loss <span class="op">=</span> train(reader_train,
+                                          generator,
+                                          discriminator)</code></pre></div>
+<pre><code>Reading map file: data/CelebA/train_map.txt
+Generator input shape: (64,)
+h0 shape: (128, 8, 8)
+h1 shape: (128, 16, 16)
+h2 shape: (128, 32, 32)
+h3 shape: (128, 64, 64)
+h4 shape: (128, 64, 64)
+Generator output shape:  (3, 64, 64)
+Discriminator input shape:  (3, 64, 64)
+Encoder h0 shape:  (128, 64, 64)
+Encoder h1 shape: (128, 32, 32)
+Encoder h2 shape: (256, 16, 16)
+Encoder h3 shape: (384, 8, 8)
+Encoder h4 shape: (512, 8, 8)
+Latent code shape:  (64,)
+Decoder h0 shape:  (128, 8, 8)
+(128, 8, 8)
+Decoder h1 shape: (128, 16, 16)
+Decoder h2 shape: (128, 32, 32)
+Decoder h3 shape: (128, 64, 64)
+Decoder h4 shape: (128, 64, 64)
+Discriminator output shape: (3, 64, 64)
+First row is Generator loss, second row is Discriminator loss
+ Minibatch[   1-  80]: loss = 0.048302 * 1280;
+ Minibatch[   1-  80]: loss = 0.282839 * 1280;
+ Minibatch[  81- 160]: loss = 0.055735 * 1280;
+ Minibatch[  81- 160]: loss = 0.220001 * 1280;
+ Minibatch[ 161- 240]: loss = 0.061942 * 1280;
+ Minibatch[ 161- 240]: loss = 0.196855 * 1280;
+ Minibatch[ 241- 320]: loss = 0.059266 * 1280;
+ Minibatch[ 241- 320]: loss = 0.192490 * 1280;
+ Minibatch[ 321- 400]: loss = 0.068152 * 1280;
+ Minibatch[ 321- 400]: loss = 0.177560 * 1280;
+ Minibatch[ 401- 480]: loss = 0.070673 * 1280;
+ Minibatch[ 401- 480]: loss = 0.178666 * 1280;
+reset learning rate to  2e-05
+ Minibatch[ 481- 560]: loss = 0.066776 * 1280;
+ Minibatch[ 481- 560]: loss = 0.157682 * 1280;
+ Minibatch[ 561- 640]: loss = 0.060707 * 1280;
+ Minibatch[ 561- 640]: loss = 0.151392 * 1280;
+ Minibatch[ 641- 720]: loss = 0.060980 * 1280;
+ Minibatch[ 641- 720]: loss = 0.151376 * 1280;
+ Minibatch[ 721- 800]: loss = 0.063692 * 1280;
+ Minibatch[ 721- 800]: loss = 0.148562 * 1280;
+ Minibatch[ 801- 880]: loss = 0.065244 * 1280;
+ Minibatch[ 801- 880]: loss = 0.148002 * 1280;
+ Minibatch[ 881- 960]: loss = 0.064476 * 1280;
+ Minibatch[ 881- 960]: loss = 0.145166 * 1280;
+reset learning rate to  1e-05
+ Minibatch[ 961-1040]: loss = 0.062203 * 1280;
+ Minibatch[ 961-1040]: loss = 0.142907 * 1280;
+ Minibatch[1041-1120]: loss = 0.054184 * 1280;
+ Minibatch[1041-1120]: loss = 0.140169 * 1280;
+ Minibatch[1121-1200]: loss = 0.053335 * 1280;
+ Minibatch[1121-1200]: loss = 0.139749 * 1280;
+ Minibatch[1201-1280]: loss = 0.052748 * 1280;
+ Minibatch[1201-1280]: loss = 0.136396 * 1280;
+ Minibatch[1281-1360]: loss = 0.052045 * 1280;
+ Minibatch[1281-1360]: loss = 0.138423 * 1280;
+ Minibatch[1361-1440]: loss = 0.051707 * 1280;
+ Minibatch[1361-1440]: loss = 0.135890 * 1280;
+reset learning rate to  1e-05
+ Minibatch[1441-1520]: loss = 0.050012 * 1280;
+ Minibatch[1441-1520]: loss = 0.137379 * 1280;
+ Minibatch[1521-1600]: loss = 0.048039 * 1280;
+ Minibatch[1521-1600]: loss = 0.135170 * 1280;
+ Minibatch[1601-1680]: loss = 0.047182 * 1280;
+ Minibatch[1601-1680]: loss = 0.135060 * 1280;
+ Minibatch[1681-1760]: loss = 0.047798 * 1280;
+ Minibatch[1681-1760]: loss = 0.133962 * 1280;
+ Minibatch[1761-1840]: loss = 0.047922 * 1280;
+ Minibatch[1761-1840]: loss = 0.133726 * 1280;
+ Minibatch[1841-1920]: loss = 0.047045 * 1280;
+ Minibatch[1841-1920]: loss = 0.135555 * 1280;
+ Minibatch[1921-2000]: loss = 0.049095 * 1280;
+ Minibatch[1921-2000]: loss = 0.134137 * 1280;
+reset learning rate to  1e-05</code></pre>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="co"># Print the generator loss </span>
+<span class="bu">print</span>(<span class="st">&quot;Training loss of the generator is: </span><span class="sc">{0:.2f}</span><span class="st">&quot;</span>.<span class="bu">format</span>(G_trainer_loss))</code></pre></div>
+<pre><code>Training loss of the generator is: 0.05</code></pre>
+</div>
+</div>
+<div id="generating-fake-synthesized-images" class="section level2">
+<h2><span class="header-section-number">12.5</span> Generating Fake (Synthesized) Images</h2>
+<p>Now that we have trained the model, we can create fake images simply by feeding random noise into the generator and displaying the outputs. Below are a few images generated from random samples. To get a new set of samples, you can re-run the last cell.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> plot_images(images, subplot_shape):
+    plt.style.use(<span class="st">&#39;ggplot&#39;</span>)
+    fig, axes <span class="op">=</span> plt.subplots(<span class="op">*</span>subplot_shape)
+    <span class="cf">for</span> image, ax <span class="kw">in</span> <span class="bu">zip</span>(images, axes.flatten()):
+        image <span class="op">=</span> image[np.array([<span class="dv">2</span>,<span class="dv">1</span>,<span class="dv">0</span>]),:,:]
+        image <span class="op">=</span> np.rollaxis(image <span class="op">/</span> <span class="dv">2</span> <span class="op">+</span> <span class="fl">0.5</span>, <span class="dv">0</span>, <span class="dv">3</span>)
+        ax.imshow(image, vmin<span class="op">=-</span><span class="fl">1.0</span>, vmax<span class="op">=</span><span class="fl">1.0</span>)
+        ax.axis(<span class="st">&#39;off&#39;</span>)
+    plt.show()
+    
+noise <span class="op">=</span> noise_sample(<span class="dv">36</span>)
+images <span class="op">=</span> G_output.<span class="bu">eval</span>({G_input: noise})
+plot_images(images, subplot_shape<span class="op">=</span>[<span class="dv">6</span>, <span class="dv">6</span>])</code></pre></div>
+<div class="figure">
+<img src="Synthesizing-Celebs-BEGAN_files/Synthesizing-Celebs-BEGAN_29_0.png" alt="png" />
+<p class="caption">png</p>
+</div>
+<p>Larger number of iterations should generate more realistic looking face images. A sampling of such generated images is shown below.</p>
+<p>[1] S. Yang, P. Luo, C. C. Loy, and X. Tang, “From Facial Parts Responses to Face Detection: A Deep Learning Approach”, in <em>IEEE International Conference on Computer Vision (ICCV)</em>, 2015</p>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="how-to-make-a-racist-ai-without-really-trying.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"weibo": false,
+"instapper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/Azure/learnAnalytics-DeepLearning-Azure/edit/master/08-Celeb-BEGAN.Rmd",
+"text": "Edit"
+},
+"download": ["azure-deep-learning.pdf", "azure-deep-learning.epub"],
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(script.src))
+      script.src  = script.src.replace(/^https?:/, '');
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

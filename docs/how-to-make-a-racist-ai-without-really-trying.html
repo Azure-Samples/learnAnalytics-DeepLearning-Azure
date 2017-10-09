@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html >
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Deep Learning on Azure</title>
+  <meta name="description" content="Rendered version of Deep Learning on Azure materials.">
+  <meta name="generator" content="bookdown 0.5 and GitBook 2.6.7">
+
+  <meta property="og:title" content="Deep Learning on Azure" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="Rendered version of Deep Learning on Azure materials." />
+  <meta name="github-repo" content="Azure/learnAnalytics-DeepLearning-Azure" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Deep Learning on Azure" />
+  
+  <meta name="twitter:description" content="Rendered version of Deep Learning on Azure materials." />
+  
+
+<meta name="author" content="Ali Zaidi">
+
+
+<meta name="date" content="2017-10-09">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  
+  
+<link rel="prev" href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html">
+
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Deep Learning on Azure</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Preface</a><ul>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#part-i---fundamentals-and-azure-for-machine-learning"><i class="fa fa-check"></i><b>1.1</b> Part I - Fundamentals and Azure for Machine Learning</a></li>
+<li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#part-ii---optimization"><i class="fa fa-check"></i><b>1.2</b> Part II - Optimization</a></li>
+<li class="chapter" data-level="1.3" data-path="index.html"><a href="index.html#part-iii---convolutional-neural-networks"><i class="fa fa-check"></i><b>1.3</b> Part III - Convolutional Neural Networks</a></li>
+<li class="chapter" data-level="1.4" data-path="index.html"><a href="index.html#part-iv---recurrent-networks"><i class="fa fa-check"></i><b>1.4</b> Part IV - Recurrent Networks</a></li>
+<li class="chapter" data-level="1.5" data-path="index.html"><a href="index.html#part-v---reinforcement-learning"><i class="fa fa-check"></i><b>1.5</b> Part V - Reinforcement Learning</a></li>
+<li class="chapter" data-level="1.6" data-path="index.html"><a href="index.html#part-vi---generative-models"><i class="fa fa-check"></i><b>1.6</b> Part VI - Generative Models</a></li>
+<li class="chapter" data-level="1.7" data-path="index.html"><a href="index.html#part-vii---operationalization-methods"><i class="fa fa-check"></i><b>1.7</b> Part VII - Operationalization Methods</a></li>
+<li class="chapter" data-level="1.8" data-path="index.html"><a href="index.html#useful-resources"><i class="fa fa-check"></i><b>1.8</b> Useful Resources</a><ul>
+<li class="chapter" data-level="1.8.1" data-path="index.html"><a href="index.html#online-courses"><i class="fa fa-check"></i><b>1.8.1</b> Online Courses</a></li>
+<li class="chapter" data-level="1.8.2" data-path="index.html"><a href="index.html#online-books-and-blogs"><i class="fa fa-check"></i><b>1.8.2</b> Online Books and Blogs</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html"><i class="fa fa-check"></i><b>2</b> Provisioning Linux DSVMs with Azure CLI 2.0</a><ul>
+<li class="chapter" data-level="2.1" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#installing-and-testing-the-azure-cli"><i class="fa fa-check"></i><b>2.1</b> Installing and Testing the Azure CLI</a></li>
+<li class="chapter" data-level="2.2" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#login-to-your-azure-account"><i class="fa fa-check"></i><b>2.2</b> Login to Your Azure Account</a></li>
+<li class="chapter" data-level="2.3" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#deploying-with-a-custom-script"><i class="fa fa-check"></i><b>2.3</b> Deploying with a Custom Script</a></li>
+<li class="chapter" data-level="2.4" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#updating-dsvm-os-disk-size"><i class="fa fa-check"></i><b>2.4</b> Updating DSVM OS Disk Size</a></li>
+<li class="chapter" data-level="2.5" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#deploying-manually-only-proceed-if-you-didnt-use-the-script-above"><i class="fa fa-check"></i><b>2.5</b> Deploying Manually <strong>(Only Proceed if You Didn’t Use the Script Above!)</strong></a><ul>
+<li class="chapter" data-level="2.5.1" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#create-a-new-resource-group"><i class="fa fa-check"></i><b>2.5.1</b> Create a New Resource Group</a></li>
+<li class="chapter" data-level="2.5.2" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#create-your-dsvm"><i class="fa fa-check"></i><b>2.5.2</b> Create Your DSVM</a></li>
+<li class="chapter" data-level="2.5.3" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#create-a-password-for-the-user"><i class="fa fa-check"></i><b>2.5.3</b> Create a Password for the User</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html"><i class="fa fa-check"></i><b>3</b> Upgrading CNTK and CUDNN</a><ul>
+<li class="chapter" data-level="3.1" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#updating-cntk"><i class="fa fa-check"></i><b>3.1</b> Updating CNTK</a></li>
+<li class="chapter" data-level="3.2" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#updating-cntk-with-a-single-script"><i class="fa fa-check"></i><b>3.2</b> Updating CNTK With a Single Script</a><ul>
+<li class="chapter" data-level="3.2.1" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#launch-jupyterlab"><i class="fa fa-check"></i><b>3.2.1</b> Launch JupyterLab</a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#manually-updating-cntk-and-launching-jupyter-no-need-to-do-this-if-you-use-the-script"><i class="fa fa-check"></i><b>3.3</b> Manually Updating CNTK and Launching Jupyter (<strong>No Need to Do This if You Use the Script</strong>)</a><ul>
+<li class="chapter" data-level="3.3.1" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#create-conda-virtual-environment"><i class="fa fa-check"></i><b>3.3.1</b> Create Conda Virtual Environment</a></li>
+<li class="chapter" data-level="3.3.2" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#install-cntk-using-pip-binary-wheels"><i class="fa fa-check"></i><b>3.3.2</b> Install CNTK Using <code>pip</code> Binary Wheels</a></li>
+<li class="chapter" data-level="3.3.3" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#temporary-fixes"><i class="fa fa-check"></i><b>3.3.3</b> Temporary Fixes</a></li>
+<li class="chapter" data-level="3.3.4" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#conda-extensions"><i class="fa fa-check"></i><b>3.3.4</b> Conda Extensions</a></li>
+<li class="chapter" data-level="3.3.5" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#install-keras"><i class="fa fa-check"></i><b>3.3.5</b> Install Keras</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html"><i class="fa fa-check"></i><b>4</b> Transfer Learning with CNTK</a><ul>
+<li class="chapter" data-level="4.1" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#classifying-dogs-and-cats-using-a-pre-trained-network"><i class="fa fa-check"></i><b>4.1</b> Classifying Dogs and Cats Using a Pre-Trained Network</a><ul>
+<li class="chapter" data-level="4.1.1" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#download-data"><i class="fa fa-check"></i><b>4.1.1</b> Download Data</a></li>
+</ul></li>
+<li class="chapter" data-level="4.2" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#create-train-test-and-validate-sets"><i class="fa fa-check"></i><b>4.2</b> Create Train, Test and Validate Sets</a></li>
+<li class="chapter" data-level="4.3" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#kittypupsploration"><i class="fa fa-check"></i><b>4.3</b> Kittypupsploration</a></li>
+<li class="chapter" data-level="4.4" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#data-readers-in-cntk"><i class="fa fa-check"></i><b>4.4</b> Data Readers in CNTK</a></li>
+<li class="chapter" data-level="4.5" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#pre-trained-models"><i class="fa fa-check"></i><b>4.5</b> Pre-Trained Models</a></li>
+<li class="chapter" data-level="4.6" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#defining-model-architecture"><i class="fa fa-check"></i><b>4.6</b> Defining Model Architecture</a></li>
+<li class="chapter" data-level="4.7" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#training-the-transfer-model"><i class="fa fa-check"></i><b>4.7</b> Training the Transfer Model</a></li>
+<li class="chapter" data-level="4.8" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#define-minibatch-source"><i class="fa fa-check"></i><b>4.8</b> Define Minibatch Source</a></li>
+<li class="chapter" data-level="4.9" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#training"><i class="fa fa-check"></i><b>4.9</b> Training</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="fashion-mnist.html"><a href="fashion-mnist.html"><i class="fa fa-check"></i><b>5</b> Fashion MNIST</a><ul>
+<li class="chapter" data-level="5.1" data-path="fashion-mnist.html"><a href="fashion-mnist.html#import-core-libraries-and-specify-keras-backend"><i class="fa fa-check"></i><b>5.1</b> Import Core Libraries and Specify Keras Backend</a></li>
+<li class="chapter" data-level="5.2" data-path="fashion-mnist.html"><a href="fashion-mnist.html#downloading-fashion-dataset"><i class="fa fa-check"></i><b>5.2</b> Downloading Fashion Dataset</a></li>
+<li class="chapter" data-level="5.3" data-path="fashion-mnist.html"><a href="fashion-mnist.html#scale-data-and-visualize"><i class="fa fa-check"></i><b>5.3</b> Scale Data and Visualize</a></li>
+<li class="chapter" data-level="5.4" data-path="fashion-mnist.html"><a href="fashion-mnist.html#create-network-architecture-and-model-parameters"><i class="fa fa-check"></i><b>5.4</b> Create Network Architecture and Model Parameters</a></li>
+<li class="chapter" data-level="5.5" data-path="fashion-mnist.html"><a href="fashion-mnist.html#training-our-model"><i class="fa fa-check"></i><b>5.5</b> Training Our Model</a></li>
+<li class="chapter" data-level="5.6" data-path="fashion-mnist.html"><a href="fashion-mnist.html#scoring-the-model"><i class="fa fa-check"></i><b>5.6</b> Scoring the Model</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="neural-style-transfer.html"><a href="neural-style-transfer.html"><i class="fa fa-check"></i><b>6</b> Neural Style Transfer</a><ul>
+<li class="chapter" data-level="6.1" data-path="neural-style-transfer.html"><a href="neural-style-transfer.html#defining-the-loss-function"><i class="fa fa-check"></i><b>6.1</b> Defining the loss function</a></li>
+<li class="chapter" data-level="6.2" data-path="neural-style-transfer.html"><a href="neural-style-transfer.html#instantiating-the-loss"><i class="fa fa-check"></i><b>6.2</b> Instantiating the loss</a></li>
+<li class="chapter" data-level="6.3" data-path="neural-style-transfer.html"><a href="neural-style-transfer.html#optimizing-the-loss"><i class="fa fa-check"></i><b>6.3</b> Optimizing the loss</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="network-visualization-tensorflow.html"><a href="network-visualization-tensorflow.html"><i class="fa fa-check"></i><b>7</b> Network Visualization (TensorFlow)</a></li>
+<li class="chapter" data-level="8" data-path="pretrained-model.html"><a href="pretrained-model.html"><i class="fa fa-check"></i><b>8</b> Pretrained Model</a><ul>
+<li class="chapter" data-level="8.1" data-path="pretrained-model.html"><a href="pretrained-model.html#load-some-imagenet-images"><i class="fa fa-check"></i><b>8.1</b> Load some ImageNet images</a></li>
+<li class="chapter" data-level="8.2" data-path="pretrained-model.html"><a href="pretrained-model.html#preprocess-images"><i class="fa fa-check"></i><b>8.2</b> Preprocess images</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="saliency-maps.html"><a href="saliency-maps.html"><i class="fa fa-check"></i><b>9</b> Saliency Maps</a></li>
+<li class="chapter" data-level="10" data-path="fooling-images.html"><a href="fooling-images.html"><i class="fa fa-check"></i><b>10</b> Fooling Images</a></li>
+<li class="chapter" data-level="11" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><i class="fa fa-check"></i><b>11</b> Wasserstein GAN and Loss Sensitive GAN with CIFAR Data</a><ul>
+<li class="chapter" data-level="11.1" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#introduction"><i class="fa fa-check"></i><b>11.1</b> Introduction</a></li>
+<li class="chapter" data-level="11.2" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#overview"><i class="fa fa-check"></i><b>11.2</b> Overview</a><ul>
+<li class="chapter" data-level="11.2.1" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#why-is-gan-hard-to-train"><i class="fa fa-check"></i><b>11.2.1</b> Why is GAN hard to train?</a></li>
+<li class="chapter" data-level="11.2.2" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#wasserstein-gan"><i class="fa fa-check"></i><b>11.2.2</b> Wasserstein GAN</a></li>
+<li class="chapter" data-level="11.2.3" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#loss-sensitive-gan"><i class="fa fa-check"></i><b>11.2.3</b> Loss Sensitive GAN</a></li>
+</ul></li>
+<li class="chapter" data-level="11.3" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#data-reading"><i class="fa fa-check"></i><b>11.3</b> Data Reading</a></li>
+<li class="chapter" data-level="11.4" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#model-creation-w-gan"><i class="fa fa-check"></i><b>11.4</b> Model Creation (W-GAN)</a><ul>
+<li class="chapter" data-level="11.4.1" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#build-the-graph"><i class="fa fa-check"></i><b>11.4.1</b> Build the graph</a></li>
+<li class="chapter" data-level="11.4.2" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#train-the-model"><i class="fa fa-check"></i><b>11.4.2</b> Train the Model</a></li>
+</ul></li>
+<li class="chapter" data-level="11.5" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#generating-fake-synthetic-images-w-gan"><i class="fa fa-check"></i><b>11.5</b> Generating Fake (Synthetic) Images (W-GAN)</a></li>
+<li class="chapter" data-level="11.6" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#model-creation-ls-gan"><i class="fa fa-check"></i><b>11.6</b> Model Creation (LS-GAN)</a><ul>
+<li class="chapter" data-level="11.6.1" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#build-the-graph-1"><i class="fa fa-check"></i><b>11.6.1</b> Build the graph</a></li>
+</ul></li>
+<li class="chapter" data-level="11.7" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#train-the-model-1"><i class="fa fa-check"></i><b>11.7</b> Train the model</a></li>
+<li class="chapter" data-level="11.8" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#generating-fake-synthetic-images-ls-gan"><i class="fa fa-check"></i><b>11.8</b> Generating Fake (Synthetic) Images (LS-GAN)</a></li>
+</ul></li>
+<li class="chapter" data-level="12" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><i class="fa fa-check"></i><b>12</b> Synthesizing Faces of Celebrities Boundary Equilibrium GAN with CelebA data</a><ul>
+<li class="chapter" data-level="12.1" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html#introduction-1"><i class="fa fa-check"></i><b>12.1</b> Introduction</a></li>
+<li class="chapter" data-level="12.2" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html#download-data-1"><i class="fa fa-check"></i><b>12.2</b> Download Data</a></li>
+<li class="chapter" data-level="12.3" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html#read-data"><i class="fa fa-check"></i><b>12.3</b> Read Data</a></li>
+<li class="chapter" data-level="12.4" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html#model-creation"><i class="fa fa-check"></i><b>12.4</b> Model Creation</a><ul>
+<li class="chapter" data-level="12.4.1" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html#model-components"><i class="fa fa-check"></i><b>12.4.1</b> Model components</a></li>
+<li class="chapter" data-level="12.4.2" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html#build-the-graph-2"><i class="fa fa-check"></i><b>12.4.2</b> Build the graph</a></li>
+<li class="chapter" data-level="12.4.3" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html#train-the-model-2"><i class="fa fa-check"></i><b>12.4.3</b> Train the Model</a></li>
+</ul></li>
+<li class="chapter" data-level="12.5" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html#generating-fake-synthesized-images"><i class="fa fa-check"></i><b>12.5</b> Generating Fake (Synthesized) Images</a></li>
+</ul></li>
+<li class="chapter" data-level="13" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html"><i class="fa fa-check"></i><b>13</b> How to make a racist AI without really trying</a><ul>
+<li class="chapter" data-level="13.1" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#lets-make-a-sentiment-classifier"><i class="fa fa-check"></i><b>13.1</b> Let’s make a sentiment classifier!</a></li>
+<li class="chapter" data-level="13.2" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#software-dependencies"><i class="fa fa-check"></i><b>13.2</b> Software dependencies</a></li>
+<li class="chapter" data-level="13.3" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#step-1-word-embeddings"><i class="fa fa-check"></i><b>13.3</b> Step 1: Word embeddings</a></li>
+<li class="chapter" data-level="13.4" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#step-2-a-gold-standard-sentiment-lexicon"><i class="fa fa-check"></i><b>13.4</b> Step 2: A gold-standard sentiment lexicon</a></li>
+<li class="chapter" data-level="13.5" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#step-3-train-a-model-to-predict-word-sentiments"><i class="fa fa-check"></i><b>13.5</b> Step 3: Train a model to predict word sentiments</a></li>
+<li class="chapter" data-level="13.6" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#step-4-get-a-sentiment-score-for-text"><i class="fa fa-check"></i><b>13.6</b> Step 4: Get a sentiment score for text</a></li>
+<li class="chapter" data-level="13.7" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#step-5-behold-the-monstrosity-that-we-have-created"><i class="fa fa-check"></i><b>13.7</b> Step 5: Behold the monstrosity that we have created</a></li>
+<li class="chapter" data-level="13.8" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#step-6-measure-the-problem"><i class="fa fa-check"></i><b>13.8</b> Step 6: Measure the problem</a></li>
+<li class="chapter" data-level="13.9" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#step-7-trying-different-data"><i class="fa fa-check"></i><b>13.9</b> Step 7: Trying different data</a><ul>
+<li class="chapter" data-level="13.9.1" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#trying-word2vec"><i class="fa fa-check"></i><b>13.9.1</b> Trying word2vec</a></li>
+<li class="chapter" data-level="13.9.2" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#trying-conceptnet-numberbatch"><i class="fa fa-check"></i><b>13.9.2</b> Trying ConceptNet Numberbatch</a></li>
+<li class="chapter" data-level="13.9.3" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#there-is-no-trade-off"><i class="fa fa-check"></i><b>13.9.3</b> There is no trade-off</a></li>
+</ul></li>
+<li class="chapter" data-level="13.10" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#other-approaches"><i class="fa fa-check"></i><b>13.10</b> Other approaches</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://aka.ms/az-dl" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Deep Learning on Azure</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="how-to-make-a-racist-ai-without-really-trying" class="section level1">
+<h1><span class="header-section-number">Chapter 13</span> How to make a racist AI without really trying</h1>
+<p>A cautionary tutorial.</p>
+<div id="lets-make-a-sentiment-classifier" class="section level2">
+<h2><span class="header-section-number">13.1</span> Let’s make a sentiment classifier!</h2>
+<p>Sentiment analysis is a very frequently-implemented task in NLP, and it’s no surprise. Recognizing whether people are expressing positive or negative opinions about things has obvious business applications. It’s used in social media monitoring, customer feedback, and even automatic stock trading (leading to bots that <a href="https://www.theatlantic.com/technology/archive/2011/03/does-anne-hathaway-news-drive-berkshire-hathaways-stock/72661/">buy Berkshire Hathaway when Anne Hathaway gets a good movie review</a>).</p>
+<p>It’s simplistic, sometimes too simplistic, but it’s one of the easiest ways to get measurable results from NLP. In a few steps, you can put text in one end and get positive and negative scores out the other, and you never have to figure out what you should do with a parse tree or a graph of entities or any difficult representation like that.</p>
+<p>So that’s what we’re going to do here, following the path of least resistance at every step, obtaining a classifier that should look very familiar to anyone involved in current NLP. For example, you can find this model described in the <a href="http://cs.umd.edu/~miyyer/pubs/2015_acl_dan.pdf">Deep Averaging Networks</a> paper (Iyyer et al., 2015). This model is not the point of that paper, so don’t take this as an attack on their results; it was there as an example of a well-known way to use word vectors.</p>
+<p>Here’s the outline of what we’re going to do:</p>
+<ul>
+<li>Acquire some typical <strong>word embeddings</strong> to represent the meanings of words</li>
+<li>Acquire <strong>training and test data</strong>, with gold-standard examples of positive and negative words</li>
+<li><strong>Train a classifier</strong>, using gradient descent, to recognize other positive and negative words based on their word embeddings</li>
+<li>Compute <strong>sentiment scores</strong> for sentences of text using this classifier</li>
+<li><strong>Behold the monstrosity</strong> that we have created</li>
+</ul>
+<p>And at that point we will have shown “how to make a racist AI without really trying”. Of course that would be a terrible place to leave it, so afterward, we’re going to:</p>
+<ul>
+<li><strong>Measure the problem</strong> statistically, so we can recognize if we’re solving it</li>
+<li><strong>Improve the data</strong> to obtain a semantic model that’s more accurate <em>and</em> less racist</li>
+</ul>
+</div>
+<div id="software-dependencies" class="section level2">
+<h2><span class="header-section-number">13.2</span> Software dependencies</h2>
+<p>This tutorial is written in Python, and relies on a typical Python machine-learning stack: <code>numpy</code> and <code>scipy</code> for numerical computing, <code>pandas</code> for managing our data, and <code>scikit-learn</code> for machine learning. Later on we’ll graph some things with <code>matplotlib</code> and <code>seaborn</code>.</p>
+<p>You could also replace <code>scikit-learn</code> with TensorFlow or Keras or something like that, as they can also train classifiers using gradient descent. But there’s no need for the deep-learning abstractions they provide, as it only takes a single layer of machine learning to solve this problem.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">import</span> numpy <span class="im">as</span> np
+<span class="im">import</span> pandas <span class="im">as</span> pd
+<span class="im">import</span> matplotlib
+<span class="im">import</span> seaborn
+<span class="im">import</span> re
+<span class="im">import</span> statsmodels.formula.api
+
+<span class="im">from</span> sklearn.linear_model <span class="im">import</span> SGDClassifier
+<span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split
+<span class="im">from</span> sklearn.metrics <span class="im">import</span> accuracy_score</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="co"># Configure how graphs will show up in this notebook</span>
+<span class="op">%</span>matplotlib inline
+seaborn.set_context(<span class="st">&#39;notebook&#39;</span>, rc<span class="op">=</span>{<span class="st">&#39;figure.figsize&#39;</span>: (<span class="dv">10</span>, <span class="dv">6</span>)}, font_scale<span class="op">=</span><span class="fl">1.5</span>)</code></pre></div>
+</div>
+<div id="step-1-word-embeddings" class="section level2">
+<h2><span class="header-section-number">13.3</span> Step 1: Word embeddings</h2>
+<p>Word embeddings are frequently used to represent words as inputs to machine learning. The words become vectors in a multi-dimensional space, where nearby vectors represent similar meanings. With word embeddings, you can compare words by (roughly) what they mean, not just exact string matches.</p>
+<p>Successfully training word vectors requires starting from hundreds of gigabytes of input text. Fortunately, various machine-learning groups have already done this and provided pre-trained word embeddings that we can download.</p>
+<p>Two very well-known datasets of pre-trained English word embeddings are <strong>word2vec</strong>, pretrained on Google News data, and <strong>GloVe</strong>, pretrained on the Common Crawl of web pages. We would get similar results for either one, but here we’ll use GloVe because its source of data is more transparent.</p>
+<p>GloVe comes in three sizes: 6B, 42B, and 840B. The 840B size is powerful, but requires significant post-processing to use it in a way that’s an improvement over 42B. The 42B version is pretty good and is also neatly trimmed to a vocabulary of 1 million words. Because we’re following the path of least resistance, we’ll just use the 42B version.</p>
+<blockquote>
+<p><strong>Why does it matter that the word embeddings are “well-known”?</strong></p>
+<p>I’m glad you asked, hypothetical questioner! We’re trying to do something extremely typical at each step, and for some reason, comparison-shopping for better word embeddings isn’t typical yet. Read on, and I hope you’ll come out of this tutorial with the desire to use <a href="https://github.com/commonsense/conceptnet-numberbatch">modern, high-quality word embeddings</a>, especially those that are aware of algorithmic bias and try to mitigate it. But that’s getting ahead of things.</p>
+</blockquote>
+<p>We download glove.42B.300d.zip from <a href="https://nlp.stanford.edu/projects/glove/">the GloVe web page</a>, and extract it into <code>data/glove.42B.300d.txt</code>. Next we define a function to read the simple format of its word vectors.</p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">%%bash</span>
+<span class="fu">mkdir</span> data/
+<span class="bu">cd</span> data/
+<span class="fu">wget</span> http://nlp.stanford.edu/data/glove.840B.300d.zip
+<span class="fu">unzip</span> glove.840B.300d.zip</code></pre></div>
+<pre><code>Archive:  glove.840B.300d.zip
+  inflating: glove.840B.300d.txt     
+
+
+IOPub data rate exceeded.
+The notebook server will temporarily stop sending output
+to the client in order to avoid crashing it.
+To change this limit, set the config variable
+`--NotebookApp.iopub_data_rate_limit`.</code></pre>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> load_embeddings(filename):
+    <span class="co">&quot;&quot;&quot;</span>
+<span class="co">    Load a DataFrame from the generalized text format used by word2vec, GloVe,</span>
+<span class="co">    fastText, and ConceptNet Numberbatch. The main point where they differ is</span>
+<span class="co">    whether there is an initial line with the dimensions of the matrix.</span>
+<span class="co">    &quot;&quot;&quot;</span>
+    labels <span class="op">=</span> []
+    rows <span class="op">=</span> []
+    <span class="cf">with</span> <span class="bu">open</span>(filename, encoding<span class="op">=</span><span class="st">&#39;utf-8&#39;</span>) <span class="im">as</span> infile:
+        <span class="cf">for</span> i, line <span class="kw">in</span> <span class="bu">enumerate</span>(infile):
+            items <span class="op">=</span> line.rstrip().split(<span class="st">&#39; &#39;</span>)
+            <span class="cf">if</span> <span class="bu">len</span>(items) <span class="op">==</span> <span class="dv">2</span>:
+                <span class="co"># This is a header row giving the shape of the matrix</span>
+                <span class="cf">continue</span>
+            labels.append(items[<span class="dv">0</span>])
+            values <span class="op">=</span> np.array([<span class="bu">float</span>(x) <span class="cf">for</span> x <span class="kw">in</span> items[<span class="dv">1</span>:]], <span class="st">&#39;f&#39;</span>)
+            rows.append(values)
+    
+    arr <span class="op">=</span> np.vstack(rows)
+    <span class="cf">return</span> pd.DataFrame(arr, index<span class="op">=</span>labels, dtype<span class="op">=</span><span class="st">&#39;f&#39;</span>)
+
+embeddings <span class="op">=</span> load_embeddings(<span class="st">&#39;data/glove.840B.300d.txt&#39;</span>)
+embeddings.shape</code></pre></div>
+<pre><code>(2196017, 300)</code></pre>
+</div>
+<div id="step-2-a-gold-standard-sentiment-lexicon" class="section level2">
+<h2><span class="header-section-number">13.4</span> Step 2: A gold-standard sentiment lexicon</h2>
+<p>We need some input about which words are positive and which words are negative. There are many sentiment lexicons you could use, but we’re going to go with a very straightforward lexicon (Hu and Liu, 2004), the same one used by the Deep Averaging Networks paper.</p>
+<p>We download the lexicon from Bing Liu’s web site (<a href="https://www.cs.uic.edu/~liub/FBS/sentiment-analysis.html#lexicon" class="uri">https://www.cs.uic.edu/~liub/FBS/sentiment-analysis.html#lexicon</a>) and extract it into <code>data/positive-words.txt</code> and <code>data/negative-words.txt</code>.</p>
+<p>Next we define how to read these files, and read them in as the <code>pos_words</code> and <code>neg_words</code> variables:</p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">%%bash</span>
+<span class="bu">cd</span> data/
+<span class="fu">wget</span> http://www.cs.uic.edu/~liub/FBS/opinion-lexicon-English.rar
+<span class="ex">unrar</span> pros-cons.rar</code></pre></div>
+<pre><code>--2017-10-05 22:12:34--  http://www.cs.uic.edu/~liub/FBS/pros-cons.rar
+Resolving www.cs.uic.edu... 131.193.32.29
+Connecting to www.cs.uic.edu|131.193.32.29|:80... connected.
+HTTP request sent, awaiting response... 301 Moved Permanently
+Location: https://www.cs.uic.edu/~liub/FBS/pros-cons.rar [following]
+--2017-10-05 22:12:34--  https://www.cs.uic.edu/~liub/FBS/pros-cons.rar
+Connecting to www.cs.uic.edu|131.193.32.29|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: unspecified [text/plain]
+Saving to: ‘pros-cons.rar.1’
+
+     0K .......... .......... .......... .......... .......... 1.15M
+    50K .......... .......... .......... .......... .......... 2.25M
+   100K .......... .......... .......... .......... ..........  181M
+   150K .......... .......... .......... .......... .......... 2.33M
+   200K .......... .......... .......... .......... .......... 15.7M
+   250K .......... .......... .......... .......... ..........  295M
+   300K .......... .......... .......... .......... ..........  327M
+   350K .......... .......... .......... .......... .......... 2.69M
+   400K .......... .......... .......... .......... .......... 97.8M
+   450K .......... .......... .......... .......... .......... 23.2M
+   500K .......... .......... .......... .......... ..........  194M
+   550K .......... .......... .......... .......... .......... 39.6M
+   600K .......... .......                                      109M=0.1s
+
+2017-10-05 22:12:34 (5.43 MB/s) - ‘pros-cons.rar.1’ saved [632640]
+
+bash: line 3: unrar: command not found</code></pre>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> load_lexicon(filename):
+    <span class="co">&quot;&quot;&quot;</span>
+<span class="co">    Load a file from Bing Liu&#39;s sentiment lexicon</span>
+<span class="co">    (https://www.cs.uic.edu/~liub/FBS/sentiment-analysis.html), containing</span>
+<span class="co">    English words in Latin-1 encoding.</span>
+<span class="co">    </span>
+<span class="co">    One file contains a list of positive words, and the other contains</span>
+<span class="co">    a list of negative words. The files contain comment lines starting</span>
+<span class="co">    with &#39;;&#39; and blank lines, which should be skipped.</span>
+<span class="co">    &quot;&quot;&quot;</span>
+    lexicon <span class="op">=</span> []
+    <span class="cf">with</span> <span class="bu">open</span>(filename, encoding<span class="op">=</span><span class="st">&#39;latin-1&#39;</span>) <span class="im">as</span> infile:
+        <span class="cf">for</span> line <span class="kw">in</span> infile:
+            line <span class="op">=</span> line.rstrip()
+            <span class="cf">if</span> line <span class="kw">and</span> <span class="kw">not</span> line.startswith(<span class="st">&#39;;&#39;</span>):
+                lexicon.append(line)
+    <span class="cf">return</span> lexicon
+
+pos_words <span class="op">=</span> load_lexicon(<span class="st">&#39;data/positive-words.txt&#39;</span>)
+neg_words <span class="op">=</span> load_lexicon(<span class="st">&#39;data/negative-words.txt&#39;</span>)</code></pre></div>
+</div>
+<div id="step-3-train-a-model-to-predict-word-sentiments" class="section level2">
+<h2><span class="header-section-number">13.5</span> Step 3: Train a model to predict word sentiments</h2>
+<p>Our data points here are the embeddings of these positive and negative words. We use the Pandas <code>.loc[]</code> operation to look up the embeddings of all the words.</p>
+<p>Some of these words are not in the GloVe vocabulary, particularly the misspellings such as “fancinating”. Those words end up with rows full of <code>NaN</code> to indicate their missing embeddings, so we use <code>.dropna()</code> to remove them.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">pos_vectors <span class="op">=</span> embeddings.loc[pos_words].dropna()
+neg_vectors <span class="op">=</span> embeddings.loc[neg_words].dropna()</code></pre></div>
+<p>Now we make arrays of the desired inputs and outputs. The inputs are the embeddings, and the outputs are 1 for positive words and -1 for negative words. We also make sure to keep track of the words they’re labeled with, so we can interpret the results.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">vectors <span class="op">=</span> pd.concat([pos_vectors, neg_vectors])
+targets <span class="op">=</span> np.array([<span class="dv">1</span> <span class="cf">for</span> entry <span class="kw">in</span> pos_vectors.index] <span class="op">+</span> [<span class="op">-</span><span class="dv">1</span> <span class="cf">for</span> entry <span class="kw">in</span> neg_vectors.index])
+labels <span class="op">=</span> <span class="bu">list</span>(pos_vectors.index) <span class="op">+</span> <span class="bu">list</span>(neg_vectors.index)</code></pre></div>
+<blockquote>
+<p><strong>Hold on. Some words are neither positive nor negative, they’re neutral. Shouldn’t there be a third class for neutral words?</strong></p>
+<p>I think that having examples of neutral words would be quite beneficial, especially because the problems we’re going to see come from assigning sentiment to words that shouldn’t have sentiment. If we could reliably identify when words should be neutral, it would be worth the slight extra complexity of a 3-class classifier. It requires finding a source of examples of neutral words, because Liu’s data only lists positive and negative words.</p>
+<p>So I tried a version of this notebook where I put in 800 examples of neutral words, and put a strong weight on predicting words to be neutral. But the end results were not much different from what you’re about to see.</p>
+<p><strong>How is this list drawing the line between positive and negative anyway? Doesn’t that depend on context?</strong></p>
+<p>Good question. Domain-general sentiment analysis isn’t as straightforward as it sounds. The decision boundary we’re trying to find is fairly arbitrary in places. In this list, “audacious” is marked as “bad” while “ambitious” is “good”. “Comical” is bad, “humorous” is good. “Refund” is good, even though it’s typically in bad situations that you have to request one or pay one.</p>
+<p>I think everyone knows that sentiment requires context, but when implementing an easy approach to sentiment analysis, you just have to kind of hope that you can ignore context and the sentiments will average out to the right trend.</p>
+</blockquote>
+<p>Using the scikit-learn <code>train_test_split</code> function, we simultaneously separate the input vectors, output values, and labels into training and test data, with 10% of the data used for testing.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">train_vectors, test_vectors, train_targets, test_targets, train_labels, test_labels <span class="op">=</span> <span class="op">\</span>
+    train_test_split(vectors, targets, labels, test_size<span class="op">=</span><span class="fl">0.1</span>, random_state<span class="op">=</span><span class="dv">0</span>)</code></pre></div>
+<p>Now we make our classifier, and train it by running the training vectors through it for 100 iterations. We use a logistic function as the loss, so that the resulting classifier can output the probability that a word is positive or negative.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">model <span class="op">=</span> SGDClassifier(loss<span class="op">=</span><span class="st">&#39;log&#39;</span>, random_state<span class="op">=</span><span class="dv">0</span>, n_iter<span class="op">=</span><span class="dv">100</span>)
+model.fit(train_vectors, train_targets)</code></pre></div>
+<pre><code>SGDClassifier(alpha=0.0001, average=False, class_weight=None, epsilon=0.1,
+       eta0=0.0, fit_intercept=True, l1_ratio=0.15,
+       learning_rate=&#39;optimal&#39;, loss=&#39;log&#39;, n_iter=100, n_jobs=1,
+       penalty=&#39;l2&#39;, power_t=0.5, random_state=0, shuffle=True, verbose=0,
+       warm_start=False)</code></pre>
+<p>We evaluate the classifier on the test vectors. It predicts the correct sentiment for sentiment words outside of its training data 95% of the time. Not bad.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">accuracy_score(model.predict(test_vectors), test_targets)</code></pre></div>
+<pre><code>0.95619335347432022</code></pre>
+<p>Let’s define a function that we can use to see the sentiment that this classifier predicts for particular words, then use it to see some examples of its predictions on the test data.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> vecs_to_sentiment(vecs):
+    <span class="co"># predict_log_proba gives the log probability for each class</span>
+    predictions <span class="op">=</span> model.predict_log_proba(vecs)
+
+    <span class="co"># To see an overall positive vs. negative classification in one number,</span>
+    <span class="co"># we take the log probability of positive sentiment minus the log</span>
+    <span class="co"># probability of negative sentiment.</span>
+    <span class="cf">return</span> predictions[:, <span class="dv">1</span>] <span class="op">-</span> predictions[:, <span class="dv">0</span>]
+
+
+<span class="kw">def</span> words_to_sentiment(words):
+    vecs <span class="op">=</span> embeddings.loc[words].dropna()
+    log_odds <span class="op">=</span> vecs_to_sentiment(vecs)
+    <span class="cf">return</span> pd.DataFrame({<span class="st">&#39;sentiment&#39;</span>: log_odds}, index<span class="op">=</span>vecs.index)
+
+
+<span class="co"># Show 20 examples from the test set</span>
+words_to_sentiment(test_labels).ix[:<span class="dv">20</span>]</code></pre></div>
+<div>
+<table border="1" class="dataframe">
+<thead>
+<pre><code>&lt;tr style=&quot;text-align: right;&quot;&gt;
+  &lt;th&gt;&lt;/th&gt;
+  &lt;th&gt;sentiment&lt;/th&gt;
+&lt;/tr&gt;</code></pre>
+</thead>
+<tbody>
+<pre><code>&lt;tr&gt;
+  &lt;th&gt;fidget&lt;/th&gt;
+  &lt;td&gt;-9.931679&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;interrupt&lt;/th&gt;
+  &lt;td&gt;-9.634706&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;staunchly&lt;/th&gt;
+  &lt;td&gt;1.466919&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;imaginary&lt;/th&gt;
+  &lt;td&gt;-2.989215&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;taxing&lt;/th&gt;
+  &lt;td&gt;0.468522&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;world-famous&lt;/th&gt;
+  &lt;td&gt;6.908561&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;low-cost&lt;/th&gt;
+  &lt;td&gt;9.237223&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;disapointment&lt;/th&gt;
+  &lt;td&gt;-8.737182&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;totalitarian&lt;/th&gt;
+  &lt;td&gt;-10.851580&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;bellicose&lt;/th&gt;
+  &lt;td&gt;-8.328674&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;freezes&lt;/th&gt;
+  &lt;td&gt;-8.456981&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;sin&lt;/th&gt;
+  &lt;td&gt;-7.839670&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;fragile&lt;/th&gt;
+  &lt;td&gt;-4.018289&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;fooled&lt;/th&gt;
+  &lt;td&gt;-4.309344&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;undecided&lt;/th&gt;
+  &lt;td&gt;-2.816172&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;handily&lt;/th&gt;
+  &lt;td&gt;2.339609&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;demonizes&lt;/th&gt;
+  &lt;td&gt;-2.102152&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;easygoing&lt;/th&gt;
+  &lt;td&gt;8.747150&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;unpopular&lt;/th&gt;
+  &lt;td&gt;-7.887475&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;commiserate&lt;/th&gt;
+  &lt;td&gt;1.790899&lt;/td&gt;
+&lt;/tr&gt;</code></pre>
+</tbody>
+</table>
+</div>
+<p>More than the accuracy number, this convinces us that the classifier is working. We can see that the classifier has learned to generalize sentiment to words outside of its training data.</p>
+</div>
+<div id="step-4-get-a-sentiment-score-for-text" class="section level2">
+<h2><span class="header-section-number">13.6</span> Step 4: Get a sentiment score for text</h2>
+<p>There are many ways to combine sentiments for word vectors into an overall sentiment score. Again, because we’re following the path of least resistance, we’re just going to average them.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">import</span> re
+TOKEN_RE <span class="op">=</span> re.<span class="bu">compile</span>(<span class="vs">r&quot;\w.*?\b&quot;</span>)
+<span class="co"># The regex above finds tokens that start with a word-like character (\w), and continues</span>
+<span class="co"># matching characters (.+?) until the next word break (\b). It&#39;s a relatively simple</span>
+<span class="co"># expression that manages to extract something very much like words from text.</span>
+
+
+<span class="kw">def</span> text_to_sentiment(text):
+    tokens <span class="op">=</span> [token.casefold() <span class="cf">for</span> token <span class="kw">in</span> TOKEN_RE.findall(text)]
+    sentiments <span class="op">=</span> words_to_sentiment(tokens)
+    <span class="cf">return</span> sentiments[<span class="st">&#39;sentiment&#39;</span>].mean()</code></pre></div>
+<p>There are many things we could have done better:</p>
+<ul>
+<li>Weight words by their inverse frequency, so that words like “the” and “I” don’t cause big changes in sentiment</li>
+<li>Adjust the averaging so that short sentences don’t end up with the most extreme sentiment values</li>
+<li>Take phrases into account</li>
+<li>Use a more robust word-segmentation algorithm that isn’t confused by apostrophes</li>
+<li>Account for negations such as “not happy”</li>
+</ul>
+<p>But all of those would require extra code and wouldn’t fundamentally change the results we’re about to see. At least now we can roughly compare the relative positivity of different sentences:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">text_to_sentiment(<span class="st">&quot;this example is pretty cool&quot;</span>)</code></pre></div>
+<pre><code>3.889968926086298</code></pre>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">text_to_sentiment(<span class="st">&quot;this example is okay&quot;</span>)</code></pre></div>
+<pre><code>2.7997773492425186</code></pre>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">text_to_sentiment(<span class="st">&quot;meh, this example sucks&quot;</span>)</code></pre></div>
+<pre><code>-1.1774475917460698</code></pre>
+</div>
+<div id="step-5-behold-the-monstrosity-that-we-have-created" class="section level2">
+<h2><span class="header-section-number">13.7</span> Step 5: Behold the monstrosity that we have created</h2>
+<p>Not every sentence is going to contain obvious sentiment words. Let’s see what it does with a few variations on a neutral sentence:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">text_to_sentiment(<span class="st">&quot;Let&#39;s go get Italian food&quot;</span>)</code></pre></div>
+<pre><code>2.0429166109408983</code></pre>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">text_to_sentiment(<span class="st">&quot;Let&#39;s go get Chinese food&quot;</span>)</code></pre></div>
+<pre><code>1.4094033658140972</code></pre>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">text_to_sentiment(<span class="st">&quot;Let&#39;s go get Mexican food&quot;</span>)</code></pre></div>
+<pre><code>0.38801985560121732</code></pre>
+<p>This is analogous to what I saw when I experimented with analyzing restaurant reviews using word embeddings, and found out that <a href="https://blog.conceptnet.io/2017/04/24/conceptnet-numberbatch-17-04-better-less-stereotyped-word-vectors/">all the Mexican restaurants were ending up with lower sentiment</a> for no good reason.</p>
+<p>Word vectors are capable of representing subtle distinctions of meaning just by reading words in context. So they’re also capable of representing less-subtle things like the biases of our society.</p>
+<p>Here are some other neutral statements:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">text_to_sentiment(<span class="st">&quot;My name is Emily&quot;</span>)</code></pre></div>
+<pre><code>2.2286179364745311</code></pre>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">text_to_sentiment(<span class="st">&quot;My name is Heather&quot;</span>)</code></pre></div>
+<pre><code>1.3976291151079159</code></pre>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">text_to_sentiment(<span class="st">&quot;My name is Yvette&quot;</span>)</code></pre></div>
+<pre><code>0.98463802132985556</code></pre>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">text_to_sentiment(<span class="st">&quot;My name is Shaniqua&quot;</span>)</code></pre></div>
+<pre><code>-0.47048131775890656</code></pre>
+<p>Well, dang.</p>
+<p>The system has associated wildly different sentiments with people’s names. You can look at these examples and many others and see that the sentiment is generally more positive for stereotypically-white names, and more negative for stereotypically-black names.</p>
+<p>This is the test that Caliskan, Bryson, and Narayanan used to conclude that <a href="http://opus.bath.ac.uk/55288/">semantics derived automatically from language corpora contain human-like biases</a>, a paper published in <em>Science</em> in April 2017, and we’ll be using more of it shortly.</p>
+</div>
+<div id="step-6-measure-the-problem" class="section level2">
+<h2><span class="header-section-number">13.8</span> Step 6: Measure the problem</h2>
+<p>We want to learn how to not make something like this again. So let’s put more data through it, and statistically measure how bad its bias is.</p>
+<p>Here we have four lists of names that tend to reflect different ethnic backgrounds, mostly from a United States perspective. The first two are lists of predominantly “white” and “black” names adapted from Caliskan et al.’s article. I also added typically Hispanic names, as well as Muslim names that come from Arabic or Urdu; these are two more distinct groupings of given names that tend to represent your background.</p>
+<p>This data is currently used as a bias-check in the ConceptNet build process, and can be found in the <code>conceptnet5.vectors.evaluation.bias</code> module. I’m interested in expanding this to more ethnic backgrounds, which may require looking at surnames and not just given names.</p>
+<p>Here are the lists:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">NAMES_BY_ETHNICITY <span class="op">=</span> {
+    <span class="co"># The first two lists are from the Caliskan et al. appendix describing the</span>
+    <span class="co"># Word Embedding Association Test.</span>
+    <span class="st">&#39;White&#39;</span>: [
+        <span class="st">&#39;Adam&#39;</span>, <span class="st">&#39;Chip&#39;</span>, <span class="st">&#39;Harry&#39;</span>, <span class="st">&#39;Josh&#39;</span>, <span class="st">&#39;Roger&#39;</span>, <span class="st">&#39;Alan&#39;</span>, <span class="st">&#39;Frank&#39;</span>, <span class="st">&#39;Ian&#39;</span>, <span class="st">&#39;Justin&#39;</span>,
+        <span class="st">&#39;Ryan&#39;</span>, <span class="st">&#39;Andrew&#39;</span>, <span class="st">&#39;Fred&#39;</span>, <span class="st">&#39;Jack&#39;</span>, <span class="st">&#39;Matthew&#39;</span>, <span class="st">&#39;Stephen&#39;</span>, <span class="st">&#39;Brad&#39;</span>, <span class="st">&#39;Greg&#39;</span>, <span class="st">&#39;Jed&#39;</span>,
+        <span class="st">&#39;Paul&#39;</span>, <span class="st">&#39;Todd&#39;</span>, <span class="st">&#39;Brandon&#39;</span>, <span class="st">&#39;Hank&#39;</span>, <span class="st">&#39;Jonathan&#39;</span>, <span class="st">&#39;Peter&#39;</span>, <span class="st">&#39;Wilbur&#39;</span>, <span class="st">&#39;Amanda&#39;</span>,
+        <span class="st">&#39;Courtney&#39;</span>, <span class="st">&#39;Heather&#39;</span>, <span class="st">&#39;Melanie&#39;</span>, <span class="st">&#39;Sara&#39;</span>, <span class="st">&#39;Amber&#39;</span>, <span class="st">&#39;Crystal&#39;</span>, <span class="st">&#39;Katie&#39;</span>,
+        <span class="st">&#39;Meredith&#39;</span>, <span class="st">&#39;Shannon&#39;</span>, <span class="st">&#39;Betsy&#39;</span>, <span class="st">&#39;Donna&#39;</span>, <span class="st">&#39;Kristin&#39;</span>, <span class="st">&#39;Nancy&#39;</span>, <span class="st">&#39;Stephanie&#39;</span>,
+        <span class="st">&#39;Bobbie-Sue&#39;</span>, <span class="st">&#39;Ellen&#39;</span>, <span class="st">&#39;Lauren&#39;</span>, <span class="st">&#39;Peggy&#39;</span>, <span class="st">&#39;Sue-Ellen&#39;</span>, <span class="st">&#39;Colleen&#39;</span>, <span class="st">&#39;Emily&#39;</span>,
+        <span class="st">&#39;Megan&#39;</span>, <span class="st">&#39;Rachel&#39;</span>, <span class="st">&#39;Wendy&#39;</span>
+    ],
+
+    <span class="st">&#39;Black&#39;</span>: [
+        <span class="st">&#39;Alonzo&#39;</span>, <span class="st">&#39;Jamel&#39;</span>, <span class="st">&#39;Lerone&#39;</span>, <span class="st">&#39;Percell&#39;</span>, <span class="st">&#39;Theo&#39;</span>, <span class="st">&#39;Alphonse&#39;</span>, <span class="st">&#39;Jerome&#39;</span>,
+        <span class="st">&#39;Leroy&#39;</span>, <span class="st">&#39;Rasaan&#39;</span>, <span class="st">&#39;Torrance&#39;</span>, <span class="st">&#39;Darnell&#39;</span>, <span class="st">&#39;Lamar&#39;</span>, <span class="st">&#39;Lionel&#39;</span>, <span class="st">&#39;Rashaun&#39;</span>,
+        <span class="st">&#39;Tyree&#39;</span>, <span class="st">&#39;Deion&#39;</span>, <span class="st">&#39;Lamont&#39;</span>, <span class="st">&#39;Malik&#39;</span>, <span class="st">&#39;Terrence&#39;</span>, <span class="st">&#39;Tyrone&#39;</span>, <span class="st">&#39;Everol&#39;</span>,
+        <span class="st">&#39;Lavon&#39;</span>, <span class="st">&#39;Marcellus&#39;</span>, <span class="st">&#39;Terryl&#39;</span>, <span class="st">&#39;Wardell&#39;</span>, <span class="st">&#39;Aiesha&#39;</span>, <span class="st">&#39;Lashelle&#39;</span>, <span class="st">&#39;Nichelle&#39;</span>,
+        <span class="st">&#39;Shereen&#39;</span>, <span class="st">&#39;Temeka&#39;</span>, <span class="st">&#39;Ebony&#39;</span>, <span class="st">&#39;Latisha&#39;</span>, <span class="st">&#39;Shaniqua&#39;</span>, <span class="st">&#39;Tameisha&#39;</span>, <span class="st">&#39;Teretha&#39;</span>,
+        <span class="st">&#39;Jasmine&#39;</span>, <span class="st">&#39;Latonya&#39;</span>, <span class="st">&#39;Shanise&#39;</span>, <span class="st">&#39;Tanisha&#39;</span>, <span class="st">&#39;Tia&#39;</span>, <span class="st">&#39;Lakisha&#39;</span>, <span class="st">&#39;Latoya&#39;</span>,
+        <span class="st">&#39;Sharise&#39;</span>, <span class="st">&#39;Tashika&#39;</span>, <span class="st">&#39;Yolanda&#39;</span>, <span class="st">&#39;Lashandra&#39;</span>, <span class="st">&#39;Malika&#39;</span>, <span class="st">&#39;Shavonn&#39;</span>,
+        <span class="st">&#39;Tawanda&#39;</span>, <span class="st">&#39;Yvette&#39;</span>
+    ],
+    
+    <span class="co"># This list comes from statistics about common Hispanic-origin names in the US.</span>
+    <span class="st">&#39;Hispanic&#39;</span>: [
+        <span class="st">&#39;Juan&#39;</span>, <span class="st">&#39;José&#39;</span>, <span class="st">&#39;Miguel&#39;</span>, <span class="st">&#39;Luís&#39;</span>, <span class="st">&#39;Jorge&#39;</span>, <span class="st">&#39;Santiago&#39;</span>, <span class="st">&#39;Matías&#39;</span>, <span class="st">&#39;Sebastián&#39;</span>,
+        <span class="st">&#39;Mateo&#39;</span>, <span class="st">&#39;Nicolás&#39;</span>, <span class="st">&#39;Alejandro&#39;</span>, <span class="st">&#39;Samuel&#39;</span>, <span class="st">&#39;Diego&#39;</span>, <span class="st">&#39;Daniel&#39;</span>, <span class="st">&#39;Tomás&#39;</span>,
+        <span class="st">&#39;Juana&#39;</span>, <span class="st">&#39;Ana&#39;</span>, <span class="st">&#39;Luisa&#39;</span>, <span class="st">&#39;María&#39;</span>, <span class="st">&#39;Elena&#39;</span>, <span class="st">&#39;Sofía&#39;</span>, <span class="st">&#39;Isabella&#39;</span>, <span class="st">&#39;Valentina&#39;</span>,
+        <span class="st">&#39;Camila&#39;</span>, <span class="st">&#39;Valeria&#39;</span>, <span class="st">&#39;Ximena&#39;</span>, <span class="st">&#39;Luciana&#39;</span>, <span class="st">&#39;Mariana&#39;</span>, <span class="st">&#39;Victoria&#39;</span>, <span class="st">&#39;Martina&#39;</span>
+    ],
+    
+    <span class="co"># The following list conflates religion and ethnicity, I&#39;m aware. So do given names.</span>
+    <span class="co">#</span>
+    <span class="co"># This list was cobbled together from searching baby-name sites for common Muslim names,</span>
+    <span class="co"># as spelled in English. I did not ultimately distinguish whether the origin of the name</span>
+    <span class="co"># is Arabic or Urdu or another language.</span>
+    <span class="co">#</span>
+    <span class="co"># I&#39;d be happy to replace it with something more authoritative, given a source.</span>
+    <span class="st">&#39;Arab/Muslim&#39;</span>: [
+        <span class="st">&#39;Mohammed&#39;</span>, <span class="st">&#39;Omar&#39;</span>, <span class="st">&#39;Ahmed&#39;</span>, <span class="st">&#39;Ali&#39;</span>, <span class="st">&#39;Youssef&#39;</span>, <span class="st">&#39;Abdullah&#39;</span>, <span class="st">&#39;Yasin&#39;</span>, <span class="st">&#39;Hamza&#39;</span>,
+        <span class="st">&#39;Ayaan&#39;</span>, <span class="st">&#39;Syed&#39;</span>, <span class="st">&#39;Rishaan&#39;</span>, <span class="st">&#39;Samar&#39;</span>, <span class="st">&#39;Ahmad&#39;</span>, <span class="st">&#39;Zikri&#39;</span>, <span class="st">&#39;Rayyan&#39;</span>, <span class="st">&#39;Mariam&#39;</span>,
+        <span class="st">&#39;Jana&#39;</span>, <span class="st">&#39;Malak&#39;</span>, <span class="st">&#39;Salma&#39;</span>, <span class="st">&#39;Nour&#39;</span>, <span class="st">&#39;Lian&#39;</span>, <span class="st">&#39;Fatima&#39;</span>, <span class="st">&#39;Ayesha&#39;</span>, <span class="st">&#39;Zahra&#39;</span>, <span class="st">&#39;Sana&#39;</span>,
+        <span class="st">&#39;Zara&#39;</span>, <span class="st">&#39;Alya&#39;</span>, <span class="st">&#39;Shaista&#39;</span>, <span class="st">&#39;Zoya&#39;</span>, <span class="st">&#39;Yasmin&#39;</span>
+    ]
+}</code></pre></div>
+<p>Now we’ll use Pandas to make a table of these names, their predominant ethnic background, and the sentiment score we get for them:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> name_sentiment_table():
+    frames <span class="op">=</span> []
+    <span class="cf">for</span> group, name_list <span class="kw">in</span> <span class="bu">sorted</span>(NAMES_BY_ETHNICITY.items()):
+        lower_names <span class="op">=</span> [name.lower() <span class="cf">for</span> name <span class="kw">in</span> name_list]
+        sentiments <span class="op">=</span> words_to_sentiment(lower_names)
+        sentiments[<span class="st">&#39;group&#39;</span>] <span class="op">=</span> group
+        frames.append(sentiments)
+
+    <span class="co"># Put together the data we got from each ethnic group into one big table</span>
+    <span class="cf">return</span> pd.concat(frames)
+
+name_sentiments <span class="op">=</span> name_sentiment_table()</code></pre></div>
+<p>A sample of the data:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">name_sentiments.ix[::<span class="dv">25</span>]</code></pre></div>
+<div>
+<table border="1" class="dataframe">
+<thead>
+<pre><code>&lt;tr style=&quot;text-align: right;&quot;&gt;
+  &lt;th&gt;&lt;/th&gt;
+  &lt;th&gt;sentiment&lt;/th&gt;
+  &lt;th&gt;group&lt;/th&gt;
+&lt;/tr&gt;</code></pre>
+</thead>
+<tbody>
+<pre><code>&lt;tr&gt;
+  &lt;th&gt;mohammed&lt;/th&gt;
+  &lt;td&gt;0.834974&lt;/td&gt;
+  &lt;td&gt;Arab/Muslim&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;alya&lt;/th&gt;
+  &lt;td&gt;3.916803&lt;/td&gt;
+  &lt;td&gt;Arab/Muslim&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;terryl&lt;/th&gt;
+  &lt;td&gt;-2.858010&lt;/td&gt;
+  &lt;td&gt;Black&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;josé&lt;/th&gt;
+  &lt;td&gt;0.432956&lt;/td&gt;
+  &lt;td&gt;Hispanic&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;luciana&lt;/th&gt;
+  &lt;td&gt;1.086073&lt;/td&gt;
+  &lt;td&gt;Hispanic&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;hank&lt;/th&gt;
+  &lt;td&gt;0.391858&lt;/td&gt;
+  &lt;td&gt;White&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+  &lt;th&gt;megan&lt;/th&gt;
+  &lt;td&gt;2.158679&lt;/td&gt;
+  &lt;td&gt;White&lt;/td&gt;
+&lt;/tr&gt;</code></pre>
+</tbody>
+</table>
+</div>
+<p>Now we can visualize the distribution of sentiment we get for each kind of name:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">plot <span class="op">=</span> seaborn.swarmplot(x<span class="op">=</span><span class="st">&#39;group&#39;</span>, y<span class="op">=</span><span class="st">&#39;sentiment&#39;</span>, data<span class="op">=</span>name_sentiments)
+plot.set_ylim([<span class="op">-</span><span class="dv">10</span>, <span class="dv">10</span>])</code></pre></div>
+<pre><code>(-10, 10)</code></pre>
+<div class="figure">
+<img src="how-to-make-a-racist-ai-without-really-trying_files/how-to-make-a-racist-ai-without-really-trying_50_1.png" alt="png" />
+<p class="caption">png</p>
+</div>
+<p>We can see that as a bar-plot, too, showing the 95% confidence intervals of the means.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">plot <span class="op">=</span> seaborn.barplot(x<span class="op">=</span><span class="st">&#39;group&#39;</span>, y<span class="op">=</span><span class="st">&#39;sentiment&#39;</span>, data<span class="op">=</span>name_sentiments, capsize<span class="op">=</span>.<span class="dv">1</span>)</code></pre></div>
+<div class="figure">
+<img src="how-to-make-a-racist-ai-without-really-trying_files/how-to-make-a-racist-ai-without-really-trying_52_0.png" alt="png" />
+<p class="caption">png</p>
+</div>
+<p>And finally we can break out the serious statistical machinery, using the <a href="http://www.statsmodels.org/stable/index.html">statsmodels</a> package, to tell us how big of an effect this is (along with a bunch of other statistics).</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">ols_model <span class="op">=</span> statsmodels.formula.api.ols(<span class="st">&#39;sentiment ~ group&#39;</span>, data<span class="op">=</span>name_sentiments).fit()
+ols_model.summary().tables[<span class="dv">0</span>]</code></pre></div>
+<table class="simpletable">
+<caption>
+OLS Regression Results
+</caption>
+<tr>
+<th>
+Dep. Variable:
+</th>
+<pre><code>    &lt;td&gt;sentiment&lt;/td&gt;    &lt;th&gt;  R-squared:         &lt;/th&gt; &lt;td&gt;   0.208&lt;/td&gt;</code></pre>
+</tr>
+<tr>
+<th>
+Model:
+</th>
+<pre><code>               &lt;td&gt;OLS&lt;/td&gt;       &lt;th&gt;  Adj. R-squared:    &lt;/th&gt; &lt;td&gt;   0.192&lt;/td&gt;</code></pre>
+</tr>
+<tr>
+<th>
+Method:
+</th>
+<pre><code>         &lt;td&gt;Least Squares&lt;/td&gt;  &lt;th&gt;  F-statistic:       &lt;/th&gt; &lt;td&gt;   13.04&lt;/td&gt;</code></pre>
+</tr>
+<tr>
+<th>
+Date:
+</th>
+<pre><code>         &lt;td&gt;Thu, 13 Jul 2017&lt;/td&gt; &lt;th&gt;  Prob (F-statistic):&lt;/th&gt; &lt;td&gt;1.31e-07&lt;/td&gt;</code></pre>
+</tr>
+<tr>
+<th>
+Time:
+</th>
+<pre><code>             &lt;td&gt;11:31:17&lt;/td&gt;     &lt;th&gt;  Log-Likelihood:    &lt;/th&gt; &lt;td&gt; -356.78&lt;/td&gt;</code></pre>
+</tr>
+<tr>
+<th>
+No. Observations:
+</th>
+<pre><code>  &lt;td&gt;   153&lt;/td&gt;      &lt;th&gt;  AIC:               &lt;/th&gt; &lt;td&gt;   721.6&lt;/td&gt;</code></pre>
+</tr>
+<tr>
+<th>
+Df Residuals:
+</th>
+<pre><code>      &lt;td&gt;   149&lt;/td&gt;      &lt;th&gt;  BIC:               &lt;/th&gt; &lt;td&gt;   733.7&lt;/td&gt;</code></pre>
+</tr>
+<tr>
+<th>
+Df Model:
+</th>
+<pre><code>          &lt;td&gt;     3&lt;/td&gt;      &lt;th&gt;                     &lt;/th&gt;     &lt;td&gt; &lt;/td&gt;   </code></pre>
+</tr>
+<tr>
+<th>
+Covariance Type:
+</th>
+<pre><code>  &lt;td&gt;nonrobust&lt;/td&gt;    &lt;th&gt;                     &lt;/th&gt;     &lt;td&gt; &lt;/td&gt;   </code></pre>
+</tr>
+</table>
+<p>The F-statistic is the ratio of the variation between groups to the variation within groups, which we can take as a measure of overall ethnic bias.</p>
+<p>The probability, right below that, is the probability that we would see this high of an F-statistic given the null hypothesis: that is, given data where there was no difference between ethnicities. The probability is very, very low. If this were a paper, we’d get to call the result “highly statistically significant”.</p>
+<p>Out of all these numbers, the F-value is the one we really want to improve. A lower F-value is better.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">ols_model.fvalue</code></pre></div>
+<pre><code>13.041597745167659</code></pre>
+</div>
+<div id="step-7-trying-different-data" class="section level2">
+<h2><span class="header-section-number">13.9</span> Step 7: Trying different data</h2>
+<p>Now that we have the ability to measure prejudicial badness in our word vectors, let’s try to improve it. To do so, we’ll want to repeat a bunch of things that so far we just ran as individual steps in this Python notebook.</p>
+<p>If I were writing good, maintainable code, I wouldn’t have been using global variables like <code>model</code> and <code>embeddings</code>. But writing ad-hoc spaghetti research code let us look at what we were doing at every step and learn from it, so there’s something to be said for that. Let’s re-use what we can, and at least define a function for redoing some of these steps:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> retrain_model(new_embs):
+    <span class="co">&quot;&quot;&quot;</span>
+<span class="co">    Repeat the steps above with a new set of word embeddings.</span>
+<span class="co">    &quot;&quot;&quot;</span>
+    <span class="kw">global</span> model, embeddings, name_sentiments
+    embeddings <span class="op">=</span> new_embs
+    pos_vectors <span class="op">=</span> embeddings.loc[pos_words].dropna()
+    neg_vectors <span class="op">=</span> embeddings.loc[neg_words].dropna()
+    vectors <span class="op">=</span> pd.concat([pos_vectors, neg_vectors])
+    targets <span class="op">=</span> np.array([<span class="dv">1</span> <span class="cf">for</span> entry <span class="kw">in</span> pos_vectors.index] <span class="op">+</span> [<span class="op">-</span><span class="dv">1</span> <span class="cf">for</span> entry <span class="kw">in</span> neg_vectors.index])
+    labels <span class="op">=</span> <span class="bu">list</span>(pos_vectors.index) <span class="op">+</span> <span class="bu">list</span>(neg_vectors.index)
+
+    train_vectors, test_vectors, train_targets, test_targets, train_labels, test_labels <span class="op">=</span> <span class="op">\</span>
+        train_test_split(vectors, targets, labels, test_size<span class="op">=</span><span class="fl">0.1</span>, random_state<span class="op">=</span><span class="dv">0</span>)
+        
+    model <span class="op">=</span> SGDClassifier(loss<span class="op">=</span><span class="st">&#39;log&#39;</span>, random_state<span class="op">=</span><span class="dv">0</span>, n_iter<span class="op">=</span><span class="dv">100</span>)
+    model.fit(train_vectors, train_targets)
+    
+    accuracy <span class="op">=</span> accuracy_score(model.predict(test_vectors), test_targets)
+    <span class="bu">print</span>(<span class="st">&quot;Accuracy of sentiment: </span><span class="sc">{:.2%}</span><span class="st">&quot;</span>.<span class="bu">format</span>(accuracy))
+    
+    name_sentiments <span class="op">=</span> name_sentiment_table()
+    ols_model <span class="op">=</span> statsmodels.formula.api.ols(<span class="st">&#39;sentiment ~ group&#39;</span>, data<span class="op">=</span>name_sentiments).fit()
+    <span class="bu">print</span>(<span class="st">&quot;F-value of bias: </span><span class="sc">{:.3f}</span><span class="st">&quot;</span>.<span class="bu">format</span>(ols_model.fvalue))
+    <span class="bu">print</span>(<span class="st">&quot;Probability given null hypothesis: </span><span class="sc">{:.3}</span><span class="st">&quot;</span>.<span class="bu">format</span>(ols_model.f_pvalue))
+    
+    <span class="co"># Show the results on a swarm plot, with a consistent Y-axis</span>
+    plot <span class="op">=</span> seaborn.swarmplot(x<span class="op">=</span><span class="st">&#39;group&#39;</span>, y<span class="op">=</span><span class="st">&#39;sentiment&#39;</span>, data<span class="op">=</span>name_sentiments)
+    plot.set_ylim([<span class="op">-</span><span class="dv">10</span>, <span class="dv">10</span>])</code></pre></div>
+<div id="trying-word2vec" class="section level3">
+<h3><span class="header-section-number">13.9.1</span> Trying word2vec</h3>
+<p>You may think this is a problem that only GloVe has. If the system weren’t trained on all of the Common Crawl (which contains lots of unsavory sites and like 20 copies of Urban Dictionary), maybe it wouldn’t have gone bad. What about good old word2vec, trained on Google News?</p>
+<p>The most authoritative source for the word2vec data seems to be <a href="https://drive.google.com/file/d/0B7XkCwpI5KDYNlNUTTlSS21pQmM/edit?usp=sharing">this file on Google Drive</a>. Download it and save it as <code>data/word2vec-googlenews-300.bin.gz</code>.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="co"># Use a ConceptNet function to load word2vec into a Pandas frame from its binary format</span>
+<span class="im">from</span> conceptnet5.vectors.formats <span class="im">import</span> load_word2vec_bin
+w2v <span class="op">=</span> load_word2vec_bin(<span class="st">&#39;data/word2vec-googlenews-300.bin.gz&#39;</span>, nrows<span class="op">=</span><span class="dv">2000000</span>)
+
+<span class="co"># word2vec is case-sensitive, so case-fold its labels</span>
+w2v.index <span class="op">=</span> [label.casefold() <span class="cf">for</span> label <span class="kw">in</span> w2v.index]
+
+<span class="co"># Now we have duplicate labels, so drop the later (lower-frequency) occurrences of the same label</span>
+w2v <span class="op">=</span> w2v.reset_index().drop_duplicates(subset<span class="op">=</span><span class="st">&#39;index&#39;</span>, keep<span class="op">=</span><span class="st">&#39;first&#39;</span>).set_index(<span class="st">&#39;index&#39;</span>)
+retrain_model(w2v)</code></pre></div>
+<pre><code>Accuracy of sentiment: 94.30%
+F-value of bias: 15.573
+Probability given null hypothesis: 7.43e-09</code></pre>
+<div class="figure">
+<img src="how-to-make-a-racist-ai-without-really-trying_files/how-to-make-a-racist-ai-without-really-trying_61_1.png" alt="png" />
+<p class="caption">png</p>
+</div>
+<p>So: word2vec is even worse. With an F-value over 15, it has even larger differences in sentiment between groups.</p>
+<p>In retrospect, expecting <em>news</em> to be safe from algorithmic bias was rather a lot to hope for.</p>
+</div>
+<div id="trying-conceptnet-numberbatch" class="section level3">
+<h3><span class="header-section-number">13.9.2</span> Trying ConceptNet Numberbatch</h3>
+<p>Now I can finally get to discussing my own word-embedding project.</p>
+<p>ConceptNet, the knowledge graph I work on with word-embedding features built in, has a training step that adjusts the embeddings to identify and remove some sources of algorithmic racism and sexism. This step is based on Bolukbasi et al.’s “<a href="https://arxiv.org/abs/1607.06520">Debiasing Word Embeddings</a>”, and generalized to address multiple forms of prejudice at once. As far as I know, we’re the only semantic system that has anything of the sort built in.</p>
+<p>From time to time, we export pre-computed vectors from ConceptNet, a release we give the name <a href="https://github.com/commonsense/conceptnet-numberbatch">ConceptNet Numberbatch</a>. The April 2017 release was the first to include this de-biasing step, so let’s load its English vectors and retrain our sentiment model with them.</p>
+<p>Download <a href="http://conceptnet.s3.amazonaws.com/downloads/2017/numberbatch/numberbatch-en-17.04b.txt.gz"><code>numberbatch-en-17.04b.txt.gz</code></a>, save it in the <code>data/</code> directory, and retrain the model:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">retrain_model(load_embeddings(<span class="st">&#39;data/numberbatch-en-17.04b.txt&#39;</span>))</code></pre></div>
+<pre><code>Accuracy of sentiment: 97.46%
+F-value of bias: 3.805
+Probability given null hypothesis: 0.0118</code></pre>
+<div class="figure">
+<img src="how-to-make-a-racist-ai-without-really-trying_files/how-to-make-a-racist-ai-without-really-trying_64_1.png" alt="png" />
+<p class="caption">png</p>
+</div>
+<p>So have we entirely fixed the problem by switching to ConceptNet Numberbatch? Can we stop worrying about algorithmic racism? <strong>No.</strong></p>
+<p>Have we made the problem a lot smaller? <strong>Definitely.</strong></p>
+<p>The ranges of sentiments overlap a lot more than they did in the word vectors that came directly from GloVe or word2vec. The F-value is less than a third of what it was for GloVe, and a quarter of what it was for word2vec. And in general, we see much smaller differences in sentiment that come from comparing different given names, which is what we’d hope for, because names really shouldn’t matter to the task of sentiment analysis.</p>
+<p>But there is still a small correlation. Maybe I could have picked some data or training parameters that made the problem look completely solved. That would have been a bad move, because the problem <em>isn’t</em> completely solved. There are more causes of algorithmic racism than the ones we have identified and compensated for in ConceptNet. But this is a good start.</p>
+</div>
+<div id="there-is-no-trade-off" class="section level3">
+<h3><span class="header-section-number">13.9.3</span> There is no trade-off</h3>
+<p>Note that the accuracy of sentiment prediction went <em>up</em> when we switched to ConceptNet Numberbatch.</p>
+<p>Some people expect that fighting algorithmic racism is going to come with some sort of trade-off. There’s no trade-off here. You can have data that’s better and less racist. You can have data that’s better <em>because</em> it’s less racist. There was never anything “accurate” about the overt racism that word2vec and GloVe learned.</p>
+</div>
+</div>
+<div id="other-approaches" class="section level2">
+<h2><span class="header-section-number">13.10</span> Other approaches</h2>
+<p>This is of course only one way to do sentiment analysis. All the steps we used are common, but you probably object that you wouldn’t do it that way. But if you have your own process, I urge you to see if your process is encoding prejudices and biases in the model it learns.</p>
+<p>Instead of or in addition to changing your source of word vectors, you could try to fix this problem in the output directly. It may help, for example, to build a stronger model of whether sentiment should be assigned to words at all, designed to specifically exclude names and groups of people.</p>
+<p>You could abandon the idea of inferring sentiment for words, and only count the sentiment of words that appear exactly in the list. This is perhaps the most common form of sentiment analysis – the kind that includes no machine learning at all. Its results will be no more biased than whoever made the list. But the lack of machine learning means that this approach has low recall, and the only way to adapt it to your data set is to edit the list manually.</p>
+<p>As a hybrid approach, you could produce a large number of inferred sentiments for words, and have a human annotator patiently look through them, making a list of exceptions whose sentiment should be set to 0. The downside of this is that it’s extra work; the upside is that you take the time to actually see what your data is doing. And that’s something that I think should happen more often in machine learning anyway.</p>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"weibo": false,
+"instapper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/Azure/learnAnalytics-DeepLearning-Azure/edit/master/09-biased-embeddings.Rmd",
+"text": "Edit"
+},
+"download": ["azure-deep-learning.pdf", "azure-deep-learning.epub"],
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(script.src))
+      script.src  = script.src.replace(/^https?:/, '');
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

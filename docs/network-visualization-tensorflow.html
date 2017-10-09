@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html >
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Deep Learning on Azure</title>
+  <meta name="description" content="Rendered version of Deep Learning on Azure materials.">
+  <meta name="generator" content="bookdown 0.5 and GitBook 2.6.7">
+
+  <meta property="og:title" content="Deep Learning on Azure" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="Rendered version of Deep Learning on Azure materials." />
+  <meta name="github-repo" content="Azure/learnAnalytics-DeepLearning-Azure" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Deep Learning on Azure" />
+  
+  <meta name="twitter:description" content="Rendered version of Deep Learning on Azure materials." />
+  
+
+<meta name="author" content="Ali Zaidi">
+
+
+<meta name="date" content="2017-10-09">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  
+  
+<link rel="prev" href="neural-style-transfer.html">
+<link rel="next" href="pretrained-model.html">
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Deep Learning on Azure</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Preface</a><ul>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#part-i---fundamentals-and-azure-for-machine-learning"><i class="fa fa-check"></i><b>1.1</b> Part I - Fundamentals and Azure for Machine Learning</a></li>
+<li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#part-ii---optimization"><i class="fa fa-check"></i><b>1.2</b> Part II - Optimization</a></li>
+<li class="chapter" data-level="1.3" data-path="index.html"><a href="index.html#part-iii---convolutional-neural-networks"><i class="fa fa-check"></i><b>1.3</b> Part III - Convolutional Neural Networks</a></li>
+<li class="chapter" data-level="1.4" data-path="index.html"><a href="index.html#part-iv---recurrent-networks"><i class="fa fa-check"></i><b>1.4</b> Part IV - Recurrent Networks</a></li>
+<li class="chapter" data-level="1.5" data-path="index.html"><a href="index.html#part-v---reinforcement-learning"><i class="fa fa-check"></i><b>1.5</b> Part V - Reinforcement Learning</a></li>
+<li class="chapter" data-level="1.6" data-path="index.html"><a href="index.html#part-vi---generative-models"><i class="fa fa-check"></i><b>1.6</b> Part VI - Generative Models</a></li>
+<li class="chapter" data-level="1.7" data-path="index.html"><a href="index.html#part-vii---operationalization-methods"><i class="fa fa-check"></i><b>1.7</b> Part VII - Operationalization Methods</a></li>
+<li class="chapter" data-level="1.8" data-path="index.html"><a href="index.html#useful-resources"><i class="fa fa-check"></i><b>1.8</b> Useful Resources</a><ul>
+<li class="chapter" data-level="1.8.1" data-path="index.html"><a href="index.html#online-courses"><i class="fa fa-check"></i><b>1.8.1</b> Online Courses</a></li>
+<li class="chapter" data-level="1.8.2" data-path="index.html"><a href="index.html#online-books-and-blogs"><i class="fa fa-check"></i><b>1.8.2</b> Online Books and Blogs</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html"><i class="fa fa-check"></i><b>2</b> Provisioning Linux DSVMs with Azure CLI 2.0</a><ul>
+<li class="chapter" data-level="2.1" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#installing-and-testing-the-azure-cli"><i class="fa fa-check"></i><b>2.1</b> Installing and Testing the Azure CLI</a></li>
+<li class="chapter" data-level="2.2" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#login-to-your-azure-account"><i class="fa fa-check"></i><b>2.2</b> Login to Your Azure Account</a></li>
+<li class="chapter" data-level="2.3" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#deploying-with-a-custom-script"><i class="fa fa-check"></i><b>2.3</b> Deploying with a Custom Script</a></li>
+<li class="chapter" data-level="2.4" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#updating-dsvm-os-disk-size"><i class="fa fa-check"></i><b>2.4</b> Updating DSVM OS Disk Size</a></li>
+<li class="chapter" data-level="2.5" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#deploying-manually-only-proceed-if-you-didnt-use-the-script-above"><i class="fa fa-check"></i><b>2.5</b> Deploying Manually <strong>(Only Proceed if You Didn’t Use the Script Above!)</strong></a><ul>
+<li class="chapter" data-level="2.5.1" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#create-a-new-resource-group"><i class="fa fa-check"></i><b>2.5.1</b> Create a New Resource Group</a></li>
+<li class="chapter" data-level="2.5.2" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#create-your-dsvm"><i class="fa fa-check"></i><b>2.5.2</b> Create Your DSVM</a></li>
+<li class="chapter" data-level="2.5.3" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#create-a-password-for-the-user"><i class="fa fa-check"></i><b>2.5.3</b> Create a Password for the User</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html"><i class="fa fa-check"></i><b>3</b> Upgrading CNTK and CUDNN</a><ul>
+<li class="chapter" data-level="3.1" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#updating-cntk"><i class="fa fa-check"></i><b>3.1</b> Updating CNTK</a></li>
+<li class="chapter" data-level="3.2" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#updating-cntk-with-a-single-script"><i class="fa fa-check"></i><b>3.2</b> Updating CNTK With a Single Script</a><ul>
+<li class="chapter" data-level="3.2.1" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#launch-jupyterlab"><i class="fa fa-check"></i><b>3.2.1</b> Launch JupyterLab</a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#manually-updating-cntk-and-launching-jupyter-no-need-to-do-this-if-you-use-the-script"><i class="fa fa-check"></i><b>3.3</b> Manually Updating CNTK and Launching Jupyter (<strong>No Need to Do This if You Use the Script</strong>)</a><ul>
+<li class="chapter" data-level="3.3.1" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#create-conda-virtual-environment"><i class="fa fa-check"></i><b>3.3.1</b> Create Conda Virtual Environment</a></li>
+<li class="chapter" data-level="3.3.2" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#install-cntk-using-pip-binary-wheels"><i class="fa fa-check"></i><b>3.3.2</b> Install CNTK Using <code>pip</code> Binary Wheels</a></li>
+<li class="chapter" data-level="3.3.3" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#temporary-fixes"><i class="fa fa-check"></i><b>3.3.3</b> Temporary Fixes</a></li>
+<li class="chapter" data-level="3.3.4" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#conda-extensions"><i class="fa fa-check"></i><b>3.3.4</b> Conda Extensions</a></li>
+<li class="chapter" data-level="3.3.5" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#install-keras"><i class="fa fa-check"></i><b>3.3.5</b> Install Keras</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html"><i class="fa fa-check"></i><b>4</b> Transfer Learning with CNTK</a><ul>
+<li class="chapter" data-level="4.1" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#classifying-dogs-and-cats-using-a-pre-trained-network"><i class="fa fa-check"></i><b>4.1</b> Classifying Dogs and Cats Using a Pre-Trained Network</a><ul>
+<li class="chapter" data-level="4.1.1" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#download-data"><i class="fa fa-check"></i><b>4.1.1</b> Download Data</a></li>
+</ul></li>
+<li class="chapter" data-level="4.2" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#create-train-test-and-validate-sets"><i class="fa fa-check"></i><b>4.2</b> Create Train, Test and Validate Sets</a></li>
+<li class="chapter" data-level="4.3" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#kittypupsploration"><i class="fa fa-check"></i><b>4.3</b> Kittypupsploration</a></li>
+<li class="chapter" data-level="4.4" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#data-readers-in-cntk"><i class="fa fa-check"></i><b>4.4</b> Data Readers in CNTK</a></li>
+<li class="chapter" data-level="4.5" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#pre-trained-models"><i class="fa fa-check"></i><b>4.5</b> Pre-Trained Models</a></li>
+<li class="chapter" data-level="4.6" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#defining-model-architecture"><i class="fa fa-check"></i><b>4.6</b> Defining Model Architecture</a></li>
+<li class="chapter" data-level="4.7" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#training-the-transfer-model"><i class="fa fa-check"></i><b>4.7</b> Training the Transfer Model</a></li>
+<li class="chapter" data-level="4.8" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#define-minibatch-source"><i class="fa fa-check"></i><b>4.8</b> Define Minibatch Source</a></li>
+<li class="chapter" data-level="4.9" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#training"><i class="fa fa-check"></i><b>4.9</b> Training</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="fashion-mnist.html"><a href="fashion-mnist.html"><i class="fa fa-check"></i><b>5</b> Fashion MNIST</a><ul>
+<li class="chapter" data-level="5.1" data-path="fashion-mnist.html"><a href="fashion-mnist.html#import-core-libraries-and-specify-keras-backend"><i class="fa fa-check"></i><b>5.1</b> Import Core Libraries and Specify Keras Backend</a></li>
+<li class="chapter" data-level="5.2" data-path="fashion-mnist.html"><a href="fashion-mnist.html#downloading-fashion-dataset"><i class="fa fa-check"></i><b>5.2</b> Downloading Fashion Dataset</a></li>
+<li class="chapter" data-level="5.3" data-path="fashion-mnist.html"><a href="fashion-mnist.html#scale-data-and-visualize"><i class="fa fa-check"></i><b>5.3</b> Scale Data and Visualize</a></li>
+<li class="chapter" data-level="5.4" data-path="fashion-mnist.html"><a href="fashion-mnist.html#create-network-architecture-and-model-parameters"><i class="fa fa-check"></i><b>5.4</b> Create Network Architecture and Model Parameters</a></li>
+<li class="chapter" data-level="5.5" data-path="fashion-mnist.html"><a href="fashion-mnist.html#training-our-model"><i class="fa fa-check"></i><b>5.5</b> Training Our Model</a></li>
+<li class="chapter" data-level="5.6" data-path="fashion-mnist.html"><a href="fashion-mnist.html#scoring-the-model"><i class="fa fa-check"></i><b>5.6</b> Scoring the Model</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="neural-style-transfer.html"><a href="neural-style-transfer.html"><i class="fa fa-check"></i><b>6</b> Neural Style Transfer</a><ul>
+<li class="chapter" data-level="6.1" data-path="neural-style-transfer.html"><a href="neural-style-transfer.html#defining-the-loss-function"><i class="fa fa-check"></i><b>6.1</b> Defining the loss function</a></li>
+<li class="chapter" data-level="6.2" data-path="neural-style-transfer.html"><a href="neural-style-transfer.html#instantiating-the-loss"><i class="fa fa-check"></i><b>6.2</b> Instantiating the loss</a></li>
+<li class="chapter" data-level="6.3" data-path="neural-style-transfer.html"><a href="neural-style-transfer.html#optimizing-the-loss"><i class="fa fa-check"></i><b>6.3</b> Optimizing the loss</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="network-visualization-tensorflow.html"><a href="network-visualization-tensorflow.html"><i class="fa fa-check"></i><b>7</b> Network Visualization (TensorFlow)</a></li>
+<li class="chapter" data-level="8" data-path="pretrained-model.html"><a href="pretrained-model.html"><i class="fa fa-check"></i><b>8</b> Pretrained Model</a><ul>
+<li class="chapter" data-level="8.1" data-path="pretrained-model.html"><a href="pretrained-model.html#load-some-imagenet-images"><i class="fa fa-check"></i><b>8.1</b> Load some ImageNet images</a></li>
+<li class="chapter" data-level="8.2" data-path="pretrained-model.html"><a href="pretrained-model.html#preprocess-images"><i class="fa fa-check"></i><b>8.2</b> Preprocess images</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="saliency-maps.html"><a href="saliency-maps.html"><i class="fa fa-check"></i><b>9</b> Saliency Maps</a></li>
+<li class="chapter" data-level="10" data-path="fooling-images.html"><a href="fooling-images.html"><i class="fa fa-check"></i><b>10</b> Fooling Images</a></li>
+<li class="chapter" data-level="11" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><i class="fa fa-check"></i><b>11</b> Wasserstein GAN and Loss Sensitive GAN with CIFAR Data</a><ul>
+<li class="chapter" data-level="11.1" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#introduction"><i class="fa fa-check"></i><b>11.1</b> Introduction</a></li>
+<li class="chapter" data-level="11.2" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#overview"><i class="fa fa-check"></i><b>11.2</b> Overview</a><ul>
+<li class="chapter" data-level="11.2.1" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#why-is-gan-hard-to-train"><i class="fa fa-check"></i><b>11.2.1</b> Why is GAN hard to train?</a></li>
+<li class="chapter" data-level="11.2.2" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#wasserstein-gan"><i class="fa fa-check"></i><b>11.2.2</b> Wasserstein GAN</a></li>
+<li class="chapter" data-level="11.2.3" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#loss-sensitive-gan"><i class="fa fa-check"></i><b>11.2.3</b> Loss Sensitive GAN</a></li>
+</ul></li>
+<li class="chapter" data-level="11.3" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#data-reading"><i class="fa fa-check"></i><b>11.3</b> Data Reading</a></li>
+<li class="chapter" data-level="11.4" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#model-creation-w-gan"><i class="fa fa-check"></i><b>11.4</b> Model Creation (W-GAN)</a><ul>
+<li class="chapter" data-level="11.4.1" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#build-the-graph"><i class="fa fa-check"></i><b>11.4.1</b> Build the graph</a></li>
+<li class="chapter" data-level="11.4.2" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#train-the-model"><i class="fa fa-check"></i><b>11.4.2</b> Train the Model</a></li>
+</ul></li>
+<li class="chapter" data-level="11.5" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#generating-fake-synthetic-images-w-gan"><i class="fa fa-check"></i><b>11.5</b> Generating Fake (Synthetic) Images (W-GAN)</a></li>
+<li class="chapter" data-level="11.6" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#model-creation-ls-gan"><i class="fa fa-check"></i><b>11.6</b> Model Creation (LS-GAN)</a><ul>
+<li class="chapter" data-level="11.6.1" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#build-the-graph-1"><i class="fa fa-check"></i><b>11.6.1</b> Build the graph</a></li>
+</ul></li>
+<li class="chapter" data-level="11.7" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#train-the-model-1"><i class="fa fa-check"></i><b>11.7</b> Train the model</a></li>
+<li class="chapter" data-level="11.8" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#generating-fake-synthetic-images-ls-gan"><i class="fa fa-check"></i><b>11.8</b> Generating Fake (Synthetic) Images (LS-GAN)</a></li>
+</ul></li>
+<li class="chapter" data-level="12" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><i class="fa fa-check"></i><b>12</b> Synthesizing Faces of Celebrities Boundary Equilibrium GAN with CelebA data</a><ul>
+<li class="chapter" data-level="12.1" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html#introduction-1"><i class="fa fa-check"></i><b>12.1</b> Introduction</a></li>
+<li class="chapter" data-level="12.2" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html#download-data-1"><i class="fa fa-check"></i><b>12.2</b> Download Data</a></li>
+<li class="chapter" data-level="12.3" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html#read-data"><i class="fa fa-check"></i><b>12.3</b> Read Data</a></li>
+<li class="chapter" data-level="12.4" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html#model-creation"><i class="fa fa-check"></i><b>12.4</b> Model Creation</a><ul>
+<li class="chapter" data-level="12.4.1" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html#model-components"><i class="fa fa-check"></i><b>12.4.1</b> Model components</a></li>
+<li class="chapter" data-level="12.4.2" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html#build-the-graph-2"><i class="fa fa-check"></i><b>12.4.2</b> Build the graph</a></li>
+<li class="chapter" data-level="12.4.3" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html#train-the-model-2"><i class="fa fa-check"></i><b>12.4.3</b> Train the Model</a></li>
+</ul></li>
+<li class="chapter" data-level="12.5" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html#generating-fake-synthesized-images"><i class="fa fa-check"></i><b>12.5</b> Generating Fake (Synthesized) Images</a></li>
+</ul></li>
+<li class="chapter" data-level="13" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html"><i class="fa fa-check"></i><b>13</b> How to make a racist AI without really trying</a><ul>
+<li class="chapter" data-level="13.1" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#lets-make-a-sentiment-classifier"><i class="fa fa-check"></i><b>13.1</b> Let’s make a sentiment classifier!</a></li>
+<li class="chapter" data-level="13.2" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#software-dependencies"><i class="fa fa-check"></i><b>13.2</b> Software dependencies</a></li>
+<li class="chapter" data-level="13.3" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#step-1-word-embeddings"><i class="fa fa-check"></i><b>13.3</b> Step 1: Word embeddings</a></li>
+<li class="chapter" data-level="13.4" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#step-2-a-gold-standard-sentiment-lexicon"><i class="fa fa-check"></i><b>13.4</b> Step 2: A gold-standard sentiment lexicon</a></li>
+<li class="chapter" data-level="13.5" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#step-3-train-a-model-to-predict-word-sentiments"><i class="fa fa-check"></i><b>13.5</b> Step 3: Train a model to predict word sentiments</a></li>
+<li class="chapter" data-level="13.6" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#step-4-get-a-sentiment-score-for-text"><i class="fa fa-check"></i><b>13.6</b> Step 4: Get a sentiment score for text</a></li>
+<li class="chapter" data-level="13.7" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#step-5-behold-the-monstrosity-that-we-have-created"><i class="fa fa-check"></i><b>13.7</b> Step 5: Behold the monstrosity that we have created</a></li>
+<li class="chapter" data-level="13.8" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#step-6-measure-the-problem"><i class="fa fa-check"></i><b>13.8</b> Step 6: Measure the problem</a></li>
+<li class="chapter" data-level="13.9" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#step-7-trying-different-data"><i class="fa fa-check"></i><b>13.9</b> Step 7: Trying different data</a><ul>
+<li class="chapter" data-level="13.9.1" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#trying-word2vec"><i class="fa fa-check"></i><b>13.9.1</b> Trying word2vec</a></li>
+<li class="chapter" data-level="13.9.2" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#trying-conceptnet-numberbatch"><i class="fa fa-check"></i><b>13.9.2</b> Trying ConceptNet Numberbatch</a></li>
+<li class="chapter" data-level="13.9.3" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#there-is-no-trade-off"><i class="fa fa-check"></i><b>13.9.3</b> There is no trade-off</a></li>
+</ul></li>
+<li class="chapter" data-level="13.10" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#other-approaches"><i class="fa fa-check"></i><b>13.10</b> Other approaches</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://aka.ms/az-dl" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Deep Learning on Azure</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="network-visualization-tensorflow" class="section level1">
+<h1><span class="header-section-number">Chapter 7</span> Network Visualization (TensorFlow)</h1>
+<p><em><strong>Credit</strong>: This notebook was derived from a homework assignment in CS231N, taught in 2017 by Justin Johnson, Fei Fei Li, and Serena Yeung</em></p>
+<p>In this notebook we will explore the use of <em>image gradients</em> for generating new images.</p>
+<p>When training a model, we define a loss function which measures our current unhappiness with the model’s performance; we then use backpropagation to compute the gradient of the loss with respect to the model parameters, and perform gradient descent on the model parameters to minimize the loss.</p>
+<p>Here we will do something slightly different. We will start from a convolutional neural network model which has been pretrained to perform image classification on the ImageNet dataset. We will use this model to define a loss function which quantifies our current unhappiness with our image, then use backpropagation to compute the gradient of this loss with respect to the pixels of the image. We will then keep the model fixed, and perform gradient descent <em>on the image</em> to synthesize a new image which minimizes the loss.</p>
+<p>In this notebook we will explore three techniques for image generation:</p>
+<ol style="list-style-type: decimal">
+<li><strong>Saliency Maps</strong>: Saliency maps are a quick way to tell which part of the image influenced the classification decision made by the network.</li>
+<li><strong>Fooling Images</strong>: We can perturb an input image so that it appears the same to humans, but will be misclassified by the pretrained network.</li>
+<li><strong>Class Visualization</strong>: We can synthesize an image to maximize the classification score of a particular class; this can give us some sense of what the network is looking for when it classifies images of that class.</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="co"># As usual, a bit of setup</span>
+<span class="im">from</span> __future__ <span class="im">import</span> print_function
+<span class="im">import</span> subprocess
+<span class="im">import</span> time, os, json
+<span class="im">import</span> numpy <span class="im">as</span> np
+<span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt
+<span class="im">import</span> tensorflow <span class="im">as</span> tf
+
+<span class="im">from</span> utils.classifiers.squeezenet <span class="im">import</span> SqueezeNet
+<span class="im">from</span> utils.data_utils <span class="im">import</span> load_tiny_imagenet
+<span class="im">from</span> utils.image_utils <span class="im">import</span> preprocess_image, deprocess_image
+<span class="im">from</span> utils.image_utils <span class="im">import</span> SQUEEZENET_MEAN, SQUEEZENET_STD
+
+
+<span class="op">%</span>matplotlib inline
+plt.rcParams[<span class="st">&#39;figure.figsize&#39;</span>] <span class="op">=</span> (<span class="fl">10.0</span>, <span class="fl">8.0</span>) <span class="co"># set default size of plots</span>
+plt.rcParams[<span class="st">&#39;image.interpolation&#39;</span>] <span class="op">=</span> <span class="st">&#39;nearest&#39;</span>
+plt.rcParams[<span class="st">&#39;image.cmap&#39;</span>] <span class="op">=</span> <span class="st">&#39;gray&#39;</span>
+
+<span class="kw">def</span> get_session():
+    <span class="co">&quot;&quot;&quot;Create a session that dynamically allocates memory.&quot;&quot;&quot;</span>
+    <span class="co"># See: https://www.tensorflow.org/tutorials/using_gpu#allowing_gpu_memory_growth</span>
+    config <span class="op">=</span> tf.ConfigProto()
+    config.gpu_options.allow_growth <span class="op">=</span> <span class="va">True</span>
+    session <span class="op">=</span> tf.Session(config<span class="op">=</span>config)
+    <span class="cf">return</span> session
+
+<span class="co"># for auto-reloading external modules</span>
+<span class="co"># see http://stackoverflow.com/questions/1907993/autoreload-of-modules-in-ipython</span>
+<span class="op">%</span>load_ext autoreload
+<span class="op">%</span>autoreload <span class="dv">2</span></code></pre></div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="neural-style-transfer.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="pretrained-model.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"weibo": false,
+"instapper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/Azure/learnAnalytics-DeepLearning-Azure/edit/master/06-Adversarial-Attacks.Rmd",
+"text": "Edit"
+},
+"download": ["azure-deep-learning.pdf", "azure-deep-learning.epub"],
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(script.src))
+      script.src  = script.src.replace(/^https?:/, '');
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

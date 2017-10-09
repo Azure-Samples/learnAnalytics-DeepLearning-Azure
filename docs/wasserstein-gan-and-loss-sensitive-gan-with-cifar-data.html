@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html >
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Deep Learning on Azure</title>
+  <meta name="description" content="Rendered version of Deep Learning on Azure materials.">
+  <meta name="generator" content="bookdown 0.5 and GitBook 2.6.7">
+
+  <meta property="og:title" content="Deep Learning on Azure" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="Rendered version of Deep Learning on Azure materials." />
+  <meta name="github-repo" content="Azure/learnAnalytics-DeepLearning-Azure" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Deep Learning on Azure" />
+  
+  <meta name="twitter:description" content="Rendered version of Deep Learning on Azure materials." />
+  
+
+<meta name="author" content="Ali Zaidi">
+
+
+<meta name="date" content="2017-10-09">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  
+  
+<link rel="prev" href="fooling-images.html">
+<link rel="next" href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html">
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Deep Learning on Azure</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Preface</a><ul>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#part-i---fundamentals-and-azure-for-machine-learning"><i class="fa fa-check"></i><b>1.1</b> Part I - Fundamentals and Azure for Machine Learning</a></li>
+<li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#part-ii---optimization"><i class="fa fa-check"></i><b>1.2</b> Part II - Optimization</a></li>
+<li class="chapter" data-level="1.3" data-path="index.html"><a href="index.html#part-iii---convolutional-neural-networks"><i class="fa fa-check"></i><b>1.3</b> Part III - Convolutional Neural Networks</a></li>
+<li class="chapter" data-level="1.4" data-path="index.html"><a href="index.html#part-iv---recurrent-networks"><i class="fa fa-check"></i><b>1.4</b> Part IV - Recurrent Networks</a></li>
+<li class="chapter" data-level="1.5" data-path="index.html"><a href="index.html#part-v---reinforcement-learning"><i class="fa fa-check"></i><b>1.5</b> Part V - Reinforcement Learning</a></li>
+<li class="chapter" data-level="1.6" data-path="index.html"><a href="index.html#part-vi---generative-models"><i class="fa fa-check"></i><b>1.6</b> Part VI - Generative Models</a></li>
+<li class="chapter" data-level="1.7" data-path="index.html"><a href="index.html#part-vii---operationalization-methods"><i class="fa fa-check"></i><b>1.7</b> Part VII - Operationalization Methods</a></li>
+<li class="chapter" data-level="1.8" data-path="index.html"><a href="index.html#useful-resources"><i class="fa fa-check"></i><b>1.8</b> Useful Resources</a><ul>
+<li class="chapter" data-level="1.8.1" data-path="index.html"><a href="index.html#online-courses"><i class="fa fa-check"></i><b>1.8.1</b> Online Courses</a></li>
+<li class="chapter" data-level="1.8.2" data-path="index.html"><a href="index.html#online-books-and-blogs"><i class="fa fa-check"></i><b>1.8.2</b> Online Books and Blogs</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html"><i class="fa fa-check"></i><b>2</b> Provisioning Linux DSVMs with Azure CLI 2.0</a><ul>
+<li class="chapter" data-level="2.1" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#installing-and-testing-the-azure-cli"><i class="fa fa-check"></i><b>2.1</b> Installing and Testing the Azure CLI</a></li>
+<li class="chapter" data-level="2.2" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#login-to-your-azure-account"><i class="fa fa-check"></i><b>2.2</b> Login to Your Azure Account</a></li>
+<li class="chapter" data-level="2.3" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#deploying-with-a-custom-script"><i class="fa fa-check"></i><b>2.3</b> Deploying with a Custom Script</a></li>
+<li class="chapter" data-level="2.4" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#updating-dsvm-os-disk-size"><i class="fa fa-check"></i><b>2.4</b> Updating DSVM OS Disk Size</a></li>
+<li class="chapter" data-level="2.5" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#deploying-manually-only-proceed-if-you-didnt-use-the-script-above"><i class="fa fa-check"></i><b>2.5</b> Deploying Manually <strong>(Only Proceed if You Didn’t Use the Script Above!)</strong></a><ul>
+<li class="chapter" data-level="2.5.1" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#create-a-new-resource-group"><i class="fa fa-check"></i><b>2.5.1</b> Create a New Resource Group</a></li>
+<li class="chapter" data-level="2.5.2" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#create-your-dsvm"><i class="fa fa-check"></i><b>2.5.2</b> Create Your DSVM</a></li>
+<li class="chapter" data-level="2.5.3" data-path="provisioning-linux-dsvms-with-azure-cli-2-0.html"><a href="provisioning-linux-dsvms-with-azure-cli-2-0.html#create-a-password-for-the-user"><i class="fa fa-check"></i><b>2.5.3</b> Create a Password for the User</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html"><i class="fa fa-check"></i><b>3</b> Upgrading CNTK and CUDNN</a><ul>
+<li class="chapter" data-level="3.1" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#updating-cntk"><i class="fa fa-check"></i><b>3.1</b> Updating CNTK</a></li>
+<li class="chapter" data-level="3.2" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#updating-cntk-with-a-single-script"><i class="fa fa-check"></i><b>3.2</b> Updating CNTK With a Single Script</a><ul>
+<li class="chapter" data-level="3.2.1" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#launch-jupyterlab"><i class="fa fa-check"></i><b>3.2.1</b> Launch JupyterLab</a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#manually-updating-cntk-and-launching-jupyter-no-need-to-do-this-if-you-use-the-script"><i class="fa fa-check"></i><b>3.3</b> Manually Updating CNTK and Launching Jupyter (<strong>No Need to Do This if You Use the Script</strong>)</a><ul>
+<li class="chapter" data-level="3.3.1" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#create-conda-virtual-environment"><i class="fa fa-check"></i><b>3.3.1</b> Create Conda Virtual Environment</a></li>
+<li class="chapter" data-level="3.3.2" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#install-cntk-using-pip-binary-wheels"><i class="fa fa-check"></i><b>3.3.2</b> Install CNTK Using <code>pip</code> Binary Wheels</a></li>
+<li class="chapter" data-level="3.3.3" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#temporary-fixes"><i class="fa fa-check"></i><b>3.3.3</b> Temporary Fixes</a></li>
+<li class="chapter" data-level="3.3.4" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#conda-extensions"><i class="fa fa-check"></i><b>3.3.4</b> Conda Extensions</a></li>
+<li class="chapter" data-level="3.3.5" data-path="upgrading-cntk-and-cudnn.html"><a href="upgrading-cntk-and-cudnn.html#install-keras"><i class="fa fa-check"></i><b>3.3.5</b> Install Keras</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html"><i class="fa fa-check"></i><b>4</b> Transfer Learning with CNTK</a><ul>
+<li class="chapter" data-level="4.1" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#classifying-dogs-and-cats-using-a-pre-trained-network"><i class="fa fa-check"></i><b>4.1</b> Classifying Dogs and Cats Using a Pre-Trained Network</a><ul>
+<li class="chapter" data-level="4.1.1" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#download-data"><i class="fa fa-check"></i><b>4.1.1</b> Download Data</a></li>
+</ul></li>
+<li class="chapter" data-level="4.2" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#create-train-test-and-validate-sets"><i class="fa fa-check"></i><b>4.2</b> Create Train, Test and Validate Sets</a></li>
+<li class="chapter" data-level="4.3" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#kittypupsploration"><i class="fa fa-check"></i><b>4.3</b> Kittypupsploration</a></li>
+<li class="chapter" data-level="4.4" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#data-readers-in-cntk"><i class="fa fa-check"></i><b>4.4</b> Data Readers in CNTK</a></li>
+<li class="chapter" data-level="4.5" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#pre-trained-models"><i class="fa fa-check"></i><b>4.5</b> Pre-Trained Models</a></li>
+<li class="chapter" data-level="4.6" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#defining-model-architecture"><i class="fa fa-check"></i><b>4.6</b> Defining Model Architecture</a></li>
+<li class="chapter" data-level="4.7" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#training-the-transfer-model"><i class="fa fa-check"></i><b>4.7</b> Training the Transfer Model</a></li>
+<li class="chapter" data-level="4.8" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#define-minibatch-source"><i class="fa fa-check"></i><b>4.8</b> Define Minibatch Source</a></li>
+<li class="chapter" data-level="4.9" data-path="transfer-learning-with-cntk.html"><a href="transfer-learning-with-cntk.html#training"><i class="fa fa-check"></i><b>4.9</b> Training</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="fashion-mnist.html"><a href="fashion-mnist.html"><i class="fa fa-check"></i><b>5</b> Fashion MNIST</a><ul>
+<li class="chapter" data-level="5.1" data-path="fashion-mnist.html"><a href="fashion-mnist.html#import-core-libraries-and-specify-keras-backend"><i class="fa fa-check"></i><b>5.1</b> Import Core Libraries and Specify Keras Backend</a></li>
+<li class="chapter" data-level="5.2" data-path="fashion-mnist.html"><a href="fashion-mnist.html#downloading-fashion-dataset"><i class="fa fa-check"></i><b>5.2</b> Downloading Fashion Dataset</a></li>
+<li class="chapter" data-level="5.3" data-path="fashion-mnist.html"><a href="fashion-mnist.html#scale-data-and-visualize"><i class="fa fa-check"></i><b>5.3</b> Scale Data and Visualize</a></li>
+<li class="chapter" data-level="5.4" data-path="fashion-mnist.html"><a href="fashion-mnist.html#create-network-architecture-and-model-parameters"><i class="fa fa-check"></i><b>5.4</b> Create Network Architecture and Model Parameters</a></li>
+<li class="chapter" data-level="5.5" data-path="fashion-mnist.html"><a href="fashion-mnist.html#training-our-model"><i class="fa fa-check"></i><b>5.5</b> Training Our Model</a></li>
+<li class="chapter" data-level="5.6" data-path="fashion-mnist.html"><a href="fashion-mnist.html#scoring-the-model"><i class="fa fa-check"></i><b>5.6</b> Scoring the Model</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="neural-style-transfer.html"><a href="neural-style-transfer.html"><i class="fa fa-check"></i><b>6</b> Neural Style Transfer</a><ul>
+<li class="chapter" data-level="6.1" data-path="neural-style-transfer.html"><a href="neural-style-transfer.html#defining-the-loss-function"><i class="fa fa-check"></i><b>6.1</b> Defining the loss function</a></li>
+<li class="chapter" data-level="6.2" data-path="neural-style-transfer.html"><a href="neural-style-transfer.html#instantiating-the-loss"><i class="fa fa-check"></i><b>6.2</b> Instantiating the loss</a></li>
+<li class="chapter" data-level="6.3" data-path="neural-style-transfer.html"><a href="neural-style-transfer.html#optimizing-the-loss"><i class="fa fa-check"></i><b>6.3</b> Optimizing the loss</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="network-visualization-tensorflow.html"><a href="network-visualization-tensorflow.html"><i class="fa fa-check"></i><b>7</b> Network Visualization (TensorFlow)</a></li>
+<li class="chapter" data-level="8" data-path="pretrained-model.html"><a href="pretrained-model.html"><i class="fa fa-check"></i><b>8</b> Pretrained Model</a><ul>
+<li class="chapter" data-level="8.1" data-path="pretrained-model.html"><a href="pretrained-model.html#load-some-imagenet-images"><i class="fa fa-check"></i><b>8.1</b> Load some ImageNet images</a></li>
+<li class="chapter" data-level="8.2" data-path="pretrained-model.html"><a href="pretrained-model.html#preprocess-images"><i class="fa fa-check"></i><b>8.2</b> Preprocess images</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="saliency-maps.html"><a href="saliency-maps.html"><i class="fa fa-check"></i><b>9</b> Saliency Maps</a></li>
+<li class="chapter" data-level="10" data-path="fooling-images.html"><a href="fooling-images.html"><i class="fa fa-check"></i><b>10</b> Fooling Images</a></li>
+<li class="chapter" data-level="11" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><i class="fa fa-check"></i><b>11</b> Wasserstein GAN and Loss Sensitive GAN with CIFAR Data</a><ul>
+<li class="chapter" data-level="11.1" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#introduction"><i class="fa fa-check"></i><b>11.1</b> Introduction</a></li>
+<li class="chapter" data-level="11.2" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#overview"><i class="fa fa-check"></i><b>11.2</b> Overview</a><ul>
+<li class="chapter" data-level="11.2.1" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#why-is-gan-hard-to-train"><i class="fa fa-check"></i><b>11.2.1</b> Why is GAN hard to train?</a></li>
+<li class="chapter" data-level="11.2.2" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#wasserstein-gan"><i class="fa fa-check"></i><b>11.2.2</b> Wasserstein GAN</a></li>
+<li class="chapter" data-level="11.2.3" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#loss-sensitive-gan"><i class="fa fa-check"></i><b>11.2.3</b> Loss Sensitive GAN</a></li>
+</ul></li>
+<li class="chapter" data-level="11.3" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#data-reading"><i class="fa fa-check"></i><b>11.3</b> Data Reading</a></li>
+<li class="chapter" data-level="11.4" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#model-creation-w-gan"><i class="fa fa-check"></i><b>11.4</b> Model Creation (W-GAN)</a><ul>
+<li class="chapter" data-level="11.4.1" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#build-the-graph"><i class="fa fa-check"></i><b>11.4.1</b> Build the graph</a></li>
+<li class="chapter" data-level="11.4.2" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#train-the-model"><i class="fa fa-check"></i><b>11.4.2</b> Train the Model</a></li>
+</ul></li>
+<li class="chapter" data-level="11.5" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#generating-fake-synthetic-images-w-gan"><i class="fa fa-check"></i><b>11.5</b> Generating Fake (Synthetic) Images (W-GAN)</a></li>
+<li class="chapter" data-level="11.6" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#model-creation-ls-gan"><i class="fa fa-check"></i><b>11.6</b> Model Creation (LS-GAN)</a><ul>
+<li class="chapter" data-level="11.6.1" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#build-the-graph-1"><i class="fa fa-check"></i><b>11.6.1</b> Build the graph</a></li>
+</ul></li>
+<li class="chapter" data-level="11.7" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#train-the-model-1"><i class="fa fa-check"></i><b>11.7</b> Train the model</a></li>
+<li class="chapter" data-level="11.8" data-path="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html"><a href="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data.html#generating-fake-synthetic-images-ls-gan"><i class="fa fa-check"></i><b>11.8</b> Generating Fake (Synthetic) Images (LS-GAN)</a></li>
+</ul></li>
+<li class="chapter" data-level="12" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><i class="fa fa-check"></i><b>12</b> Synthesizing Faces of Celebrities Boundary Equilibrium GAN with CelebA data</a><ul>
+<li class="chapter" data-level="12.1" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html#introduction-1"><i class="fa fa-check"></i><b>12.1</b> Introduction</a></li>
+<li class="chapter" data-level="12.2" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html#download-data-1"><i class="fa fa-check"></i><b>12.2</b> Download Data</a></li>
+<li class="chapter" data-level="12.3" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html#read-data"><i class="fa fa-check"></i><b>12.3</b> Read Data</a></li>
+<li class="chapter" data-level="12.4" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html#model-creation"><i class="fa fa-check"></i><b>12.4</b> Model Creation</a><ul>
+<li class="chapter" data-level="12.4.1" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html#model-components"><i class="fa fa-check"></i><b>12.4.1</b> Model components</a></li>
+<li class="chapter" data-level="12.4.2" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html#build-the-graph-2"><i class="fa fa-check"></i><b>12.4.2</b> Build the graph</a></li>
+<li class="chapter" data-level="12.4.3" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html#train-the-model-2"><i class="fa fa-check"></i><b>12.4.3</b> Train the Model</a></li>
+</ul></li>
+<li class="chapter" data-level="12.5" data-path="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html"><a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html#generating-fake-synthesized-images"><i class="fa fa-check"></i><b>12.5</b> Generating Fake (Synthesized) Images</a></li>
+</ul></li>
+<li class="chapter" data-level="13" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html"><i class="fa fa-check"></i><b>13</b> How to make a racist AI without really trying</a><ul>
+<li class="chapter" data-level="13.1" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#lets-make-a-sentiment-classifier"><i class="fa fa-check"></i><b>13.1</b> Let’s make a sentiment classifier!</a></li>
+<li class="chapter" data-level="13.2" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#software-dependencies"><i class="fa fa-check"></i><b>13.2</b> Software dependencies</a></li>
+<li class="chapter" data-level="13.3" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#step-1-word-embeddings"><i class="fa fa-check"></i><b>13.3</b> Step 1: Word embeddings</a></li>
+<li class="chapter" data-level="13.4" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#step-2-a-gold-standard-sentiment-lexicon"><i class="fa fa-check"></i><b>13.4</b> Step 2: A gold-standard sentiment lexicon</a></li>
+<li class="chapter" data-level="13.5" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#step-3-train-a-model-to-predict-word-sentiments"><i class="fa fa-check"></i><b>13.5</b> Step 3: Train a model to predict word sentiments</a></li>
+<li class="chapter" data-level="13.6" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#step-4-get-a-sentiment-score-for-text"><i class="fa fa-check"></i><b>13.6</b> Step 4: Get a sentiment score for text</a></li>
+<li class="chapter" data-level="13.7" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#step-5-behold-the-monstrosity-that-we-have-created"><i class="fa fa-check"></i><b>13.7</b> Step 5: Behold the monstrosity that we have created</a></li>
+<li class="chapter" data-level="13.8" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#step-6-measure-the-problem"><i class="fa fa-check"></i><b>13.8</b> Step 6: Measure the problem</a></li>
+<li class="chapter" data-level="13.9" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#step-7-trying-different-data"><i class="fa fa-check"></i><b>13.9</b> Step 7: Trying different data</a><ul>
+<li class="chapter" data-level="13.9.1" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#trying-word2vec"><i class="fa fa-check"></i><b>13.9.1</b> Trying word2vec</a></li>
+<li class="chapter" data-level="13.9.2" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#trying-conceptnet-numberbatch"><i class="fa fa-check"></i><b>13.9.2</b> Trying ConceptNet Numberbatch</a></li>
+<li class="chapter" data-level="13.9.3" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#there-is-no-trade-off"><i class="fa fa-check"></i><b>13.9.3</b> There is no trade-off</a></li>
+</ul></li>
+<li class="chapter" data-level="13.10" data-path="how-to-make-a-racist-ai-without-really-trying.html"><a href="how-to-make-a-racist-ai-without-really-trying.html#other-approaches"><i class="fa fa-check"></i><b>13.10</b> Other approaches</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://aka.ms/az-dl" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Deep Learning on Azure</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="wasserstein-gan-and-loss-sensitive-gan-with-cifar-data" class="section level1">
+<h1><span class="header-section-number">Chapter 11</span> Wasserstein GAN and Loss Sensitive GAN with CIFAR Data</h1>
+<p><strong>Prerequisites: </strong> Please run the notebook <em>CIFAR-10_DataLoader.ipynb</em> prior to this notebook. Be patient, it’ll take 10-15 minutes to run!</p>
+<div id="introduction" class="section level2">
+<h2><span class="header-section-number">11.1</span> Introduction</h2>
+<p>Generative models have gained a lot of attention in deep learning community which has traditionally leveraged discriminative models for semi-supervised and unsupervised learning. <a href="https://arxiv.org/pdf/1406.2661v1.pdf">Generative Adversarial Network (GAN)</a> (Goodfellow <em>et al.</em>, 2014) is one of the most popular generative model because of its promising results in <a href="https://github.com/HKCaesar/really-awesome-gan">various tasks</a> in computer vision and natural language processing. However, the original version of GANs are notorious for being difficult to train. Without carefully-chosen hyper-parameters and network architecture that balances Generator and Discriminator training, GANs could easily suffer from vanishing gradient or mode collapse (where the model is only able to produce a single or a few samples). In this tutorial, we introduce several improved GAN models, namely <a href="https://arxiv.org/pdf/1701.07875.pdf">Wasserstein GAN</a> (W-GAN) (Arjovsky <em>et al.</em>, 2017) and <a href="https://arxiv.org/pdf/1701.06264.pdf">Loss Sensitive GAN</a> (LS-GAN) (Qi, 2017), that are proposed to address the problems of vanishing gradient and mode collapse.</p>
+</div>
+<div id="overview" class="section level2">
+<h2><span class="header-section-number">11.2</span> Overview</h2>
+<p>In this section, we will briefly overview of main differences between Wasserstein GANs and original GANs in both theory and implementation perspective.</p>
+<div id="why-is-gan-hard-to-train" class="section level3">
+<h3><span class="header-section-number">11.2.1</span> Why is GAN hard to train?</h3>
+<p><em><strong>[TL;DR]</strong> In the training of the original GANs, balancing the convergence of the discriminator and the generator is extremely important because if one is far ahead of the other, the other can not get enough gradient to improve. However, balancing the convergence of two neural networks is hard.</em></p>
+<p>If you are interested in the math behind it, you can take a look at the rest of this part and <a href="https://arxiv.org/pdf/1701.04862.pdf">this paper here</a>. If not, you can just skip the math and look at the implementation details for W-GAN and LS-GAN.</p>
+<p>In <a href="https://arxiv.org/pdf/1406.2661v1.pdf">the original GAN paper</a>, GAN includes two neural network, a Generator <span class="math inline">\(G\)</span> and a Discriminator <span class="math inline">\(D\)</span>. The training of GAN is modeled as a two-player zeros-sum game. The Discriminator D is trained to predict the probability that a sample is a real sample rather than generated from the generator G, while the generator G is trained to better fool the discriminator by producing real-looking samples. The objective for GAN training is,</p>
+<p><span class="math display">\[\min_G\max_D V(D,G)=\mathbb{E}_{x\sim p_{data}(x)}[\log D(x)] + \mathbb{E}_{z\sim p_z(x)}[\log(1-D(G(z)))]\]</span></p>
+<p>In the original GAN paper, the author proves that the optimal strategy for discriminator is predicting</p>
+<p><span class="math display">\[D^*(x)=\frac{p_{data}(x)}{p_{data}(x)+p_{model}(x)}\]</span></p>
+<p>By plugging it into the GAN objective function, one may find that the discriminator is actually an estimation of <em>Jensen-Shannon</em> divergence (JS divergence or JSD) of two distributions (data and model).</p>
+<p><span class="math display">\[L(D^*,g_\theta)=2 JSD(\mathbb{P}_{data}\|\mathbb{P}_{model}) - 2\log2\]</span></p>
+<p>JS distance may become locally saturated and gets vanishing gradient to train the GAN generator if the discriminator is over-trained.</p>
+</div>
+<div id="wasserstein-gan" class="section level3">
+<h3><span class="header-section-number">11.2.2</span> Wasserstein GAN</h3>
+<p>To address this problem, <a href="https://arxiv.org/pdf/1701.07875.pdf">Wasserstein GAN</a> was proposed to use a different distance measurement for probability distributions, namely <em>Earth-Mover</em> (EM) distance or <em>Wasserstein</em> distance instead of JS divergence. The authors claimed that by using EM distance, one no longer needs to carefully maintain the balance between the generator and the discriminator, and, notably, the output of the discriminator (they call it critic instead in the paper), which is an estimation of EM distance serves as a good indicator of image quality of generated samples. The EM distance of two distribution is defined as</p>
+<p><span class="math display">\[W(p_{data}, p_{model})=\inf_{\gamma\in\prod(p_{data},p_{model})}\mathbb{E}_{(x,y)\sim\gamma}\left[\|x-y\|\right]\]</span></p>
+<p>In the paper shows that EM distance is a more sensible distance measurement than JS divergence since EM distance is continuous and differentiable anywhere while JS divergence is not. The authors uses the Kantorovich-Rubinstein duality to derive the objective for Wasserstein GAN,</p>
+<p><span class="math display">\[\min_G\max_{\|D\|_L\leq K} \mathbb{E}_{x\sim p_{data}(x)}[D(x)] - \mathbb{E}_{z\sim p_z(x)}[D(G(z))]\]</span></p>
+<p><strong>Note: </strong>the Kantorovich-Rubinstein duality requires the function to be K-Lipschitz. The authors suggests <em>clipping the weights of discriminator</em> to satisfy Lipschitz continuity.</p>
+<div id="implementation-details" class="section level4">
+<h4><span class="header-section-number">11.2.2.1</span> Implementation details</h4>
+<p>The modification needed on implementation side is minor. On can change an original GAN into a Wasserstein GAN with a few lines of code:</p>
+<ol style="list-style-type: decimal">
+<li>Use W-GAN loss function</li>
+<li>Remove the sigmoid activation for the last layer of discriminator</li>
+<li>Clip the weights of the discriminator after updates (e.g., to [-0.01, 0.01])</li>
+<li>Train discriminator more iterations than generator (e.g., train the discriminator for 5 iterations and train the generator for one iteration only at each round)</li>
+<li>Use non-momentum-based optimizer (e.g., RMSProp) instead of Adam (Note: in this tutorial we use Adam with <code>momentum=0</code>)</li>
+<li>Use small learning rate (e.g., 0.00005)</li>
+</ol>
+</div>
+</div>
+<div id="loss-sensitive-gan" class="section level3">
+<h3><span class="header-section-number">11.2.3</span> Loss Sensitive GAN</h3>
+<p><a href="https://arxiv.org/pdf/1701.06264.pdf">Loss Sensitive GAN</a> was proposed to address the problem of vanishing gradient. LS-GAN is trained on a loss function that allows the generator to focus on improving poor generated samples that are far from the real sample manifold. The author shows that the loss learned by LS-GAN has non-vanishing gradient almost everywhere, even when the discriminator is over-trained.</p>
+<p><span class="math display">\[\min_D L_D = \mathbb{E}_{x\sim p_{data}(x)}[D(x)] + \lambda\mathbb{E}_{x\sim p_{data}(x), z\sim p_z(x)}\left[\left(\|x-G(z)\|_1 + D(x) - D(G(z))\right)_+\right]\]</span> <span class="math display">\[\min_G L_G = \mathbb{E}_{z\sim p_z(x)}[D(G(z))]\]</span></p>
+<div id="implementation-details-1" class="section level4">
+<h4><span class="header-section-number">11.2.3.1</span> Implementation details</h4>
+<p>The modification needed on implementation side is also minor. On can change an original GAN into a Wasserstein GAN with a few lines of code:</p>
+<ol style="list-style-type: decimal">
+<li>Use the LS-GAN loss function</li>
+<li>Remove the sigmoid activation for the last layer of discriminator</li>
+<li>Update both the generator and the discriminator with weight decay</li>
+<li>Train discriminator and generator each with one iteration at each round</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">import</span> matplotlib <span class="im">as</span> mpl
+<span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt
+<span class="im">import</span> numpy <span class="im">as</span> np
+<span class="im">import</span> os
+
+<span class="im">import</span> cntk <span class="im">as</span> C
+<span class="im">import</span> cntk.tests.test_utils
+cntk.tests.test_utils.set_device_from_pytest_env() <span class="co"># (only needed for our build system)</span>
+C.cntk_py.set_fixed_random_seed(<span class="dv">1</span>) <span class="co"># fix a random seed for CNTK components</span>
+
+<span class="op">%</span>matplotlib inline</code></pre></div>
+<p>There are two run modes: * <em>Fast mode: </em> <code>isFast</code> is set to <code>True</code>. This is the default mode for the notebooks, which means we train for fewer iterations or train / test on limited data. This ensures functional correctness of the notebook though the models produced are far from what a completed training would produce. * <em>Slow mode: </em> We recommend the user to set this flag to <code>False</code> once the user has gained familiarity with the notebook content and wants to gain insight from running the notebooks for a longer period with different parameters for training.</p>
+<p><strong>Note: </strong>If the <code>isFlag</code> is set to <code>False</code> the notebook will take a hours or even days on a GPU enabled machine. You can try fewer iterations by setting the <code>num_minibatches</code> to a smaller number which comes at the expense of quality of the generated images.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">isFast <span class="op">=</span> <span class="va">True</span></code></pre></div>
+</div>
+</div>
+</div>
+<div id="data-reading" class="section level2">
+<h2><span class="header-section-number">11.3</span> Data Reading</h2>
+<p>The input to the GANs will be a vector of random numbers. At the end of the training, the GAN “learns” to generate images drawn from the CIFAR dataset. We will be using the same CIFAR data prepared in tutorial CNTK 201A. For our purposes, you only need to know that the following function returns an object that will be used to read images from the CIFAR dataset.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="co"># image dimensionalities</span>
+img_h, img_w <span class="op">=</span> <span class="dv">32</span>, <span class="dv">32</span>
+img_c <span class="op">=</span> <span class="dv">3</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="co"># Determine the data path for testing</span>
+<span class="co"># Check for an environment variable defined in CNTK&#39;s test infrastructure</span>
+envvar <span class="op">=</span> <span class="st">&#39;CNTK_EXTERNAL_TESTDATA_SOURCE_DIRECTORY&#39;</span>
+<span class="kw">def</span> is_test(): <span class="cf">return</span> envvar <span class="kw">in</span> os.environ
+
+<span class="cf">if</span> is_test():
+    data_path <span class="op">=</span> os.path.join(os.environ[envvar],<span class="st">&#39;Image&#39;</span>,<span class="st">&#39;CIFAR&#39;</span>,<span class="st">&#39;v0&#39;</span>,<span class="st">&#39;tutorial201&#39;</span>)
+    data_path <span class="op">=</span> os.path.normpath(data_path)
+<span class="cf">else</span>:
+    data_path <span class="op">=</span> os.path.join(<span class="st">&#39;data&#39;</span>, <span class="st">&#39;CIFAR-10&#39;</span>)
+    
+train_file <span class="op">=</span> os.path.join(data_path, <span class="st">&#39;train_map.txt&#39;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> create_reader(map_file, train):
+    <span class="bu">print</span>(<span class="st">&quot;Reading map file:&quot;</span>, map_file)
+    
+    <span class="cf">if</span> <span class="kw">not</span> os.path.exists(map_file):
+        <span class="cf">raise</span> <span class="pp">RuntimeError</span>(<span class="st">&quot;This tutorials depends 201A tutorials, please run 201A first.&quot;</span>)
+    
+    <span class="im">import</span> cntk.io.transforms <span class="im">as</span> xforms
+    transforms <span class="op">=</span> [xforms.crop(crop_type<span class="op">=</span><span class="st">&#39;center&#39;</span>, side_ratio<span class="op">=</span><span class="fl">0.8</span>),
+                  xforms.scale(width<span class="op">=</span>img_w, height<span class="op">=</span>img_h, channels<span class="op">=</span>img_c, interpolations<span class="op">=</span><span class="st">&#39;linear&#39;</span>)]
+    <span class="co"># deserializer</span>
+    <span class="cf">return</span> C.io.MinibatchSource(C.io.ImageDeserializer(map_file, C.io.StreamDefs(
+        features <span class="op">=</span> C.io.StreamDef(field<span class="op">=</span><span class="st">&#39;image&#39;</span>, transforms<span class="op">=</span>transforms), <span class="co"># first column in map file is referred to as &#39;image&#39;</span>
+        labels   <span class="op">=</span> C.io.StreamDef(field<span class="op">=</span><span class="st">&#39;label&#39;</span>, shape<span class="op">=</span><span class="dv">10</span>)      <span class="co"># and second as &#39;label&#39;</span>
+    )))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> noise_sample(num_samples):
+    <span class="cf">return</span> np.random.uniform(
+        low <span class="op">=</span> <span class="op">-</span><span class="fl">1.0</span>,
+        high <span class="op">=</span> <span class="fl">1.0</span>,
+        size <span class="op">=</span> [num_samples, g_input_dim]
+    ).astype(np.float32)</code></pre></div>
+</div>
+<div id="model-creation-w-gan" class="section level2">
+<h2><span class="header-section-number">11.4</span> Model Creation (W-GAN)</h2>
+<p>Note that we assume that you have already completed the DCGAN tutorial. If you need a basic recap of GAN concepts or DCGAN architecture, please visit our <a href="https://github.com/Microsoft/CNTK/blob/master/Tutorials/CNTK_206B_DCGAN.ipynb">DCGAN tutorial</a>. ### Model Configuration We implemented the W-GAN based on <a href="https://arxiv.org/pdf/1511.06434.pdf">DCGAN</a> architecture. In this step, we establish some of the architectural and training hyper-parameters for our model. * The generator is fractional strided convolutional network with <span class="math inline">\(5\times5\)</span> kernels and strides of <span class="math inline">\(2\)</span> * The input of the generator is a 100-dimensional random vector * The output of the generator is a flattened <span class="math inline">\(64\times64\)</span> image with <span class="math inline">\(3\)</span> channels * The discriminator is a strided convolutional network with <span class="math inline">\(5\times5\)</span> kernels and strides of <span class="math inline">\(2\)</span> * The input of the discriminator is also a flattened <span class="math inline">\(64\times64\)</span> image with <span class="math inline">\(3\)</span> channels * The output of the discriminator is a scalar which is an estimation of EM distance</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="co"># architectural hyper-parameters</span>
+gkernel <span class="op">=</span> dkernel <span class="op">=</span> <span class="dv">5</span>
+gstride <span class="op">=</span> dstride <span class="op">=</span> <span class="dv">2</span>
+
+<span class="co"># Input / Output parameter of Generator and Discriminator</span>
+g_input_dim <span class="op">=</span> <span class="dv">100</span>
+g_output_dim <span class="op">=</span> d_input_dim <span class="op">=</span> (img_c, img_h, img_w)</code></pre></div>
+<p>We first establish some of the helper functions (batch normalization with relu and batch normalization with leaky relu) that will make our lives easier when defining the generator and the discriminator.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="co"># Helper functions</span>
+<span class="kw">def</span> bn_with_relu(x, activation<span class="op">=</span>C.relu):
+    h <span class="op">=</span> C.layers.BatchNormalization(map_rank<span class="op">=</span><span class="dv">1</span>)(x)
+    <span class="cf">return</span> C.relu(h)
+
+<span class="co"># We use param-relu function to use a leak=0.2 since CNTK implementation </span>
+<span class="co"># of Leaky ReLU is fixed to 0.01</span>
+<span class="kw">def</span> bn_with_leaky_relu(x, leak<span class="op">=</span><span class="fl">0.2</span>):
+    h <span class="op">=</span> C.layers.BatchNormalization(map_rank<span class="op">=</span><span class="dv">1</span>)(x)
+    r <span class="op">=</span> C.param_relu(C.constant((np.ones(h.shape)<span class="op">*</span>leak).astype(np.float32)), h)
+    <span class="cf">return</span> r
+
+<span class="kw">def</span> leaky_relu(x, leak<span class="op">=</span><span class="fl">0.2</span>):
+    <span class="cf">return</span> C.param_relu(C.constant((np.ones(x.shape)<span class="op">*</span>leak).astype(np.float32)), x)</code></pre></div>
+<div id="generator" class="section level4">
+<h4><span class="header-section-number">11.4.0.1</span> Generator</h4>
+<p>We define the generator according to the DCGAN architecture. The generator takes a 100-dimensional random vector as input and outputs a flattened <span class="math inline">\(3\times64\times64\)</span> image. We use fractionally strided convolution layers with relu convolution and batch normalization except for the last layer, where we use tanh to normalize the output to the interval <span class="math inline">\([-1, 1]\)</span>.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> convolutional_generator(z):
+    <span class="cf">with</span> C.layers.default_options(init<span class="op">=</span>C.normal(scale<span class="op">=</span><span class="fl">0.02</span>)):
+        
+        gfc_dim <span class="op">=</span> <span class="dv">256</span>
+        gf_dim <span class="op">=</span> <span class="dv">64</span>
+        
+        <span class="bu">print</span>(<span class="st">&#39;Generator input shape: &#39;</span>, z.shape)
+        
+        h0 <span class="op">=</span> C.layers.Dense([gfc_dim, img_h<span class="op">//</span><span class="dv">8</span>, img_w<span class="op">//</span><span class="dv">8</span>], activation<span class="op">=</span><span class="va">None</span>)(z)
+        h0 <span class="op">=</span> bn_with_relu(h0)
+        <span class="bu">print</span>(<span class="st">&#39;h0 shape&#39;</span>, h0.shape)
+
+        h1 <span class="op">=</span> C.layers.ConvolutionTranspose2D(gkernel,
+                                  num_filters<span class="op">=</span>gf_dim<span class="op">*</span><span class="dv">2</span>,
+                                  strides<span class="op">=</span>gstride,
+                                  pad<span class="op">=</span><span class="va">True</span>,
+                                  output_shape<span class="op">=</span>(img_h<span class="op">//</span><span class="dv">4</span>, img_w<span class="op">//</span><span class="dv">4</span>),
+                                  activation<span class="op">=</span><span class="va">None</span>)(h0)
+        h1 <span class="op">=</span> bn_with_relu(h1)
+        <span class="bu">print</span>(<span class="st">&#39;h1 shape&#39;</span>, h1.shape)
+
+        h2 <span class="op">=</span> C.layers.ConvolutionTranspose2D(gkernel,
+                                  num_filters<span class="op">=</span>gf_dim,
+                                  strides<span class="op">=</span>gstride,
+                                  pad<span class="op">=</span><span class="va">True</span>,
+                                  output_shape<span class="op">=</span>(img_h<span class="op">//</span><span class="dv">2</span>, img_w<span class="op">//</span><span class="dv">2</span>),
+                                  activation<span class="op">=</span><span class="va">None</span>)(h1)
+        h2 <span class="op">=</span> bn_with_relu(h2)
+        <span class="bu">print</span>(<span class="st">&#39;h2 shape :&#39;</span>, h2.shape)
+        
+        h3 <span class="op">=</span> C.layers.ConvolutionTranspose2D(gkernel,
+                                  num_filters<span class="op">=</span>img_c,
+                                  strides<span class="op">=</span>gstride,
+                                  pad<span class="op">=</span><span class="va">True</span>,
+                                  output_shape<span class="op">=</span>(img_h, img_w),
+                                  activation<span class="op">=</span>C.tanh)(h2)
+        <span class="bu">print</span>(<span class="st">&#39;h3 shape :&#39;</span>, h3.shape)
+
+        <span class="cf">return</span> h3</code></pre></div>
+</div>
+<div id="discriminator" class="section level4">
+<h4><span class="header-section-number">11.4.0.2</span> Discriminator</h4>
+<p>We define the discriminator according to the DCGAN architecture except for the last layer. The discriminator takes a flattened image as input and outputs a single scalar. We do not use any activation at the last layer.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> convolutional_discriminator(x):
+    <span class="cf">with</span> C.layers.default_options(init<span class="op">=</span>C.normal(scale<span class="op">=</span><span class="fl">0.02</span>)):
+        
+        dfc_dim <span class="op">=</span> <span class="dv">256</span>
+        df_dim <span class="op">=</span> <span class="dv">64</span>
+        
+        <span class="bu">print</span>(<span class="st">&#39;Discriminator convolution input shape&#39;</span>, x.shape)
+
+        h0 <span class="op">=</span> C.layers.Convolution2D(dkernel, df_dim, strides<span class="op">=</span>dstride, pad<span class="op">=</span><span class="va">True</span>)(x)
+        h0 <span class="op">=</span> leaky_relu(h0, leak<span class="op">=</span><span class="fl">0.2</span>)
+        <span class="bu">print</span>(<span class="st">&#39;h0 shape :&#39;</span>, h0.shape)
+
+        h1 <span class="op">=</span> C.layers.Convolution2D(dkernel, df_dim<span class="op">*</span><span class="dv">2</span>, strides<span class="op">=</span>dstride, pad<span class="op">=</span><span class="va">True</span>)(h0)
+        h1 <span class="op">=</span> bn_with_leaky_relu(h1, leak<span class="op">=</span><span class="fl">0.2</span>)
+        <span class="bu">print</span>(<span class="st">&#39;h1 shape :&#39;</span>, h1.shape)
+
+        h2 <span class="op">=</span> C.layers.Convolution2D(dkernel, dfc_dim, strides<span class="op">=</span>dstride, pad<span class="op">=</span><span class="va">True</span>)(h1)
+        h2 <span class="op">=</span> bn_with_leaky_relu(h2, leak<span class="op">=</span><span class="fl">0.2</span>)
+        <span class="bu">print</span>(<span class="st">&#39;h2 shape :&#39;</span>, h2.shape)
+
+        h3 <span class="op">=</span> C.layers.Dense(<span class="dv">1</span>, activation<span class="op">=</span><span class="va">None</span>)(h2)
+        <span class="bu">print</span>(<span class="st">&#39;h3 shape :&#39;</span>, h3.shape)
+
+        <span class="cf">return</span> h3</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="co"># training config</span>
+minibatch_size <span class="op">=</span> <span class="dv">64</span>
+num_minibatches <span class="op">=</span> <span class="dv">500</span> <span class="cf">if</span> isFast <span class="cf">else</span> <span class="dv">20000</span>
+lr <span class="op">=</span> <span class="fl">0.00005</span> <span class="co"># small learning rates are preferred</span>
+momentum <span class="op">=</span> <span class="fl">0.0</span> <span class="co"># momentum is not suggested since it can make W-GANs unstable</span>
+clip <span class="op">=</span> <span class="fl">0.01</span> <span class="co"># the weight clipping parameter</span></code></pre></div>
+</div>
+<div id="build-the-graph" class="section level3">
+<h3><span class="header-section-number">11.4.1</span> Build the graph</h3>
+<p>The discriminator must be used on both the real CIFAR images and fake images generated by the generator function. One way to represent this in the computational graph is to create a clone of the output of the discriminator function, but with substituted inputs. Setting <code>method=share</code> in the clone function ensures that both paths through the discriminator model use the same set of parameters</p>
+<p>We need to update the parameters for the generator and discriminator model separately using the gradients from different loss functions. We can get the parameters for a Function in the graph with the parameters attribute. However, when updating the model parameters, update only the parameters of the respective models while keeping the other parameters unchanged. In other words, when updating the generator we will update only the parameters of the function while keeping the parameters of the function fixed and vice versa.</p>
+<p>Because W-GAN needs to clip the weights of the discriminator before every updates in order to maintain K-Lipschitz continuity. We build a graph with clipped parameters stored in <code>clipped_D_params</code>. The suggested value of clipping threshold is 0.01.</p>
+<p><strong>Note: </strong> CNTK parameter learner uses sum of gradient within a minibatch by default instead of mean of gradient. To reproduce results with the same hyper-parameter in the paper, we need to set <code>use_mean_gradient = True</code>, and <code>unit_gain = False</code>.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> build_WGAN_graph(noise_shape, image_shape, generator, discriminator):
+    
+    input_dynamic_axes <span class="op">=</span> [C.Axis.default_batch_axis()]
+    Z <span class="op">=</span> C.input_variable(noise_shape, dynamic_axes<span class="op">=</span>input_dynamic_axes)
+    X_real <span class="op">=</span> C.input_variable(image_shape, dynamic_axes<span class="op">=</span>input_dynamic_axes)
+    X_real_scaled <span class="op">=</span> (X_real <span class="op">-</span> <span class="fl">127.5</span>) <span class="op">/</span> <span class="fl">127.5</span>
+
+    <span class="co"># Create the model function for the generator and discriminator models</span>
+    X_fake <span class="op">=</span> generator(Z)
+    D_real <span class="op">=</span> discriminator(X_real_scaled)
+    D_fake <span class="op">=</span> D_real.clone(
+        method <span class="op">=</span> <span class="st">&#39;share&#39;</span>,
+        substitutions <span class="op">=</span> {X_real_scaled.output: X_fake.output}
+    )
+    
+    clipped_D_params <span class="op">=</span> [C.clip(p, <span class="op">-</span>clip, clip) <span class="cf">for</span> p <span class="kw">in</span> D_real.parameters]
+    
+    G_loss <span class="op">=</span> <span class="op">-</span> D_fake
+    D_loss <span class="op">=</span> <span class="op">-</span> D_real <span class="op">+</span> D_fake
+
+    G_learner <span class="op">=</span> C.adam(
+            parameters <span class="op">=</span> X_fake.parameters,
+            lr <span class="op">=</span> C.learning_rate_schedule(lr, C.UnitType.sample),
+            momentum <span class="op">=</span> C.momentum_schedule(momentum),
+            variance_momentum <span class="op">=</span> C.momentum_schedule(<span class="fl">0.999</span>),
+            unit_gain<span class="op">=</span><span class="va">False</span>,
+            use_mean_gradient<span class="op">=</span><span class="va">True</span>
+    )
+            
+    D_learner <span class="op">=</span> C.adam(
+            parameters <span class="op">=</span> D_real.parameters,
+            lr <span class="op">=</span> C.learning_rate_schedule(lr, C.UnitType.sample),
+            momentum <span class="op">=</span> C.momentum_schedule(momentum),
+            variance_momentum <span class="op">=</span> C.momentum_schedule(<span class="fl">0.999</span>),
+            unit_gain<span class="op">=</span><span class="va">False</span>,
+            use_mean_gradient<span class="op">=</span><span class="va">True</span>
+    )
+    
+    <span class="co"># Instantiate the trainers</span>
+    G_trainer <span class="op">=</span> C.Trainer(X_fake,
+                        (G_loss, <span class="va">None</span>),
+                        G_learner)
+    D_trainer <span class="op">=</span> C.Trainer(D_real,
+                        (D_loss, <span class="va">None</span>),
+                        D_learner)
+
+    <span class="cf">return</span> X_real, X_fake, D_real, clipped_D_params, Z, G_trainer, D_trainer</code></pre></div>
+</div>
+<div id="train-the-model" class="section level3">
+<h3><span class="header-section-number">11.4.2</span> Train the Model</h3>
+<p>The code for training the GAN closely follows Algorithm 1 in the W-GAN paper. Note that compared to original GANs, we train the discriminator many more times than the generator. The reason behind that is the output of the discriminator serves as an estimation of the EM distance. We want to train the discriminator until it can closely estimate the EM distance. In order to make sure that the discriminator has a sufficient good estimation at the very beginning of the training, we even train it for 100 iterations before train the generator (this is disabled in fast mode because this will significantly take longer time).</p>
+<p>[placeholder for WGAN algorithm]</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> train_WGAN(reader_train, generator, discriminator):
+    X_real, X_fake, D_real, clipped_D_params, Z, G_trainer, D_trainer <span class="op">=</span> <span class="op">\</span>
+        build_WGAN_graph(g_input_dim, d_input_dim, generator, discriminator)
+    <span class="co"># print out loss for each model for upto 25 times</span>
+    
+    print_frequency_mbsize <span class="op">=</span> num_minibatches <span class="op">//</span> <span class="dv">25</span>
+    
+    <span class="bu">print</span>(<span class="st">&quot;First row is Generator loss, second row is Discriminator loss&quot;</span>)
+    pp_G <span class="op">=</span> C.logging.ProgressPrinter(print_frequency_mbsize)
+    pp_D <span class="op">=</span> C.logging.ProgressPrinter(print_frequency_mbsize)
+    
+    input_map <span class="op">=</span> {X_real: reader_train.streams.features}
+
+    <span class="cf">for</span> training_step <span class="kw">in</span> <span class="bu">range</span>(num_minibatches):
+        <span class="co"># train the discriminator model for diter steps</span>
+        <span class="cf">if</span> <span class="kw">not</span> isFast <span class="kw">and</span> (training_step <span class="op">&lt;</span> <span class="dv">25</span> <span class="kw">or</span> training_step <span class="op">%</span> <span class="dv">500</span> <span class="op">==</span> <span class="dv">0</span>):
+            diter <span class="op">=</span> <span class="dv">100</span>
+        <span class="cf">else</span>:
+            diter <span class="op">=</span> <span class="dv">5</span>
+        <span class="cf">for</span> d_train_step <span class="kw">in</span> <span class="bu">range</span>(diter):
+            <span class="cf">for</span> parameter, clipped <span class="kw">in</span> <span class="bu">zip</span>(D_real.parameters, clipped_D_params):
+                C.assign(parameter, clipped).<span class="bu">eval</span>()
+            Z_data <span class="op">=</span> noise_sample(minibatch_size)
+            X_data <span class="op">=</span> reader_train.next_minibatch(minibatch_size, input_map)
+            batch_inputs <span class="op">=</span> {X_real: X_data[X_real].data, Z: Z_data}
+            D_trainer.train_minibatch(batch_inputs)
+        
+        Z_data <span class="op">=</span> noise_sample(minibatch_size)
+        batch_inputs <span class="op">=</span> {Z: Z_data}
+        G_trainer.train_minibatch(batch_inputs)
+       
+        pp_G.update_with_trainer(G_trainer)
+        pp_D.update_with_trainer(D_trainer)
+
+    G_trainer_loss <span class="op">=</span> G_trainer.previous_minibatch_loss_average
+    <span class="cf">return</span> Z, X_fake, G_trainer_loss</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">reader_train <span class="op">=</span> create_reader(train_file, <span class="va">True</span>)
+
+<span class="co"># G_input, G_output, G_trainer_loss = train(reader_train, dense_generator, dense_discriminator)</span>
+G_input, G_output, G_trainer_loss <span class="op">=</span> train_WGAN(reader_train,
+                                          convolutional_generator,
+                                          convolutional_discriminator)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="co"># Print the generator loss </span>
+<span class="bu">print</span>(<span class="st">&quot;Training loss of the generator is: </span><span class="sc">{0:.2f}</span><span class="st">&quot;</span>.<span class="bu">format</span>(G_trainer_loss))</code></pre></div>
+</div>
+</div>
+<div id="generating-fake-synthetic-images-w-gan" class="section level2">
+<h2><span class="header-section-number">11.5</span> Generating Fake (Synthetic) Images (W-GAN)</h2>
+<p>Now that we have trained the model, we can create fake images simply by feeding random noise into the generator and displaying the outputs. Below are a few images generated from random samples. To get a new set of samples, you can re-run the last cell.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> plot_images(images, subplot_shape):
+    plt.style.use(<span class="st">&#39;ggplot&#39;</span>)
+    fig, axes <span class="op">=</span> plt.subplots(<span class="op">*</span>subplot_shape)
+    <span class="cf">for</span> image, ax <span class="kw">in</span> <span class="bu">zip</span>(images, axes.flatten()):
+        image <span class="op">=</span> image[np.array([<span class="dv">2</span>,<span class="dv">1</span>,<span class="dv">0</span>]),:,:]
+        image <span class="op">=</span> np.rollaxis(image <span class="op">/</span> <span class="dv">2</span> <span class="op">+</span> <span class="fl">0.5</span>, <span class="dv">0</span>, <span class="dv">3</span>)
+        ax.imshow(image, vmin<span class="op">=-</span><span class="fl">1.0</span>, vmax<span class="op">=</span><span class="fl">1.0</span>)
+        ax.axis(<span class="st">&#39;off&#39;</span>)
+    plt.show()
+
+noise <span class="op">=</span> noise_sample(<span class="dv">36</span>)
+images <span class="op">=</span> G_output.<span class="bu">eval</span>({G_input: noise})
+plot_images(images, subplot_shape<span class="op">=</span>[<span class="dv">6</span>, <span class="dv">6</span>])</code></pre></div>
+<p>Larger number of iterations should generate more realistic looking images. A sampling of such generated images is shown below.</p>
+<p>[placeholder for W-GAN slow mode results]</p>
+</div>
+<div id="model-creation-ls-gan" class="section level2">
+<h2><span class="header-section-number">11.6</span> Model Creation (LS-GAN)</h2>
+<p>Since the generator and discriminator architectures of LS-GAN is the same as W-GAN, we will reuse the generator and the discriminator we defined for W-GAN. The main difference between W-GAN and LS-GAN is their loss function and optimizer they use. We redefine the training parameters for LS-GAN.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="co"># training config</span>
+minibatch_size <span class="op">=</span> <span class="dv">64</span>
+num_minibatches <span class="op">=</span> <span class="dv">1000</span> <span class="cf">if</span> isFast <span class="cf">else</span> <span class="dv">20000</span>
+lr <span class="op">=</span> <span class="fl">0.0001</span>
+momentum <span class="op">=</span> <span class="fl">0.5</span>
+lambda_ <span class="op">=</span> <span class="fl">0.0002</span> <span class="co"># lambda in LS-GAN loss function, controls the size of margin</span>
+weight_decay <span class="op">=</span> <span class="fl">0.00005</span></code></pre></div>
+<div id="build-the-graph-1" class="section level3">
+<h3><span class="header-section-number">11.6.1</span> Build the graph</h3>
+<p>As we mentioned above, one of the differences between LS-GAN and W-GAN is there loss function. In <code>build_LSGAN_graph</code>, we should define the loss function for the generator and the discriminator. Another difference is that we do not do weight clipping in LS-GAN, so <code>clipped_D_parames</code> is no longer needed. Instead, we use weight decay which is mathematically equivalent to adding an l2 regularization in the optimizer.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> build_LSGAN_graph(noise_shape, image_shape, generator, discriminator):
+    
+    input_dynamic_axes <span class="op">=</span> [C.Axis.default_batch_axis()]
+    Z <span class="op">=</span> C.input_variable(noise_shape, dynamic_axes<span class="op">=</span>input_dynamic_axes)
+    X_real <span class="op">=</span> C.input_variable(image_shape, dynamic_axes<span class="op">=</span>input_dynamic_axes)
+    X_real_scaled <span class="op">=</span> (X_real <span class="op">-</span> <span class="fl">127.5</span>) <span class="op">/</span> <span class="fl">127.5</span>
+
+    <span class="co"># Create the model function for the generator and discriminator models</span>
+    X_fake <span class="op">=</span> generator(Z)
+    D_real <span class="op">=</span> discriminator(X_real_scaled)
+    D_fake <span class="op">=</span> D_real.clone(
+        method <span class="op">=</span> <span class="st">&#39;share&#39;</span>,
+        substitutions <span class="op">=</span> {X_real_scaled.output: X_fake.output}
+    )
+    
+    G_loss <span class="op">=</span> D_fake
+    D_loss <span class="op">=</span> C.element_max(D_real <span class="op">-</span> D_fake <span class="op">+</span> lambda_ <span class="op">*</span> C.reduce_sum(C.<span class="bu">abs</span>(X_fake <span class="op">-</span> X_real_scaled)), [<span class="dv">0</span>.])
+    
+    G_learner <span class="op">=</span> C.adam(
+            parameters <span class="op">=</span> X_fake.parameters,
+            lr <span class="op">=</span> C.learning_rate_schedule(lr, C.UnitType.sample),
+            momentum <span class="op">=</span> C.momentum_schedule(momentum),
+            variance_momentum <span class="op">=</span> C.momentum_schedule(<span class="fl">0.999</span>),
+            l2_regularization_weight<span class="op">=</span>weight_decay,
+            unit_gain<span class="op">=</span><span class="va">False</span>,
+            use_mean_gradient<span class="op">=</span><span class="va">True</span>
+    )
+            
+    D_learner <span class="op">=</span> C.adam(
+            parameters <span class="op">=</span> D_real.parameters,
+            lr <span class="op">=</span> C.learning_rate_schedule(lr, C.UnitType.sample),
+            momentum <span class="op">=</span> C.momentum_schedule(momentum),
+            variance_momentum <span class="op">=</span> C.momentum_schedule(<span class="fl">0.999</span>),
+            l2_regularization_weight<span class="op">=</span><span class="fl">0.00005</span>,
+            unit_gain<span class="op">=</span><span class="va">False</span>,
+            use_mean_gradient<span class="op">=</span><span class="va">True</span>
+        )
+    
+    <span class="co"># Instantiate the trainers</span>
+    G_trainer <span class="op">=</span> C.Trainer(X_fake,
+                        (G_loss, <span class="va">None</span>),
+                        G_learner)
+    D_trainer <span class="op">=</span> C.Trainer(D_real,
+                        (D_loss, <span class="va">None</span>),
+                        D_learner)
+
+    <span class="cf">return</span> X_real, X_fake, Z, G_trainer, D_trainer</code></pre></div>
+</div>
+</div>
+<div id="train-the-model-1" class="section level2">
+<h2><span class="header-section-number">11.7</span> Train the model</h2>
+<p>To train the LS-GAN model, we can just simply update the discriminator and the generator alternatively at each round.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> train_LSGAN(reader_train, generator, discriminator):
+    X_real, X_fake, Z, G_trainer, D_trainer <span class="op">=</span> <span class="op">\</span>
+        build_LSGAN_graph(g_input_dim, d_input_dim, generator, discriminator)
+        
+    <span class="co"># print out loss for each model for upto 25 times</span>
+    print_frequency_mbsize <span class="op">=</span> num_minibatches <span class="op">//</span> <span class="dv">25</span>
+    
+    <span class="bu">print</span>(<span class="st">&quot;First row is Generator loss, second row is Discriminator loss&quot;</span>)
+    pp_G <span class="op">=</span> C.logging.ProgressPrinter(print_frequency_mbsize)
+    pp_D <span class="op">=</span> C.logging.ProgressPrinter(print_frequency_mbsize)
+    
+    
+    input_map <span class="op">=</span> {X_real: reader_train.streams.features}
+
+    <span class="cf">for</span> training_step <span class="kw">in</span> <span class="bu">range</span>(num_minibatches):
+        <span class="co"># Train the discriminator and the generator alternatively</span>
+        Z_data <span class="op">=</span> noise_sample(minibatch_size)
+        X_data <span class="op">=</span> reader_train.next_minibatch(minibatch_size, input_map)
+        batch_inputs <span class="op">=</span> {X_real: X_data[X_real].data, Z: Z_data}
+        D_trainer.train_minibatch(batch_inputs)
+        
+        Z_data <span class="op">=</span> noise_sample(minibatch_size)
+        batch_inputs <span class="op">=</span> {Z: Z_data}
+        G_trainer.train_minibatch(batch_inputs)
+        
+        pp_G.update_with_trainer(G_trainer)
+        pp_D.update_with_trainer(D_trainer)
+
+    G_trainer_loss <span class="op">=</span> G_trainer.previous_minibatch_loss_average
+    <span class="cf">return</span> Z, X_fake, G_trainer_loss</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python">reader_train <span class="op">=</span> create_reader(train_file, <span class="va">True</span>)
+
+<span class="co"># G_input, G_output, G_trainer_loss = train(reader_train, dense_generator, dense_discriminator)</span>
+G_input, G_output, G_trainer_loss <span class="op">=</span> train_LSGAN(reader_train,
+                                          convolutional_generator,
+                                          convolutional_discriminator)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="co"># Print the generator loss </span>
+<span class="bu">print</span>(<span class="st">&quot;Training loss of the generator is: </span><span class="sc">{0:.2f}</span><span class="st">&quot;</span>.<span class="bu">format</span>(G_trainer_loss))</code></pre></div>
+</div>
+<div id="generating-fake-synthetic-images-ls-gan" class="section level2">
+<h2><span class="header-section-number">11.8</span> Generating Fake (Synthetic) Images (LS-GAN)</h2>
+<p>Now that we have trained the LS-GAN model, we can create fake images simply by feeding random noise into the generator and displaying the outputs. Below are a few images generated from random samples. To get a new set of samples, you can re-run the last cell.</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> plot_images(images, subplot_shape):
+    plt.style.use(<span class="st">&#39;ggplot&#39;</span>)
+    fig, axes <span class="op">=</span> plt.subplots(<span class="op">*</span>subplot_shape)
+    <span class="cf">for</span> image, ax <span class="kw">in</span> <span class="bu">zip</span>(images, axes.flatten()):
+        image <span class="op">=</span> image[np.array([<span class="dv">2</span>,<span class="dv">1</span>,<span class="dv">0</span>]),:,:]
+        image <span class="op">=</span> np.rollaxis(image <span class="op">/</span> <span class="dv">2</span> <span class="op">+</span> <span class="fl">0.5</span>, <span class="dv">0</span>, <span class="dv">3</span>)
+        ax.imshow(image, vmin<span class="op">=-</span><span class="fl">1.0</span>, vmax<span class="op">=</span><span class="fl">1.0</span>)
+        ax.axis(<span class="st">&#39;off&#39;</span>)
+    plt.show()
+
+noise <span class="op">=</span> noise_sample(<span class="dv">36</span>)
+images <span class="op">=</span> G_output.<span class="bu">eval</span>({G_input: noise})
+plot_images(images, subplot_shape<span class="op">=</span>[<span class="dv">6</span>, <span class="dv">6</span>])</code></pre></div>
+<p>Larger number of iterations should generate more realistic looking images. A sampling of such generated images is shown below.</p>
+<p>[placeholder for LS-GAN slow mode results]</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"></code></pre></div>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="fooling-images.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"weibo": false,
+"instapper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/Azure/learnAnalytics-DeepLearning-Azure/edit/master/07-Wasserstein-LS-GAN.Rmd",
+"text": "Edit"
+},
+"download": ["azure-deep-learning.pdf", "azure-deep-learning.epub"],
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(script.src))
+      script.src  = script.src.replace(/^https?:/, '');
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

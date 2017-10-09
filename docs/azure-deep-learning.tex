@@ -124,7 +124,7 @@
   \postauthor{\par}
   \predate{\centering\large\emph}
   \postdate{\par}
-  \date{2017-10-04}
+  \date{2017-10-09}
 
 \usepackage{booktabs}
 \usepackage{amsthm}
@@ -541,8 +541,8 @@ using \texttt{az\ account\ show}:
 You can use the option \texttt{-\/-output\ table} to print the output in
 a tabular format.
 
-\section{ Deploying Via Custom
-Script}\label{deploying-via-custom-script}
+\section{Deploying with a Custom
+Script}\label{deploying-with-a-custom-script}
 
 Rather than doing this manually, I have created a custom script that
 will create the DSVM for you, and also run some configuration settings
@@ -7606,8 +7606,7 @@ Next we define the VGG network as a CNTK graph.
 \end{Highlighting}
 \end{Shaded}
 
-\subsection{Defining the loss
-function}\label{defining-the-loss-function}
+\section{Defining the loss function}\label{defining-the-loss-function}
 
 The interesting part in this line of work is the definition of a loss
 function that, when optimized, leads to a result that is close to both
@@ -7699,7 +7698,7 @@ Below we define these loss functions:
 \end{Highlighting}
 \end{Shaded}
 
-\subsection{Instantiating the loss}\label{instantiating-the-loss}
+\section{Instantiating the loss}\label{instantiating-the-loss}
 
 Now we are ready to instantiate a loss with two particular images. We
 will use an image of Portland's landscape and
@@ -7821,7 +7820,7 @@ results. This vector is referred to as SHIFT below.
 \caption{png}
 \end{figure}
 
-\subsection{Optimizing the loss}\label{optimizing-the-loss}
+\section{Optimizing the loss}\label{optimizing-the-loss}
 
 Now we are finally ready to find the image that minimizes the loss we
 defined. We will use the optimization package in scipy and in particular
@@ -7939,6 +7938,3702 @@ objective : 55325.0
 \begin{verbatim}
 55325.039
 \end{verbatim}
+
+\chapter{Network Visualization
+(TensorFlow)}\label{network-visualization-tensorflow}
+
+\emph{\textbf{Credit}: This notebook was derived from a homework
+assignment in CS231N, taught in 2017 by Justin Johnson, Fei Fei Li, and
+Serena Yeung}
+
+In this notebook we will explore the use of \emph{image gradients} for
+generating new images.
+
+When training a model, we define a loss function which measures our
+current unhappiness with the model's performance; we then use
+backpropagation to compute the gradient of the loss with respect to the
+model parameters, and perform gradient descent on the model parameters
+to minimize the loss.
+
+Here we will do something slightly different. We will start from a
+convolutional neural network model which has been pretrained to perform
+image classification on the ImageNet dataset. We will use this model to
+define a loss function which quantifies our current unhappiness with our
+image, then use backpropagation to compute the gradient of this loss
+with respect to the pixels of the image. We will then keep the model
+fixed, and perform gradient descent \emph{on the image} to synthesize a
+new image which minimizes the loss.
+
+In this notebook we will explore three techniques for image generation:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Saliency Maps}: Saliency maps are a quick way to tell which
+  part of the image influenced the classification decision made by the
+  network.
+\item
+  \textbf{Fooling Images}: We can perturb an input image so that it
+  appears the same to humans, but will be misclassified by the
+  pretrained network.
+\item
+  \textbf{Class Visualization}: We can synthesize an image to maximize
+  the classification score of a particular class; this can give us some
+  sense of what the network is looking for when it classifies images of
+  that class.
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# As usual, a bit of setup}
+\ImportTok{from}\NormalTok{ __future__ }\ImportTok{import}\NormalTok{ print_function}
+\ImportTok{import}\NormalTok{ subprocess}
+\ImportTok{import}\NormalTok{ time, os, json}
+\ImportTok{import}\NormalTok{ numpy }\ImportTok{as}\NormalTok{ np}
+\ImportTok{import}\NormalTok{ matplotlib.pyplot }\ImportTok{as}\NormalTok{ plt}
+\ImportTok{import}\NormalTok{ tensorflow }\ImportTok{as}\NormalTok{ tf}
+
+\ImportTok{from}\NormalTok{ utils.classifiers.squeezenet }\ImportTok{import}\NormalTok{ SqueezeNet}
+\ImportTok{from}\NormalTok{ utils.data_utils }\ImportTok{import}\NormalTok{ load_tiny_imagenet}
+\ImportTok{from}\NormalTok{ utils.image_utils }\ImportTok{import}\NormalTok{ preprocess_image, deprocess_image}
+\ImportTok{from}\NormalTok{ utils.image_utils }\ImportTok{import}\NormalTok{ SQUEEZENET_MEAN, SQUEEZENET_STD}
+
+
+\OperatorTok{%}\NormalTok{matplotlib inline}
+\NormalTok{plt.rcParams[}\StringTok{'figure.figsize'}\NormalTok{] }\OperatorTok{=}\NormalTok{ (}\FloatTok{10.0}\NormalTok{, }\FloatTok{8.0}\NormalTok{) }\CommentTok{# set default size of plots}
+\NormalTok{plt.rcParams[}\StringTok{'image.interpolation'}\NormalTok{] }\OperatorTok{=} \StringTok{'nearest'}
+\NormalTok{plt.rcParams[}\StringTok{'image.cmap'}\NormalTok{] }\OperatorTok{=} \StringTok{'gray'}
+
+\KeywordTok{def}\NormalTok{ get_session():}
+    \CommentTok{"""Create a session that dynamically allocates memory."""}
+    \CommentTok{# See: https://www.tensorflow.org/tutorials/using_gpu#allowing_gpu_memory_growth}
+\NormalTok{    config }\OperatorTok{=}\NormalTok{ tf.ConfigProto()}
+\NormalTok{    config.gpu_options.allow_growth }\OperatorTok{=} \VariableTok{True}
+\NormalTok{    session }\OperatorTok{=}\NormalTok{ tf.Session(config}\OperatorTok{=}\NormalTok{config)}
+    \ControlFlowTok{return}\NormalTok{ session}
+
+\CommentTok{# for auto-reloading external modules}
+\CommentTok{# see http://stackoverflow.com/questions/1907993/autoreload-of-modules-in-ipython}
+\OperatorTok{%}\NormalTok{load_ext autoreload}
+\OperatorTok{%}\NormalTok{autoreload }\DecValTok{2}
+\end{Highlighting}
+\end{Shaded}
+
+\chapter{Pretrained Model}\label{pretrained-model}
+
+For all of our image generation experiments, we will start with a
+convolutional neural network which was pretrained to perform image
+classification on ImageNet. We can use any model here, but for the
+purposes of this assignment we will use SqueezeNet {[}1{]}, which
+achieves accuracies comparable to AlexNet but with a significantly
+reduced parameter count and computational complexity.
+
+Using SqueezeNet rather than AlexNet or VGG or ResNet means that we can
+easily perform all image generation experiments on CPU.
+
+We have ported the PyTorch SqueezeNet model to TensorFlow; see:
+\texttt{utils/classifiers/squeezenet.py} for the model architecture.
+
+To use SqueezeNet, you will need to first \textbf{download the weights}
+by changing into the \texttt{utils/datasets} directory and running
+\texttt{get\_squeezenet\_tf.sh}. Note that if you ran
+\texttt{get\_data.sh} then SqueezeNet will already be downloaded.
+
+Once you've downloaded the Squeezenet model, we can load it into a new
+TensorFlow session:
+
+{[}1{]} {[}Iandola et al, ``SqueezeNet: AlexNet-level accuracy with 50x
+fewer parameters and \textless{} 0.5MB model size'', arXiv
+2016{]}(\url{https://arxiv.org/abs/1602.07360})
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{os.getcwd()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+'/datadrive/az-courses/learnanalytics-deeplearning-azure/Students/10-adversarial-attacks/tensorflow'
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# %%bash}
+\CommentTok{# cd utils/datasets}
+\CommentTok{# chmod +x *.sh}
+\CommentTok{# ./get_data.sh}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{tf.reset_default_graph()}
+\NormalTok{sess }\OperatorTok{=}\NormalTok{ get_session()}
+
+\NormalTok{SAVE_PATH }\OperatorTok{=} \StringTok{'utils/datasets/squeezenet.ckpt'}
+\CommentTok{# if not os.path.exists(SAVE_PATH):}
+\CommentTok{#     raise ValueError("You need to download SqueezeNet!")}
+\NormalTok{model }\OperatorTok{=}\NormalTok{ SqueezeNet(save_path}\OperatorTok{=}\NormalTok{SAVE_PATH, sess}\OperatorTok{=}\NormalTok{sess)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+INFO:tensorflow:Restoring parameters from utils/datasets/squeezenet.ckpt
+\end{verbatim}
+
+\section{Load some ImageNet images}\label{load-some-imagenet-images}
+
+We have provided a few example images from the validation set of the
+ImageNet ILSVRC 2012 Classification dataset. To download these images,
+change to \texttt{utils/datasets/} and run
+\texttt{get\_imagenet\_val.sh}.
+
+Since they come from the validation set, our pretrained model did not
+see these images during training.
+
+Run the following cell to visualize some of these images, along with
+their ground-truth labels.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ImportTok{from}\NormalTok{ utils.data_utils }\ImportTok{import}\NormalTok{ load_imagenet_val}
+\NormalTok{X_raw, y, class_names }\OperatorTok{=}\NormalTok{ load_imagenet_val(num}\OperatorTok{=}\DecValTok{5}\NormalTok{)}
+
+\NormalTok{plt.figure(figsize}\OperatorTok{=}\NormalTok{(}\DecValTok{12}\NormalTok{, }\DecValTok{6}\NormalTok{))}
+\ControlFlowTok{for}\NormalTok{ i }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(}\DecValTok{5}\NormalTok{):}
+\NormalTok{    plt.subplot(}\DecValTok{1}\NormalTok{, }\DecValTok{5}\NormalTok{, i }\OperatorTok{+} \DecValTok{1}\NormalTok{)}
+\NormalTok{    plt.imshow(X_raw[i])}
+\NormalTok{    plt.title(class_names[y[i]])}
+\NormalTok{    plt.axis(}\StringTok{'off'}\NormalTok{)}
+\NormalTok{plt.gcf().tight_layout()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_7_0.png}
+\caption{png}
+\end{figure}
+
+\section{Preprocess images}\label{preprocess-images}
+
+The input to the pretrained model is expected to be normalized, so we
+first preprocess the images by subtracting the pixelwise mean and
+dividing by the pixelwise standard deviation.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{X }\OperatorTok{=}\NormalTok{ np.array([preprocess_image(img) }\ControlFlowTok{for}\NormalTok{ img }\KeywordTok{in}\NormalTok{ X_raw])}
+\end{Highlighting}
+\end{Shaded}
+
+\chapter{Saliency Maps}\label{saliency-maps}
+
+Using this pretrained model, we will compute class saliency maps as
+described in Section 3.1 of {[}2{]}.
+
+A \textbf{saliency map} tells us the degree to which each pixel in the
+image affects the classification score for that image. To compute it, we
+compute the gradient of the unnormalized score corresponding to the
+correct class (which is a scalar) with respect to the pixels of the
+image. If the image has shape \texttt{(H,\ W,\ 3)} then this gradient
+will also have shape \texttt{(H,\ W,\ 3)}; for each pixel in the image,
+this gradient tells us the amount by which the classification score will
+change if the pixel changes by a small amount. To compute the saliency
+map, we take the absolute value of this gradient, then take the maximum
+value over the 3 input channels; the final saliency map thus has shape
+\texttt{(H,\ W)} and all entries are nonnegative.
+
+You will need to use the \texttt{model.classifier} Tensor containing the
+scores for each input, and will need to feed in values for the
+\texttt{model.image} and \texttt{model.labels} placeholder when
+evaluating the gradient. Open the file
+\texttt{utils/classifiers/squeezenet.py} and read the documentation to
+make sure you understand how to use the model. For example usage, you
+can see the \texttt{loss} attribute.
+
+{[}2{]} {[}Karen Simonyan, Andrea Vedaldi, and Andrew Zisserman. ``Deep
+Inside Convolutional Networks: Visualising Image Classification Models
+and Saliency Maps'', ICLR Workshop
+2014{]}(\url{https://arxiv.org/abs/1312.6034}).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ compute_saliency_maps(X, y, model):}
+    \CommentTok{"""}
+\CommentTok{    Compute a class saliency map using the model for images X and labels y.}
+
+\CommentTok{    Input:}
+\CommentTok{    - X: Input images, numpy array of shape (N, H, W, 3)}
+\CommentTok{    - y: Labels for X, numpy of shape (N,)}
+\CommentTok{    - model: A SqueezeNet model that will be used to compute the saliency map.}
+
+\CommentTok{    Returns:}
+\CommentTok{    - saliency: A numpy array of shape (N, H, W) giving the saliency maps for the}
+\CommentTok{    input images.}
+\CommentTok{    """}
+\NormalTok{    saliency }\OperatorTok{=} \VariableTok{None}
+    \CommentTok{# Compute the score of the correct class for each example.}
+    \CommentTok{# This gives a Tensor with shape [N], the number of examples.}
+    \CommentTok{#}
+    \CommentTok{# Note: this is equivalent to scores[np.arange(N), y] we used in NumPy}
+    \CommentTok{# for computing vectorized losses.}
+\NormalTok{    correct_scores }\OperatorTok{=}\NormalTok{ tf.gather_nd(model.classifier,}
+\NormalTok{                                  tf.stack((tf.}\BuiltInTok{range}\NormalTok{(X.shape[}\DecValTok{0}\NormalTok{]), model.labels), axis}\OperatorTok{=}\DecValTok{1}\NormalTok{))}
+    \CommentTok{###############################################################################}
+    \CommentTok{# }\AlertTok{TODO}\CommentTok{: Implement this function. You should use the correct_scores to compute #}
+    \CommentTok{# the loss, and tf.gradients to compute the gradient of the loss with respect #}
+    \CommentTok{# to the input image stored in model.image.                                   #}
+    \CommentTok{# Use the global sess variable to finally run the computation.                #}
+    \CommentTok{# Note: model.image and model.labels are placeholders and must be fed values  #}
+    \CommentTok{# when you call sess.run().                                                   #}
+    \CommentTok{###############################################################################}
+\NormalTok{    grad }\OperatorTok{=}\NormalTok{ tf.gradients(correct_scores, model.image)[}\DecValTok{0}\NormalTok{]}
+\NormalTok{    grad_val }\OperatorTok{=}\NormalTok{ sess.run(grad, \{model.image: X, }
+\NormalTok{                               model.labels: y\})}
+\NormalTok{    saliency }\OperatorTok{=}\NormalTok{ np.}\BuiltInTok{max}\NormalTok{(np.absolute(grad_val), axis}\OperatorTok{=}\DecValTok{3}\NormalTok{)}
+    \CommentTok{##############################################################################}
+    \CommentTok{#                             }\RegionMarkerTok{END}\CommentTok{ OF YOUR CODE                               #}
+    \CommentTok{##############################################################################}
+    \ControlFlowTok{return}\NormalTok{ saliency}
+\end{Highlighting}
+\end{Shaded}
+
+Once you have completed the implementation in the cell above, run the
+following to visualize some class saliency maps on our example images
+from the ImageNet validation set:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ show_saliency_maps(X, y, mask):}
+\NormalTok{    mask }\OperatorTok{=}\NormalTok{ np.asarray(mask)}
+\NormalTok{    Xm }\OperatorTok{=}\NormalTok{ X[mask]}
+\NormalTok{    ym }\OperatorTok{=}\NormalTok{ y[mask]}
+
+\NormalTok{    saliency }\OperatorTok{=}\NormalTok{ compute_saliency_maps(Xm, ym, model)}
+
+    \ControlFlowTok{for}\NormalTok{ i }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(mask.size):}
+\NormalTok{        plt.subplot(}\DecValTok{2}\NormalTok{, mask.size, i }\OperatorTok{+} \DecValTok{1}\NormalTok{)}
+\NormalTok{        plt.imshow(deprocess_image(Xm[i]))}
+\NormalTok{        plt.axis(}\StringTok{'off'}\NormalTok{)}
+\NormalTok{        plt.title(class_names[ym[i]])}
+\NormalTok{        plt.subplot(}\DecValTok{2}\NormalTok{, mask.size, mask.size }\OperatorTok{+}\NormalTok{ i }\OperatorTok{+} \DecValTok{1}\NormalTok{)}
+\NormalTok{        plt.title(mask[i])}
+\NormalTok{        plt.imshow(saliency[i], cmap}\OperatorTok{=}\NormalTok{plt.cm.hot)}
+\NormalTok{        plt.axis(}\StringTok{'off'}\NormalTok{)}
+\NormalTok{        plt.gcf().set_size_inches(}\DecValTok{10}\NormalTok{, }\DecValTok{4}\NormalTok{)}
+\NormalTok{    plt.show()}
+
+\NormalTok{mask }\OperatorTok{=}\NormalTok{ np.arange(}\DecValTok{5}\NormalTok{)}
+\NormalTok{show_saliency_maps(X, y, mask)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_13_0.png}
+\caption{png}
+\end{figure}
+
+\chapter{Fooling Images}\label{fooling-images}
+
+We can also use image gradients to generate ``fooling images'' as
+discussed in {[}3{]}. Given an image and a target class, we can perform
+gradient \textbf{ascent} over the image to maximize the target class,
+stopping when the network classifies the image as the target class.
+Implement the following function to generate fooling images.
+
+{[}3{]} {[}Szegedy et al, ``Intriguing properties of neural networks'',
+ICLR 2014{]}(\url{https://arxiv.org/abs/1312.6199})
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ make_fooling_image(X, target_y, model):}
+    \CommentTok{"""}
+\CommentTok{    Generate a fooling image that is close to X, but that the model classifies}
+\CommentTok{    as target_y.}
+
+\CommentTok{    Inputs:}
+\CommentTok{    - X: Input image, of shape (1, 224, 224, 3)}
+\CommentTok{    - target_y: An integer in the range [0, 1000)}
+\CommentTok{    - model: Pretrained SqueezeNet model}
+
+\CommentTok{    Returns:}
+\CommentTok{    - X_fooling: An image that is close to X, but that is classifed as target_y}
+\CommentTok{    by the model.}
+\CommentTok{    """}
+\NormalTok{    X_fooling }\OperatorTok{=}\NormalTok{ X.copy()}
+\NormalTok{    learning_rate }\OperatorTok{=} \DecValTok{1}
+    \CommentTok{##############################################################################}
+    \CommentTok{# }\AlertTok{TODO}\CommentTok{: Generate a fooling image X_fooling that the model will classify as   #}
+    \CommentTok{# the class target_y. Use gradient ascent on the target class score, using   #}
+    \CommentTok{# the model.classifier Tensor to get the class scores for the model.image.   #}
+    \CommentTok{# When computing an update step, first normalize the gradient:               #}
+    \CommentTok{#   dX = learning_rate * g / ||g||_2                                         #}
+    \CommentTok{#                                                                            #}
+    \CommentTok{# You should write a training loop                                           #}
+    \CommentTok{#                                                                            #  }
+    \CommentTok{# HINT: For most examples, you should be able to generate a fooling image    #}
+    \CommentTok{# in fewer than 100 iterations of gradient ascent.                           #}
+    \CommentTok{# You can print your progress over iterations to check your algorithm.       #}
+    \CommentTok{##############################################################################}
+\NormalTok{    iterations }\OperatorTok{=} \DecValTok{100}
+\NormalTok{    loss }\OperatorTok{=}\NormalTok{ model.classifier[}\DecValTok{0}\NormalTok{][target_y]}
+\NormalTok{    grad }\OperatorTok{=}\NormalTok{ tf.gradients(loss, model.image)[}\DecValTok{0}\NormalTok{]}
+    
+    \ControlFlowTok{for}\NormalTok{ i }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(iterations):}
+\NormalTok{        scores }\OperatorTok{=}\NormalTok{ sess.run(model.classifier, feed_dict}\OperatorTok{=}\NormalTok{\{model.image: X_fooling\})}
+\NormalTok{        g }\OperatorTok{=}\NormalTok{ sess.run(grad, feed_dict}\OperatorTok{=}\NormalTok{\{model.image: X_fooling\})}
+\NormalTok{        target_i }\OperatorTok{=}\NormalTok{ np.argmax(scores[}\DecValTok{0}\NormalTok{])}
+        \ControlFlowTok{if}\NormalTok{ target_i }\OperatorTok{==}\NormalTok{ target_y:}
+            \ControlFlowTok{break}\OperatorTok{;}
+        \ControlFlowTok{else}\NormalTok{:}
+\NormalTok{            dX }\OperatorTok{=}\NormalTok{ learning_rate }\OperatorTok{*}\NormalTok{ g }\OperatorTok{/}\NormalTok{ np.sqrt(np.}\BuiltInTok{sum}\NormalTok{(g}\OperatorTok{*}\NormalTok{g))}
+\NormalTok{            X_fooling }\OperatorTok{+=}\NormalTok{ dX}
+    \CommentTok{##############################################################################}
+    \CommentTok{#                             }\RegionMarkerTok{END}\CommentTok{ OF YOUR CODE                               #}
+    \CommentTok{##############################################################################}
+    \ControlFlowTok{return}\NormalTok{ X_fooling}
+\end{Highlighting}
+\end{Shaded}
+
+Run the following to generate a fooling image. Feel free to change the
+\texttt{idx} variable to explore other images.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{idx }\OperatorTok{=} \DecValTok{2}
+\NormalTok{Xi }\OperatorTok{=}\NormalTok{ X[idx][}\VariableTok{None}\NormalTok{]}
+\NormalTok{target_y }\OperatorTok{=} \DecValTok{9}
+\NormalTok{X_fooling }\OperatorTok{=}\NormalTok{ make_fooling_image(Xi, target_y, model)}
+
+\CommentTok{# Make sure that X_fooling is classified as y_target}
+\NormalTok{scores }\OperatorTok{=}\NormalTok{ sess.run(model.classifier, \{model.image: X_fooling\})}
+\ControlFlowTok{assert}\NormalTok{ scores[}\DecValTok{0}\NormalTok{].argmax() }\OperatorTok{==}\NormalTok{ target_y, }\StringTok{'The network is not fooled!'}
+
+\CommentTok{# Show original image, fooling image, and difference}
+\NormalTok{orig_img }\OperatorTok{=}\NormalTok{ deprocess_image(Xi[}\DecValTok{0}\NormalTok{])}
+\NormalTok{fool_img }\OperatorTok{=}\NormalTok{ deprocess_image(X_fooling[}\DecValTok{0}\NormalTok{])}
+\CommentTok{# Rescale }
+\NormalTok{plt.subplot(}\DecValTok{1}\NormalTok{, }\DecValTok{4}\NormalTok{, }\DecValTok{1}\NormalTok{)}
+\NormalTok{plt.imshow(orig_img)}
+\NormalTok{plt.axis(}\StringTok{'off'}\NormalTok{)}
+\NormalTok{plt.title(class_names[y[idx]])}
+\NormalTok{plt.subplot(}\DecValTok{1}\NormalTok{, }\DecValTok{4}\NormalTok{, }\DecValTok{2}\NormalTok{)}
+\NormalTok{plt.imshow(fool_img)}
+\NormalTok{plt.title(class_names[target_y])}
+\NormalTok{plt.axis(}\StringTok{'off'}\NormalTok{)}
+\NormalTok{plt.subplot(}\DecValTok{1}\NormalTok{, }\DecValTok{4}\NormalTok{, }\DecValTok{3}\NormalTok{)}
+\NormalTok{plt.title(}\StringTok{'Difference'}\NormalTok{)}
+\NormalTok{plt.imshow(deprocess_image((Xi}\OperatorTok{-}\NormalTok{X_fooling)[}\DecValTok{0}\NormalTok{]))}
+\NormalTok{plt.axis(}\StringTok{'off'}\NormalTok{)}
+\NormalTok{plt.subplot(}\DecValTok{1}\NormalTok{, }\DecValTok{4}\NormalTok{, }\DecValTok{4}\NormalTok{)}
+\NormalTok{plt.title(}\StringTok{'Magnified difference (10x)'}\NormalTok{)}
+\NormalTok{plt.imshow(deprocess_image(}\DecValTok{10} \OperatorTok{*}\NormalTok{ (Xi}\OperatorTok{-}\NormalTok{X_fooling)[}\DecValTok{0}\NormalTok{]))}
+\NormalTok{plt.axis(}\StringTok{'off'}\NormalTok{)}
+\NormalTok{plt.gcf().tight_layout()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_17_0.png}
+\caption{png}
+\end{figure}
+
+\paragraph{Class visualization}\label{class-visualization}
+
+By starting with a random noise image and performing gradient ascent on
+a target class, we can generate an image that the network will recognize
+as the target class. This idea was first presented in {[}2{]}; {[}3{]}
+extended this idea by suggesting several regularization techniques that
+can improve the quality of the generated image.
+
+Concretely, let \(I\) be an image and let \(y\) be a target class. Let
+\(s_y(I)\) be the score that a convolutional network assigns to the
+image \(I\) for class \(y\); note that these are raw unnormalized
+scores, not class probabilities. We wish to generate an image \(I^*\)
+that achieves a high score for the class \(y\) by solving the problem
+
+\[
+I^* = \arg\max_I s_y(I) - R(I)
+\]
+
+where \(R\) is a (possibly implicit) regularizer (note the sign of
+\(R(I)\) in the argmax: we want to minimize this regularization term).
+We can solve this optimization problem using gradient ascent, computing
+gradients with respect to the generated image. We will use (explicit) L2
+regularization of the form
+
+\[
+R(I) = \lambda \|I\|_2^2
+\]
+
+\textbf{and} implicit regularization as suggested by {[}3{]} by
+periodically blurring the generated image. We can solve this problem
+using gradient ascent on the generated image.
+
+In the cell below, complete the implementation of the
+\texttt{create\_class\_visualization} function.
+
+{[}2{]} {[}Karen Simonyan, Andrea Vedaldi, and Andrew Zisserman. ``Deep
+Inside Convolutional Networks: Visualising Image Classification Models
+and Saliency Maps'', ICLR Workshop
+2014{]}(\url{https://arxiv.org/abs/1312.6034}).
+
+{[}3{]} {[}Yosinski et al, ``Understanding Neural Networks Through Deep
+Visualization'', ICML 2015 Deep Learning
+Workshop{]}(\url{https://arxiv.org/abs/1506.06579}).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ImportTok{from}\NormalTok{ scipy.ndimage.filters }\ImportTok{import}\NormalTok{ gaussian_filter1d}
+\KeywordTok{def}\NormalTok{ blur_image(X, sigma}\OperatorTok{=}\DecValTok{1}\NormalTok{):}
+\NormalTok{    X }\OperatorTok{=}\NormalTok{ gaussian_filter1d(X, sigma, axis}\OperatorTok{=}\DecValTok{1}\NormalTok{)}
+\NormalTok{    X }\OperatorTok{=}\NormalTok{ gaussian_filter1d(X, sigma, axis}\OperatorTok{=}\DecValTok{2}\NormalTok{)}
+    \ControlFlowTok{return}\NormalTok{ X}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ create_class_visualization(target_y, model, }\OperatorTok{**}\NormalTok{kwargs):}
+    \CommentTok{"""}
+\CommentTok{    Generate an image to maximize the score of target_y under a pretrained model.}
+\CommentTok{    }
+\CommentTok{    Inputs:}
+\CommentTok{    - target_y: Integer in the range [0, 1000) giving the index of the class}
+\CommentTok{    - model: A pretrained CNN that will be used to generate the image}
+\CommentTok{    }
+\CommentTok{    Keyword arguments:}
+\CommentTok{    - l2_reg: Strength of L2 regularization on the image}
+\CommentTok{    - learning_rate: How big of a step to take}
+\CommentTok{    - num_iterations: How many iterations to use}
+\CommentTok{    - blur_every: How often to blur the image as an implicit regularizer}
+\CommentTok{    - max_jitter: How much to gjitter the image as an implicit regularizer}
+\CommentTok{    - show_every: How often to show the intermediate result}
+\CommentTok{    """}
+\NormalTok{    l2_reg }\OperatorTok{=}\NormalTok{ kwargs.pop(}\StringTok{'l2_reg'}\NormalTok{, }\FloatTok{1e-3}\NormalTok{)}
+\NormalTok{    learning_rate }\OperatorTok{=}\NormalTok{ kwargs.pop(}\StringTok{'learning_rate'}\NormalTok{, }\DecValTok{25}\NormalTok{)}
+\NormalTok{    num_iterations }\OperatorTok{=}\NormalTok{ kwargs.pop(}\StringTok{'num_iterations'}\NormalTok{, }\DecValTok{1000}\NormalTok{)}
+\NormalTok{    blur_every }\OperatorTok{=}\NormalTok{ kwargs.pop(}\StringTok{'blur_every'}\NormalTok{, }\DecValTok{10}\NormalTok{)}
+\NormalTok{    max_jitter }\OperatorTok{=}\NormalTok{ kwargs.pop(}\StringTok{'max_jitter'}\NormalTok{, }\DecValTok{1}\NormalTok{)}
+\NormalTok{    show_every }\OperatorTok{=}\NormalTok{ kwargs.pop(}\StringTok{'show_every'}\NormalTok{, }\DecValTok{25}\NormalTok{)}
+
+\NormalTok{    X }\OperatorTok{=} \DecValTok{255} \OperatorTok{*}\NormalTok{ np.random.rand(}\DecValTok{224}\NormalTok{, }\DecValTok{224}\NormalTok{, }\DecValTok{3}\NormalTok{)}
+\NormalTok{    X }\OperatorTok{=}\NormalTok{ preprocess_image(X)[}\VariableTok{None}\NormalTok{]}
+    
+    \CommentTok{########################################################################}
+    \CommentTok{# }\AlertTok{TODO}\CommentTok{: Compute the loss and the gradient of the loss with respect to  #}
+    \CommentTok{# the input image, model.image. We compute these outside the loop so   #}
+    \CommentTok{# that we don't have to recompute the gradient graph at each iteration #}
+    \CommentTok{#                                                                      #}
+    \CommentTok{# Note: loss and grad should be TensorFlow Tensors, not numpy arrays!  #}
+    \CommentTok{#                                                                      #}
+    \CommentTok{# The loss is the score for the target label, target_y. You should     #}
+    \CommentTok{# use model.classifier to get the scores, and tf.gradients to compute  #}
+    \CommentTok{# gradients. Don't forget the (subtracted) L2 regularization term!     #}
+    \CommentTok{########################################################################}
+\NormalTok{    loss }\OperatorTok{=} \VariableTok{None} \CommentTok{# scalar loss}
+\NormalTok{    grad }\OperatorTok{=} \VariableTok{None} \CommentTok{# gradient of loss with respect to model.image, same size as model.image}
+\NormalTok{    penalty }\OperatorTok{=}\NormalTok{ l2_reg }\OperatorTok{*}\NormalTok{ tf.norm(model.image)}
+\NormalTok{    loss }\OperatorTok{=}\NormalTok{ model.classifier[}\DecValTok{0}\NormalTok{, target_y] }\OperatorTok{-}\NormalTok{ penalty}
+\NormalTok{    grad }\OperatorTok{=}\NormalTok{ tf.gradients(loss, model.image)[}\DecValTok{0}\NormalTok{]}
+    \CommentTok{############################################################################}
+    \CommentTok{#                             }\RegionMarkerTok{END}\CommentTok{ OF YOUR CODE                             #}
+    \CommentTok{############################################################################}
+
+    
+    \ControlFlowTok{for}\NormalTok{ t }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(num_iterations):}
+        \CommentTok{# Randomly jitter the image a bit; this gives slightly nicer results}
+\NormalTok{        ox, oy }\OperatorTok{=}\NormalTok{ np.random.randint(}\OperatorTok{-}\NormalTok{max_jitter, max_jitter}\OperatorTok{+}\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{)}
+\NormalTok{        Xi }\OperatorTok{=}\NormalTok{ X.copy()}
+\NormalTok{        X }\OperatorTok{=}\NormalTok{ np.roll(np.roll(X, ox, }\DecValTok{1}\NormalTok{), oy, }\DecValTok{2}\NormalTok{)}
+        
+        \CommentTok{########################################################################}
+        \CommentTok{# }\AlertTok{TODO}\CommentTok{: Use sess to compute the value of the gradient of the score for #}
+        \CommentTok{# class target_y with respect to the pixels of the image, and make a   #}
+        \CommentTok{# gradient step on the image using the learning rate. You should use   #}
+        \CommentTok{# the grad variable you defined above.                                 #}
+        \CommentTok{#                                                                      #}
+        \CommentTok{# Be very careful about the signs of elements in your code.            #}
+        \CommentTok{########################################################################}
+\NormalTok{        grad_val }\OperatorTok{=}\NormalTok{ sess.run(grad, \{model.image: X\})}
+\NormalTok{        dX }\OperatorTok{=}\NormalTok{ learning_rate }\OperatorTok{*}\NormalTok{ grad_val}\OperatorTok{/}\NormalTok{np.linalg.norm(grad_val)}
+\NormalTok{        X }\OperatorTok{+=}\NormalTok{ dX}
+        \CommentTok{############################################################################}
+        \CommentTok{#                             }\RegionMarkerTok{END}\CommentTok{ OF YOUR CODE                             #}
+        \CommentTok{############################################################################}
+
+        \CommentTok{# Undo the jitter}
+\NormalTok{        X }\OperatorTok{=}\NormalTok{ np.roll(np.roll(X, }\OperatorTok{-}\NormalTok{ox, }\DecValTok{1}\NormalTok{), }\OperatorTok{-}\NormalTok{oy, }\DecValTok{2}\NormalTok{)}
+
+        \CommentTok{# As a regularizer, clip and periodically blur}
+\NormalTok{        X }\OperatorTok{=}\NormalTok{ np.clip(X, }\OperatorTok{-}\NormalTok{SQUEEZENET_MEAN}\OperatorTok{/}\NormalTok{SQUEEZENET_STD, (}\FloatTok{1.0} \OperatorTok{-}\NormalTok{ SQUEEZENET_MEAN)}\OperatorTok{/}\NormalTok{SQUEEZENET_STD)}
+        \ControlFlowTok{if}\NormalTok{ t }\OperatorTok{%}\NormalTok{ blur_every }\OperatorTok{==} \DecValTok{0}\NormalTok{:}
+\NormalTok{            X }\OperatorTok{=}\NormalTok{ blur_image(X, sigma}\OperatorTok{=}\FloatTok{0.5}\NormalTok{)}
+
+        \CommentTok{# Periodically show the image}
+        \ControlFlowTok{if}\NormalTok{ t }\OperatorTok{==} \DecValTok{0} \KeywordTok{or}\NormalTok{ (t }\OperatorTok{+} \DecValTok{1}\NormalTok{) }\OperatorTok{%}\NormalTok{ show_every }\OperatorTok{==} \DecValTok{0} \KeywordTok{or}\NormalTok{ t }\OperatorTok{==}\NormalTok{ num_iterations }\OperatorTok{-} \DecValTok{1}\NormalTok{:}
+\NormalTok{            plt.imshow(deprocess_image(X[}\DecValTok{0}\NormalTok{]))}
+\NormalTok{            class_name }\OperatorTok{=}\NormalTok{ class_names[target_y]}
+\NormalTok{            plt.title(}\StringTok{'}\SpecialCharTok{%s}\CharTok{\textbackslash{}n}\StringTok{Iteration }\SpecialCharTok{%d}\StringTok{ / }\SpecialCharTok{%d}\StringTok{'} \OperatorTok{%}\NormalTok{ (class_name, t }\OperatorTok{+} \DecValTok{1}\NormalTok{, num_iterations))}
+\NormalTok{            plt.gcf().set_size_inches(}\DecValTok{4}\NormalTok{, }\DecValTok{4}\NormalTok{)}
+\NormalTok{            plt.axis(}\StringTok{'off'}\NormalTok{)}
+\NormalTok{            plt.show()}
+    \ControlFlowTok{return}\NormalTok{ X}
+\end{Highlighting}
+\end{Shaded}
+
+Once you have completed the implementation in the cell above, run the
+following cell to generate an image of Tarantula:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{target_y }\OperatorTok{=} \DecValTok{7} \CommentTok{# Tarantula}
+\NormalTok{out }\OperatorTok{=}\NormalTok{ create_class_visualization(target_y, model)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_0.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_1.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_2.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_3.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_4.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_5.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_6.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_7.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_8.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_9.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_10.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_11.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_12.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_13.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_14.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_15.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_16.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_17.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_18.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_19.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_20.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_21.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_22.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_23.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_24.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_25.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_26.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_27.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_28.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_29.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_30.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_31.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_32.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_33.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_34.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_35.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_36.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_37.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_38.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_39.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_22_40.png}
+\caption{png}
+\end{figure}
+
+Try out your class visualization on other classes! You should also feel
+free to play with various hyperparameters to try and improve the quality
+of the generated image, but this is not required.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# target_y = 78 # Tick}
+\NormalTok{target_y }\OperatorTok{=} \DecValTok{187} \CommentTok{# Yorkshire Terrier}
+\CommentTok{# target_y = 683 # Oboe}
+\CommentTok{# target_y = 366 # Gorilla}
+\CommentTok{# target_y = 604 # Hourglass}
+\CommentTok{# target_y = np.random.randint(1000)}
+\BuiltInTok{print}\NormalTok{(class_names[target_y])}
+\NormalTok{X }\OperatorTok{=}\NormalTok{ create_class_visualization(target_y, model)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Yorkshire terrier
+\end{verbatim}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_1.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_2.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_3.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_4.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_5.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_6.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_7.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_8.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_9.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_10.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_11.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_12.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_13.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_14.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_15.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_16.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_17.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_18.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_19.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_20.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_21.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_22.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_23.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_24.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_25.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_26.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_27.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_28.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_29.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_30.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_31.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_32.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_33.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_34.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_35.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_36.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_37.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_38.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_39.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_40.png}
+\caption{png}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Network-Visualization-TensorFlow_files/Network-Visualization-TensorFlow_24_41.png}
+\caption{png}
+\end{figure}
+
+\chapter{Wasserstein GAN and Loss Sensitive GAN with CIFAR
+Data}\label{wasserstein-gan-and-loss-sensitive-gan-with-cifar-data}
+
+\textbf{Prerequisites: } Please run the notebook
+\emph{CIFAR-10\_DataLoader.ipynb} prior to this notebook. Be patient,
+it'll take 10-15 minutes to run!
+
+\section{Introduction}\label{introduction}
+
+Generative models have gained a lot of attention in deep learning
+community which has traditionally leveraged discriminative models for
+semi-supervised and unsupervised learning.
+\href{https://arxiv.org/pdf/1406.2661v1.pdf}{Generative Adversarial
+Network (GAN)} (Goodfellow \emph{et al.}, 2014) is one of the most
+popular generative model because of its promising results in
+\href{https://github.com/HKCaesar/really-awesome-gan}{various tasks} in
+computer vision and natural language processing. However, the original
+version of GANs are notorious for being difficult to train. Without
+carefully-chosen hyper-parameters and network architecture that balances
+Generator and Discriminator training, GANs could easily suffer from
+vanishing gradient or mode collapse (where the model is only able to
+produce a single or a few samples). In this tutorial, we introduce
+several improved GAN models, namely
+\href{https://arxiv.org/pdf/1701.07875.pdf}{Wasserstein GAN} (W-GAN)
+(Arjovsky \emph{et al.}, 2017) and
+\href{https://arxiv.org/pdf/1701.06264.pdf}{Loss Sensitive GAN} (LS-GAN)
+(Qi, 2017), that are proposed to address the problems of vanishing
+gradient and mode collapse.
+
+\section{Overview}\label{overview}
+
+In this section, we will briefly overview of main differences between
+Wasserstein GANs and original GANs in both theory and implementation
+perspective.
+
+\subsection{Why is GAN hard to train?}\label{why-is-gan-hard-to-train}
+
+\emph{\textbf{{[}TL;DR{]}} In the training of the original GANs,
+balancing the convergence of the discriminator and the generator is
+extremely important because if one is far ahead of the other, the other
+can not get enough gradient to improve. However, balancing the
+convergence of two neural networks is hard.}
+
+If you are interested in the math behind it, you can take a look at the
+rest of this part and \href{https://arxiv.org/pdf/1701.04862.pdf}{this
+paper here}. If not, you can just skip the math and look at the
+implementation details for W-GAN and LS-GAN.
+
+In \href{https://arxiv.org/pdf/1406.2661v1.pdf}{the original GAN paper},
+GAN includes two neural network, a Generator \(G\) and a Discriminator
+\(D\). The training of GAN is modeled as a two-player zeros-sum game.
+The Discriminator D is trained to predict the probability that a sample
+is a real sample rather than generated from the generator G, while the
+generator G is trained to better fool the discriminator by producing
+real-looking samples. The objective for GAN training is,
+
+\[\min_G\max_D V(D,G)=\mathbb{E}_{x\sim p_{data}(x)}[\log D(x)] + \mathbb{E}_{z\sim p_z(x)}[\log(1-D(G(z)))]\]
+
+In the original GAN paper, the author proves that the optimal strategy
+for discriminator is predicting
+
+\[D^*(x)=\frac{p_{data}(x)}{p_{data}(x)+p_{model}(x)}\]
+
+By plugging it into the GAN objective function, one may find that the
+discriminator is actually an estimation of \emph{Jensen-Shannon}
+divergence (JS divergence or JSD) of two distributions (data and model).
+
+\[L(D^*,g_\theta)=2 JSD(\mathbb{P}_{data}\|\mathbb{P}_{model}) - 2\log2\]
+
+JS distance may become locally saturated and gets vanishing gradient to
+train the GAN generator if the discriminator is over-trained.
+
+\subsection{Wasserstein GAN}\label{wasserstein-gan}
+
+To address this problem,
+\href{https://arxiv.org/pdf/1701.07875.pdf}{Wasserstein GAN} was
+proposed to use a different distance measurement for probability
+distributions, namely \emph{Earth-Mover} (EM) distance or
+\emph{Wasserstein} distance instead of JS divergence. The authors
+claimed that by using EM distance, one no longer needs to carefully
+maintain the balance between the generator and the discriminator, and,
+notably, the output of the discriminator (they call it critic instead in
+the paper), which is an estimation of EM distance serves as a good
+indicator of image quality of generated samples. The EM distance of two
+distribution is defined as
+
+\[W(p_{data}, p_{model})=\inf_{\gamma\in\prod(p_{data},p_{model})}\mathbb{E}_{(x,y)\sim\gamma}\left[\|x-y\|\right]\]
+
+In the paper shows that EM distance is a more sensible distance
+measurement than JS divergence since EM distance is continuous and
+differentiable anywhere while JS divergence is not. The authors uses the
+Kantorovich-Rubinstein duality to derive the objective for Wasserstein
+GAN,
+
+\[\min_G\max_{\|D\|_L\leq K} \mathbb{E}_{x\sim p_{data}(x)}[D(x)] - \mathbb{E}_{z\sim p_z(x)}[D(G(z))]\]
+
+\textbf{Note: }the Kantorovich-Rubinstein duality requires the function
+to be K-Lipschitz. The authors suggests \emph{clipping the weights of
+discriminator} to satisfy Lipschitz continuity.
+
+\subsubsection{Implementation details}\label{implementation-details}
+
+The modification needed on implementation side is minor. On can change
+an original GAN into a Wasserstein GAN with a few lines of code:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Use W-GAN loss function
+\item
+  Remove the sigmoid activation for the last layer of discriminator
+\item
+  Clip the weights of the discriminator after updates (e.g., to
+  {[}-0.01, 0.01{]})
+\item
+  Train discriminator more iterations than generator (e.g., train the
+  discriminator for 5 iterations and train the generator for one
+  iteration only at each round)
+\item
+  Use non-momentum-based optimizer (e.g., RMSProp) instead of Adam
+  (Note: in this tutorial we use Adam with \texttt{momentum=0})
+\item
+  Use small learning rate (e.g., 0.00005)
+\end{enumerate}
+
+\subsection{Loss Sensitive GAN}\label{loss-sensitive-gan}
+
+\href{https://arxiv.org/pdf/1701.06264.pdf}{Loss Sensitive GAN} was
+proposed to address the problem of vanishing gradient. LS-GAN is trained
+on a loss function that allows the generator to focus on improving poor
+generated samples that are far from the real sample manifold. The author
+shows that the loss learned by LS-GAN has non-vanishing gradient almost
+everywhere, even when the discriminator is over-trained.
+
+\[\min_D L_D = \mathbb{E}_{x\sim p_{data}(x)}[D(x)] + \lambda\mathbb{E}_{x\sim p_{data}(x), z\sim p_z(x)}\left[\left(\|x-G(z)\|_1 + D(x) - D(G(z))\right)_+\right]\]
+\[\min_G L_G = \mathbb{E}_{z\sim p_z(x)}[D(G(z))]\]
+
+\subsubsection{Implementation details}\label{implementation-details-1}
+
+The modification needed on implementation side is also minor. On can
+change an original GAN into a Wasserstein GAN with a few lines of code:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Use the LS-GAN loss function
+\item
+  Remove the sigmoid activation for the last layer of discriminator
+\item
+  Update both the generator and the discriminator with weight decay
+\item
+  Train discriminator and generator each with one iteration at each
+  round
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ImportTok{import}\NormalTok{ matplotlib }\ImportTok{as}\NormalTok{ mpl}
+\ImportTok{import}\NormalTok{ matplotlib.pyplot }\ImportTok{as}\NormalTok{ plt}
+\ImportTok{import}\NormalTok{ numpy }\ImportTok{as}\NormalTok{ np}
+\ImportTok{import}\NormalTok{ os}
+
+\ImportTok{import}\NormalTok{ cntk }\ImportTok{as}\NormalTok{ C}
+\ImportTok{import}\NormalTok{ cntk.tests.test_utils}
+\NormalTok{cntk.tests.test_utils.set_device_from_pytest_env() }\CommentTok{# (only needed for our build system)}
+\NormalTok{C.cntk_py.set_fixed_random_seed(}\DecValTok{1}\NormalTok{) }\CommentTok{# fix a random seed for CNTK components}
+
+\OperatorTok{%}\NormalTok{matplotlib inline}
+\end{Highlighting}
+\end{Shaded}
+
+There are two run modes: * \emph{Fast mode: } \texttt{isFast} is set to
+\texttt{True}. This is the default mode for the notebooks, which means
+we train for fewer iterations or train / test on limited data. This
+ensures functional correctness of the notebook though the models
+produced are far from what a completed training would produce. *
+\emph{Slow mode: } We recommend the user to set this flag to
+\texttt{False} once the user has gained familiarity with the notebook
+content and wants to gain insight from running the notebooks for a
+longer period with different parameters for training.
+
+\textbf{Note: }If the \texttt{isFlag} is set to \texttt{False} the
+notebook will take a hours or even days on a GPU enabled machine. You
+can try fewer iterations by setting the \texttt{num\_minibatches} to a
+smaller number which comes at the expense of quality of the generated
+images.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{isFast }\OperatorTok{=} \VariableTok{True}
+\end{Highlighting}
+\end{Shaded}
+
+\section{Data Reading}\label{data-reading}
+
+The input to the GANs will be a vector of random numbers. At the end of
+the training, the GAN ``learns'' to generate images drawn from the CIFAR
+dataset. We will be using the same CIFAR data prepared in tutorial CNTK
+201A. For our purposes, you only need to know that the following
+function returns an object that will be used to read images from the
+CIFAR dataset.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# image dimensionalities}
+\NormalTok{img_h, img_w }\OperatorTok{=} \DecValTok{32}\NormalTok{, }\DecValTok{32}
+\NormalTok{img_c }\OperatorTok{=} \DecValTok{3}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Determine the data path for testing}
+\CommentTok{# Check for an environment variable defined in CNTK's test infrastructure}
+\NormalTok{envvar }\OperatorTok{=} \StringTok{'CNTK_EXTERNAL_TESTDATA_SOURCE_DIRECTORY'}
+\KeywordTok{def}\NormalTok{ is_test(): }\ControlFlowTok{return}\NormalTok{ envvar }\KeywordTok{in}\NormalTok{ os.environ}
+
+\ControlFlowTok{if}\NormalTok{ is_test():}
+\NormalTok{    data_path }\OperatorTok{=}\NormalTok{ os.path.join(os.environ[envvar],}\StringTok{'Image'}\NormalTok{,}\StringTok{'CIFAR'}\NormalTok{,}\StringTok{'v0'}\NormalTok{,}\StringTok{'tutorial201'}\NormalTok{)}
+\NormalTok{    data_path }\OperatorTok{=}\NormalTok{ os.path.normpath(data_path)}
+\ControlFlowTok{else}\NormalTok{:}
+\NormalTok{    data_path }\OperatorTok{=}\NormalTok{ os.path.join(}\StringTok{'data'}\NormalTok{, }\StringTok{'CIFAR-10'}\NormalTok{)}
+    
+\NormalTok{train_file }\OperatorTok{=}\NormalTok{ os.path.join(data_path, }\StringTok{'train_map.txt'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ create_reader(map_file, train):}
+    \BuiltInTok{print}\NormalTok{(}\StringTok{"Reading map file:"}\NormalTok{, map_file)}
+    
+    \ControlFlowTok{if} \KeywordTok{not}\NormalTok{ os.path.exists(map_file):}
+        \ControlFlowTok{raise} \PreprocessorTok{RuntimeError}\NormalTok{(}\StringTok{"This tutorials depends 201A tutorials, please run 201A first."}\NormalTok{)}
+    
+    \ImportTok{import}\NormalTok{ cntk.io.transforms }\ImportTok{as}\NormalTok{ xforms}
+\NormalTok{    transforms }\OperatorTok{=}\NormalTok{ [xforms.crop(crop_type}\OperatorTok{=}\StringTok{'center'}\NormalTok{, side_ratio}\OperatorTok{=}\FloatTok{0.8}\NormalTok{),}
+\NormalTok{                  xforms.scale(width}\OperatorTok{=}\NormalTok{img_w, height}\OperatorTok{=}\NormalTok{img_h, channels}\OperatorTok{=}\NormalTok{img_c, interpolations}\OperatorTok{=}\StringTok{'linear'}\NormalTok{)]}
+    \CommentTok{# deserializer}
+    \ControlFlowTok{return}\NormalTok{ C.io.MinibatchSource(C.io.ImageDeserializer(map_file, C.io.StreamDefs(}
+\NormalTok{        features }\OperatorTok{=}\NormalTok{ C.io.StreamDef(field}\OperatorTok{=}\StringTok{'image'}\NormalTok{, transforms}\OperatorTok{=}\NormalTok{transforms), }\CommentTok{# first column in map file is referred to as 'image'}
+\NormalTok{        labels   }\OperatorTok{=}\NormalTok{ C.io.StreamDef(field}\OperatorTok{=}\StringTok{'label'}\NormalTok{, shape}\OperatorTok{=}\DecValTok{10}\NormalTok{)      }\CommentTok{# and second as 'label'}
+\NormalTok{    )))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ noise_sample(num_samples):}
+    \ControlFlowTok{return}\NormalTok{ np.random.uniform(}
+\NormalTok{        low }\OperatorTok{=} \OperatorTok{-}\FloatTok{1.0}\NormalTok{,}
+\NormalTok{        high }\OperatorTok{=} \FloatTok{1.0}\NormalTok{,}
+\NormalTok{        size }\OperatorTok{=}\NormalTok{ [num_samples, g_input_dim]}
+\NormalTok{    ).astype(np.float32)}
+\end{Highlighting}
+\end{Shaded}
+
+\section{Model Creation (W-GAN)}\label{model-creation-w-gan}
+
+Note that we assume that you have already completed the DCGAN tutorial.
+If you need a basic recap of GAN concepts or DCGAN architecture, please
+visit our
+\href{https://github.com/Microsoft/CNTK/blob/master/Tutorials/CNTK_206B_DCGAN.ipynb}{DCGAN
+tutorial}. \#\#\# Model Configuration We implemented the W-GAN based on
+\href{https://arxiv.org/pdf/1511.06434.pdf}{DCGAN} architecture. In this
+step, we establish some of the architectural and training
+hyper-parameters for our model. * The generator is fractional strided
+convolutional network with \(5\times5\) kernels and strides of \(2\) *
+The input of the generator is a 100-dimensional random vector * The
+output of the generator is a flattened \(64\times64\) image with \(3\)
+channels * The discriminator is a strided convolutional network with
+\(5\times5\) kernels and strides of \(2\) * The input of the
+discriminator is also a flattened \(64\times64\) image with \(3\)
+channels * The output of the discriminator is a scalar which is an
+estimation of EM distance
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# architectural hyper-parameters}
+\NormalTok{gkernel }\OperatorTok{=}\NormalTok{ dkernel }\OperatorTok{=} \DecValTok{5}
+\NormalTok{gstride }\OperatorTok{=}\NormalTok{ dstride }\OperatorTok{=} \DecValTok{2}
+
+\CommentTok{# Input / Output parameter of Generator and Discriminator}
+\NormalTok{g_input_dim }\OperatorTok{=} \DecValTok{100}
+\NormalTok{g_output_dim }\OperatorTok{=}\NormalTok{ d_input_dim }\OperatorTok{=}\NormalTok{ (img_c, img_h, img_w)}
+\end{Highlighting}
+\end{Shaded}
+
+We first establish some of the helper functions (batch normalization
+with relu and batch normalization with leaky relu) that will make our
+lives easier when defining the generator and the discriminator.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Helper functions}
+\KeywordTok{def}\NormalTok{ bn_with_relu(x, activation}\OperatorTok{=}\NormalTok{C.relu):}
+\NormalTok{    h }\OperatorTok{=}\NormalTok{ C.layers.BatchNormalization(map_rank}\OperatorTok{=}\DecValTok{1}\NormalTok{)(x)}
+    \ControlFlowTok{return}\NormalTok{ C.relu(h)}
+
+\CommentTok{# We use param-relu function to use a leak=0.2 since CNTK implementation }
+\CommentTok{# of Leaky ReLU is fixed to 0.01}
+\KeywordTok{def}\NormalTok{ bn_with_leaky_relu(x, leak}\OperatorTok{=}\FloatTok{0.2}\NormalTok{):}
+\NormalTok{    h }\OperatorTok{=}\NormalTok{ C.layers.BatchNormalization(map_rank}\OperatorTok{=}\DecValTok{1}\NormalTok{)(x)}
+\NormalTok{    r }\OperatorTok{=}\NormalTok{ C.param_relu(C.constant((np.ones(h.shape)}\OperatorTok{*}\NormalTok{leak).astype(np.float32)), h)}
+    \ControlFlowTok{return}\NormalTok{ r}
+
+\KeywordTok{def}\NormalTok{ leaky_relu(x, leak}\OperatorTok{=}\FloatTok{0.2}\NormalTok{):}
+    \ControlFlowTok{return}\NormalTok{ C.param_relu(C.constant((np.ones(x.shape)}\OperatorTok{*}\NormalTok{leak).astype(np.float32)), x)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsubsection{Generator}\label{generator}
+
+We define the generator according to the DCGAN architecture. The
+generator takes a 100-dimensional random vector as input and outputs a
+flattened \(3\times64\times64\) image. We use fractionally strided
+convolution layers with relu convolution and batch normalization except
+for the last layer, where we use tanh to normalize the output to the
+interval \([-1, 1]\).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ convolutional_generator(z):}
+    \ControlFlowTok{with}\NormalTok{ C.layers.default_options(init}\OperatorTok{=}\NormalTok{C.normal(scale}\OperatorTok{=}\FloatTok{0.02}\NormalTok{)):}
+        
+\NormalTok{        gfc_dim }\OperatorTok{=} \DecValTok{256}
+\NormalTok{        gf_dim }\OperatorTok{=} \DecValTok{64}
+        
+        \BuiltInTok{print}\NormalTok{(}\StringTok{'Generator input shape: '}\NormalTok{, z.shape)}
+        
+\NormalTok{        h0 }\OperatorTok{=}\NormalTok{ C.layers.Dense([gfc_dim, img_h}\OperatorTok{//}\DecValTok{8}\NormalTok{, img_w}\OperatorTok{//}\DecValTok{8}\NormalTok{], activation}\OperatorTok{=}\VariableTok{None}\NormalTok{)(z)}
+\NormalTok{        h0 }\OperatorTok{=}\NormalTok{ bn_with_relu(h0)}
+        \BuiltInTok{print}\NormalTok{(}\StringTok{'h0 shape'}\NormalTok{, h0.shape)}
+
+\NormalTok{        h1 }\OperatorTok{=}\NormalTok{ C.layers.ConvolutionTranspose2D(gkernel,}
+\NormalTok{                                  num_filters}\OperatorTok{=}\NormalTok{gf_dim}\OperatorTok{*}\DecValTok{2}\NormalTok{,}
+\NormalTok{                                  strides}\OperatorTok{=}\NormalTok{gstride,}
+\NormalTok{                                  pad}\OperatorTok{=}\VariableTok{True}\NormalTok{,}
+\NormalTok{                                  output_shape}\OperatorTok{=}\NormalTok{(img_h}\OperatorTok{//}\DecValTok{4}\NormalTok{, img_w}\OperatorTok{//}\DecValTok{4}\NormalTok{),}
+\NormalTok{                                  activation}\OperatorTok{=}\VariableTok{None}\NormalTok{)(h0)}
+\NormalTok{        h1 }\OperatorTok{=}\NormalTok{ bn_with_relu(h1)}
+        \BuiltInTok{print}\NormalTok{(}\StringTok{'h1 shape'}\NormalTok{, h1.shape)}
+
+\NormalTok{        h2 }\OperatorTok{=}\NormalTok{ C.layers.ConvolutionTranspose2D(gkernel,}
+\NormalTok{                                  num_filters}\OperatorTok{=}\NormalTok{gf_dim,}
+\NormalTok{                                  strides}\OperatorTok{=}\NormalTok{gstride,}
+\NormalTok{                                  pad}\OperatorTok{=}\VariableTok{True}\NormalTok{,}
+\NormalTok{                                  output_shape}\OperatorTok{=}\NormalTok{(img_h}\OperatorTok{//}\DecValTok{2}\NormalTok{, img_w}\OperatorTok{//}\DecValTok{2}\NormalTok{),}
+\NormalTok{                                  activation}\OperatorTok{=}\VariableTok{None}\NormalTok{)(h1)}
+\NormalTok{        h2 }\OperatorTok{=}\NormalTok{ bn_with_relu(h2)}
+        \BuiltInTok{print}\NormalTok{(}\StringTok{'h2 shape :'}\NormalTok{, h2.shape)}
+        
+\NormalTok{        h3 }\OperatorTok{=}\NormalTok{ C.layers.ConvolutionTranspose2D(gkernel,}
+\NormalTok{                                  num_filters}\OperatorTok{=}\NormalTok{img_c,}
+\NormalTok{                                  strides}\OperatorTok{=}\NormalTok{gstride,}
+\NormalTok{                                  pad}\OperatorTok{=}\VariableTok{True}\NormalTok{,}
+\NormalTok{                                  output_shape}\OperatorTok{=}\NormalTok{(img_h, img_w),}
+\NormalTok{                                  activation}\OperatorTok{=}\NormalTok{C.tanh)(h2)}
+        \BuiltInTok{print}\NormalTok{(}\StringTok{'h3 shape :'}\NormalTok{, h3.shape)}
+
+        \ControlFlowTok{return}\NormalTok{ h3}
+\end{Highlighting}
+\end{Shaded}
+
+\subsubsection{Discriminator}\label{discriminator}
+
+We define the discriminator according to the DCGAN architecture except
+for the last layer. The discriminator takes a flattened image as input
+and outputs a single scalar. We do not use any activation at the last
+layer.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ convolutional_discriminator(x):}
+    \ControlFlowTok{with}\NormalTok{ C.layers.default_options(init}\OperatorTok{=}\NormalTok{C.normal(scale}\OperatorTok{=}\FloatTok{0.02}\NormalTok{)):}
+        
+\NormalTok{        dfc_dim }\OperatorTok{=} \DecValTok{256}
+\NormalTok{        df_dim }\OperatorTok{=} \DecValTok{64}
+        
+        \BuiltInTok{print}\NormalTok{(}\StringTok{'Discriminator convolution input shape'}\NormalTok{, x.shape)}
+
+\NormalTok{        h0 }\OperatorTok{=}\NormalTok{ C.layers.Convolution2D(dkernel, df_dim, strides}\OperatorTok{=}\NormalTok{dstride, pad}\OperatorTok{=}\VariableTok{True}\NormalTok{)(x)}
+\NormalTok{        h0 }\OperatorTok{=}\NormalTok{ leaky_relu(h0, leak}\OperatorTok{=}\FloatTok{0.2}\NormalTok{)}
+        \BuiltInTok{print}\NormalTok{(}\StringTok{'h0 shape :'}\NormalTok{, h0.shape)}
+
+\NormalTok{        h1 }\OperatorTok{=}\NormalTok{ C.layers.Convolution2D(dkernel, df_dim}\OperatorTok{*}\DecValTok{2}\NormalTok{, strides}\OperatorTok{=}\NormalTok{dstride, pad}\OperatorTok{=}\VariableTok{True}\NormalTok{)(h0)}
+\NormalTok{        h1 }\OperatorTok{=}\NormalTok{ bn_with_leaky_relu(h1, leak}\OperatorTok{=}\FloatTok{0.2}\NormalTok{)}
+        \BuiltInTok{print}\NormalTok{(}\StringTok{'h1 shape :'}\NormalTok{, h1.shape)}
+
+\NormalTok{        h2 }\OperatorTok{=}\NormalTok{ C.layers.Convolution2D(dkernel, dfc_dim, strides}\OperatorTok{=}\NormalTok{dstride, pad}\OperatorTok{=}\VariableTok{True}\NormalTok{)(h1)}
+\NormalTok{        h2 }\OperatorTok{=}\NormalTok{ bn_with_leaky_relu(h2, leak}\OperatorTok{=}\FloatTok{0.2}\NormalTok{)}
+        \BuiltInTok{print}\NormalTok{(}\StringTok{'h2 shape :'}\NormalTok{, h2.shape)}
+
+\NormalTok{        h3 }\OperatorTok{=}\NormalTok{ C.layers.Dense(}\DecValTok{1}\NormalTok{, activation}\OperatorTok{=}\VariableTok{None}\NormalTok{)(h2)}
+        \BuiltInTok{print}\NormalTok{(}\StringTok{'h3 shape :'}\NormalTok{, h3.shape)}
+
+        \ControlFlowTok{return}\NormalTok{ h3}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# training config}
+\NormalTok{minibatch_size }\OperatorTok{=} \DecValTok{64}
+\NormalTok{num_minibatches }\OperatorTok{=} \DecValTok{500} \ControlFlowTok{if}\NormalTok{ isFast }\ControlFlowTok{else} \DecValTok{20000}
+\NormalTok{lr }\OperatorTok{=} \FloatTok{0.00005} \CommentTok{# small learning rates are preferred}
+\NormalTok{momentum }\OperatorTok{=} \FloatTok{0.0} \CommentTok{# momentum is not suggested since it can make W-GANs unstable}
+\NormalTok{clip }\OperatorTok{=} \FloatTok{0.01} \CommentTok{# the weight clipping parameter}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Build the graph}\label{build-the-graph}
+
+The discriminator must be used on both the real CIFAR images and fake
+images generated by the generator function. One way to represent this in
+the computational graph is to create a clone of the output of the
+discriminator function, but with substituted inputs. Setting
+\texttt{method=share} in the clone function ensures that both paths
+through the discriminator model use the same set of parameters
+
+We need to update the parameters for the generator and discriminator
+model separately using the gradients from different loss functions. We
+can get the parameters for a Function in the graph with the parameters
+attribute. However, when updating the model parameters, update only the
+parameters of the respective models while keeping the other parameters
+unchanged. In other words, when updating the generator we will update
+only the parameters of the function while keeping the parameters of the
+function fixed and vice versa.
+
+Because W-GAN needs to clip the weights of the discriminator before
+every updates in order to maintain K-Lipschitz continuity. We build a
+graph with clipped parameters stored in \texttt{clipped\_D\_params}. The
+suggested value of clipping threshold is 0.01.
+
+\textbf{Note: } CNTK parameter learner uses sum of gradient within a
+minibatch by default instead of mean of gradient. To reproduce results
+with the same hyper-parameter in the paper, we need to set
+\texttt{use\_mean\_gradient\ =\ True}, and
+\texttt{unit\_gain\ =\ False}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ build_WGAN_graph(noise_shape, image_shape, generator, discriminator):}
+    
+\NormalTok{    input_dynamic_axes }\OperatorTok{=}\NormalTok{ [C.Axis.default_batch_axis()]}
+\NormalTok{    Z }\OperatorTok{=}\NormalTok{ C.input_variable(noise_shape, dynamic_axes}\OperatorTok{=}\NormalTok{input_dynamic_axes)}
+\NormalTok{    X_real }\OperatorTok{=}\NormalTok{ C.input_variable(image_shape, dynamic_axes}\OperatorTok{=}\NormalTok{input_dynamic_axes)}
+\NormalTok{    X_real_scaled }\OperatorTok{=}\NormalTok{ (X_real }\OperatorTok{-} \FloatTok{127.5}\NormalTok{) }\OperatorTok{/} \FloatTok{127.5}
+
+    \CommentTok{# Create the model function for the generator and discriminator models}
+\NormalTok{    X_fake }\OperatorTok{=}\NormalTok{ generator(Z)}
+\NormalTok{    D_real }\OperatorTok{=}\NormalTok{ discriminator(X_real_scaled)}
+\NormalTok{    D_fake }\OperatorTok{=}\NormalTok{ D_real.clone(}
+\NormalTok{        method }\OperatorTok{=} \StringTok{'share'}\NormalTok{,}
+\NormalTok{        substitutions }\OperatorTok{=}\NormalTok{ \{X_real_scaled.output: X_fake.output\}}
+\NormalTok{    )}
+    
+\NormalTok{    clipped_D_params }\OperatorTok{=}\NormalTok{ [C.clip(p, }\OperatorTok{-}\NormalTok{clip, clip) }\ControlFlowTok{for}\NormalTok{ p }\KeywordTok{in}\NormalTok{ D_real.parameters]}
+    
+\NormalTok{    G_loss }\OperatorTok{=} \OperatorTok{-}\NormalTok{ D_fake}
+\NormalTok{    D_loss }\OperatorTok{=} \OperatorTok{-}\NormalTok{ D_real }\OperatorTok{+}\NormalTok{ D_fake}
+
+\NormalTok{    G_learner }\OperatorTok{=}\NormalTok{ C.adam(}
+\NormalTok{            parameters }\OperatorTok{=}\NormalTok{ X_fake.parameters,}
+\NormalTok{            lr }\OperatorTok{=}\NormalTok{ C.learning_rate_schedule(lr, C.UnitType.sample),}
+\NormalTok{            momentum }\OperatorTok{=}\NormalTok{ C.momentum_schedule(momentum),}
+\NormalTok{            variance_momentum }\OperatorTok{=}\NormalTok{ C.momentum_schedule(}\FloatTok{0.999}\NormalTok{),}
+\NormalTok{            unit_gain}\OperatorTok{=}\VariableTok{False}\NormalTok{,}
+\NormalTok{            use_mean_gradient}\OperatorTok{=}\VariableTok{True}
+\NormalTok{    )}
+            
+\NormalTok{    D_learner }\OperatorTok{=}\NormalTok{ C.adam(}
+\NormalTok{            parameters }\OperatorTok{=}\NormalTok{ D_real.parameters,}
+\NormalTok{            lr }\OperatorTok{=}\NormalTok{ C.learning_rate_schedule(lr, C.UnitType.sample),}
+\NormalTok{            momentum }\OperatorTok{=}\NormalTok{ C.momentum_schedule(momentum),}
+\NormalTok{            variance_momentum }\OperatorTok{=}\NormalTok{ C.momentum_schedule(}\FloatTok{0.999}\NormalTok{),}
+\NormalTok{            unit_gain}\OperatorTok{=}\VariableTok{False}\NormalTok{,}
+\NormalTok{            use_mean_gradient}\OperatorTok{=}\VariableTok{True}
+\NormalTok{    )}
+    
+    \CommentTok{# Instantiate the trainers}
+\NormalTok{    G_trainer }\OperatorTok{=}\NormalTok{ C.Trainer(X_fake,}
+\NormalTok{                        (G_loss, }\VariableTok{None}\NormalTok{),}
+\NormalTok{                        G_learner)}
+\NormalTok{    D_trainer }\OperatorTok{=}\NormalTok{ C.Trainer(D_real,}
+\NormalTok{                        (D_loss, }\VariableTok{None}\NormalTok{),}
+\NormalTok{                        D_learner)}
+
+    \ControlFlowTok{return}\NormalTok{ X_real, X_fake, D_real, clipped_D_params, Z, G_trainer, D_trainer}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Train the Model}\label{train-the-model}
+
+The code for training the GAN closely follows Algorithm 1 in the W-GAN
+paper. Note that compared to original GANs, we train the discriminator
+many more times than the generator. The reason behind that is the output
+of the discriminator serves as an estimation of the EM distance. We want
+to train the discriminator until it can closely estimate the EM
+distance. In order to make sure that the discriminator has a sufficient
+good estimation at the very beginning of the training, we even train it
+for 100 iterations before train the generator (this is disabled in fast
+mode because this will significantly take longer time).
+
+{[}placeholder for WGAN algorithm{]}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ train_WGAN(reader_train, generator, discriminator):}
+\NormalTok{    X_real, X_fake, D_real, clipped_D_params, Z, G_trainer, D_trainer }\OperatorTok{=} \OperatorTok{\textbackslash{}}
+\NormalTok{        build_WGAN_graph(g_input_dim, d_input_dim, generator, discriminator)}
+    \CommentTok{# print out loss for each model for upto 25 times}
+    
+\NormalTok{    print_frequency_mbsize }\OperatorTok{=}\NormalTok{ num_minibatches }\OperatorTok{//} \DecValTok{25}
+    
+    \BuiltInTok{print}\NormalTok{(}\StringTok{"First row is Generator loss, second row is Discriminator loss"}\NormalTok{)}
+\NormalTok{    pp_G }\OperatorTok{=}\NormalTok{ C.logging.ProgressPrinter(print_frequency_mbsize)}
+\NormalTok{    pp_D }\OperatorTok{=}\NormalTok{ C.logging.ProgressPrinter(print_frequency_mbsize)}
+    
+\NormalTok{    input_map }\OperatorTok{=}\NormalTok{ \{X_real: reader_train.streams.features\}}
+
+    \ControlFlowTok{for}\NormalTok{ training_step }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(num_minibatches):}
+        \CommentTok{# train the discriminator model for diter steps}
+        \ControlFlowTok{if} \KeywordTok{not}\NormalTok{ isFast }\KeywordTok{and}\NormalTok{ (training_step }\OperatorTok{<} \DecValTok{25} \KeywordTok{or}\NormalTok{ training_step }\OperatorTok{%} \DecValTok{500} \OperatorTok{==} \DecValTok{0}\NormalTok{):}
+\NormalTok{            diter }\OperatorTok{=} \DecValTok{100}
+        \ControlFlowTok{else}\NormalTok{:}
+\NormalTok{            diter }\OperatorTok{=} \DecValTok{5}
+        \ControlFlowTok{for}\NormalTok{ d_train_step }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(diter):}
+            \ControlFlowTok{for}\NormalTok{ parameter, clipped }\KeywordTok{in} \BuiltInTok{zip}\NormalTok{(D_real.parameters, clipped_D_params):}
+\NormalTok{                C.assign(parameter, clipped).}\BuiltInTok{eval}\NormalTok{()}
+\NormalTok{            Z_data }\OperatorTok{=}\NormalTok{ noise_sample(minibatch_size)}
+\NormalTok{            X_data }\OperatorTok{=}\NormalTok{ reader_train.next_minibatch(minibatch_size, input_map)}
+\NormalTok{            batch_inputs }\OperatorTok{=}\NormalTok{ \{X_real: X_data[X_real].data, Z: Z_data\}}
+\NormalTok{            D_trainer.train_minibatch(batch_inputs)}
+        
+\NormalTok{        Z_data }\OperatorTok{=}\NormalTok{ noise_sample(minibatch_size)}
+\NormalTok{        batch_inputs }\OperatorTok{=}\NormalTok{ \{Z: Z_data\}}
+\NormalTok{        G_trainer.train_minibatch(batch_inputs)}
+       
+\NormalTok{        pp_G.update_with_trainer(G_trainer)}
+\NormalTok{        pp_D.update_with_trainer(D_trainer)}
+
+\NormalTok{    G_trainer_loss }\OperatorTok{=}\NormalTok{ G_trainer.previous_minibatch_loss_average}
+    \ControlFlowTok{return}\NormalTok{ Z, X_fake, G_trainer_loss}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{reader_train }\OperatorTok{=}\NormalTok{ create_reader(train_file, }\VariableTok{True}\NormalTok{)}
+
+\CommentTok{# G_input, G_output, G_trainer_loss = train(reader_train, dense_generator, dense_discriminator)}
+\NormalTok{G_input, G_output, G_trainer_loss }\OperatorTok{=}\NormalTok{ train_WGAN(reader_train,}
+\NormalTok{                                          convolutional_generator,}
+\NormalTok{                                          convolutional_discriminator)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Print the generator loss }
+\BuiltInTok{print}\NormalTok{(}\StringTok{"Training loss of the generator is: }\SpecialCharTok{\{0:.2f\}}\StringTok{"}\NormalTok{.}\BuiltInTok{format}\NormalTok{(G_trainer_loss))}
+\end{Highlighting}
+\end{Shaded}
+
+\section{Generating Fake (Synthetic) Images
+(W-GAN)}\label{generating-fake-synthetic-images-w-gan}
+
+Now that we have trained the model, we can create fake images simply by
+feeding random noise into the generator and displaying the outputs.
+Below are a few images generated from random samples. To get a new set
+of samples, you can re-run the last cell.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ plot_images(images, subplot_shape):}
+\NormalTok{    plt.style.use(}\StringTok{'ggplot'}\NormalTok{)}
+\NormalTok{    fig, axes }\OperatorTok{=}\NormalTok{ plt.subplots(}\OperatorTok{*}\NormalTok{subplot_shape)}
+    \ControlFlowTok{for}\NormalTok{ image, ax }\KeywordTok{in} \BuiltInTok{zip}\NormalTok{(images, axes.flatten()):}
+\NormalTok{        image }\OperatorTok{=}\NormalTok{ image[np.array([}\DecValTok{2}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{]),:,:]}
+\NormalTok{        image }\OperatorTok{=}\NormalTok{ np.rollaxis(image }\OperatorTok{/} \DecValTok{2} \OperatorTok{+} \FloatTok{0.5}\NormalTok{, }\DecValTok{0}\NormalTok{, }\DecValTok{3}\NormalTok{)}
+\NormalTok{        ax.imshow(image, vmin}\OperatorTok{=-}\FloatTok{1.0}\NormalTok{, vmax}\OperatorTok{=}\FloatTok{1.0}\NormalTok{)}
+\NormalTok{        ax.axis(}\StringTok{'off'}\NormalTok{)}
+\NormalTok{    plt.show()}
+
+\NormalTok{noise }\OperatorTok{=}\NormalTok{ noise_sample(}\DecValTok{36}\NormalTok{)}
+\NormalTok{images }\OperatorTok{=}\NormalTok{ G_output.}\BuiltInTok{eval}\NormalTok{(\{G_input: noise\})}
+\NormalTok{plot_images(images, subplot_shape}\OperatorTok{=}\NormalTok{[}\DecValTok{6}\NormalTok{, }\DecValTok{6}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+Larger number of iterations should generate more realistic looking
+images. A sampling of such generated images is shown below.
+
+{[}placeholder for W-GAN slow mode results{]}
+
+\section{Model Creation (LS-GAN)}\label{model-creation-ls-gan}
+
+Since the generator and discriminator architectures of LS-GAN is the
+same as W-GAN, we will reuse the generator and the discriminator we
+defined for W-GAN. The main difference between W-GAN and LS-GAN is their
+loss function and optimizer they use. We redefine the training
+parameters for LS-GAN.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# training config}
+\NormalTok{minibatch_size }\OperatorTok{=} \DecValTok{64}
+\NormalTok{num_minibatches }\OperatorTok{=} \DecValTok{1000} \ControlFlowTok{if}\NormalTok{ isFast }\ControlFlowTok{else} \DecValTok{20000}
+\NormalTok{lr }\OperatorTok{=} \FloatTok{0.0001}
+\NormalTok{momentum }\OperatorTok{=} \FloatTok{0.5}
+\NormalTok{lambda_ }\OperatorTok{=} \FloatTok{0.0002} \CommentTok{# lambda in LS-GAN loss function, controls the size of margin}
+\NormalTok{weight_decay }\OperatorTok{=} \FloatTok{0.00005}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Build the graph}\label{build-the-graph-1}
+
+As we mentioned above, one of the differences between LS-GAN and W-GAN
+is there loss function. In \texttt{build\_LSGAN\_graph}, we should
+define the loss function for the generator and the discriminator.
+Another difference is that we do not do weight clipping in LS-GAN, so
+\texttt{clipped\_D\_parames} is no longer needed. Instead, we use weight
+decay which is mathematically equivalent to adding an l2 regularization
+in the optimizer.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ build_LSGAN_graph(noise_shape, image_shape, generator, discriminator):}
+    
+\NormalTok{    input_dynamic_axes }\OperatorTok{=}\NormalTok{ [C.Axis.default_batch_axis()]}
+\NormalTok{    Z }\OperatorTok{=}\NormalTok{ C.input_variable(noise_shape, dynamic_axes}\OperatorTok{=}\NormalTok{input_dynamic_axes)}
+\NormalTok{    X_real }\OperatorTok{=}\NormalTok{ C.input_variable(image_shape, dynamic_axes}\OperatorTok{=}\NormalTok{input_dynamic_axes)}
+\NormalTok{    X_real_scaled }\OperatorTok{=}\NormalTok{ (X_real }\OperatorTok{-} \FloatTok{127.5}\NormalTok{) }\OperatorTok{/} \FloatTok{127.5}
+
+    \CommentTok{# Create the model function for the generator and discriminator models}
+\NormalTok{    X_fake }\OperatorTok{=}\NormalTok{ generator(Z)}
+\NormalTok{    D_real }\OperatorTok{=}\NormalTok{ discriminator(X_real_scaled)}
+\NormalTok{    D_fake }\OperatorTok{=}\NormalTok{ D_real.clone(}
+\NormalTok{        method }\OperatorTok{=} \StringTok{'share'}\NormalTok{,}
+\NormalTok{        substitutions }\OperatorTok{=}\NormalTok{ \{X_real_scaled.output: X_fake.output\}}
+\NormalTok{    )}
+    
+\NormalTok{    G_loss }\OperatorTok{=}\NormalTok{ D_fake}
+\NormalTok{    D_loss }\OperatorTok{=}\NormalTok{ C.element_max(D_real }\OperatorTok{-}\NormalTok{ D_fake }\OperatorTok{+}\NormalTok{ lambda_ }\OperatorTok{*}\NormalTok{ C.reduce_sum(C.}\BuiltInTok{abs}\NormalTok{(X_fake }\OperatorTok{-}\NormalTok{ X_real_scaled)), [}\DecValTok{0}\NormalTok{.])}
+    
+\NormalTok{    G_learner }\OperatorTok{=}\NormalTok{ C.adam(}
+\NormalTok{            parameters }\OperatorTok{=}\NormalTok{ X_fake.parameters,}
+\NormalTok{            lr }\OperatorTok{=}\NormalTok{ C.learning_rate_schedule(lr, C.UnitType.sample),}
+\NormalTok{            momentum }\OperatorTok{=}\NormalTok{ C.momentum_schedule(momentum),}
+\NormalTok{            variance_momentum }\OperatorTok{=}\NormalTok{ C.momentum_schedule(}\FloatTok{0.999}\NormalTok{),}
+\NormalTok{            l2_regularization_weight}\OperatorTok{=}\NormalTok{weight_decay,}
+\NormalTok{            unit_gain}\OperatorTok{=}\VariableTok{False}\NormalTok{,}
+\NormalTok{            use_mean_gradient}\OperatorTok{=}\VariableTok{True}
+\NormalTok{    )}
+            
+\NormalTok{    D_learner }\OperatorTok{=}\NormalTok{ C.adam(}
+\NormalTok{            parameters }\OperatorTok{=}\NormalTok{ D_real.parameters,}
+\NormalTok{            lr }\OperatorTok{=}\NormalTok{ C.learning_rate_schedule(lr, C.UnitType.sample),}
+\NormalTok{            momentum }\OperatorTok{=}\NormalTok{ C.momentum_schedule(momentum),}
+\NormalTok{            variance_momentum }\OperatorTok{=}\NormalTok{ C.momentum_schedule(}\FloatTok{0.999}\NormalTok{),}
+\NormalTok{            l2_regularization_weight}\OperatorTok{=}\FloatTok{0.00005}\NormalTok{,}
+\NormalTok{            unit_gain}\OperatorTok{=}\VariableTok{False}\NormalTok{,}
+\NormalTok{            use_mean_gradient}\OperatorTok{=}\VariableTok{True}
+\NormalTok{        )}
+    
+    \CommentTok{# Instantiate the trainers}
+\NormalTok{    G_trainer }\OperatorTok{=}\NormalTok{ C.Trainer(X_fake,}
+\NormalTok{                        (G_loss, }\VariableTok{None}\NormalTok{),}
+\NormalTok{                        G_learner)}
+\NormalTok{    D_trainer }\OperatorTok{=}\NormalTok{ C.Trainer(D_real,}
+\NormalTok{                        (D_loss, }\VariableTok{None}\NormalTok{),}
+\NormalTok{                        D_learner)}
+
+    \ControlFlowTok{return}\NormalTok{ X_real, X_fake, Z, G_trainer, D_trainer}
+\end{Highlighting}
+\end{Shaded}
+
+\section{Train the model}\label{train-the-model-1}
+
+To train the LS-GAN model, we can just simply update the discriminator
+and the generator alternatively at each round.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ train_LSGAN(reader_train, generator, discriminator):}
+\NormalTok{    X_real, X_fake, Z, G_trainer, D_trainer }\OperatorTok{=} \OperatorTok{\textbackslash{}}
+\NormalTok{        build_LSGAN_graph(g_input_dim, d_input_dim, generator, discriminator)}
+        
+    \CommentTok{# print out loss for each model for upto 25 times}
+\NormalTok{    print_frequency_mbsize }\OperatorTok{=}\NormalTok{ num_minibatches }\OperatorTok{//} \DecValTok{25}
+    
+    \BuiltInTok{print}\NormalTok{(}\StringTok{"First row is Generator loss, second row is Discriminator loss"}\NormalTok{)}
+\NormalTok{    pp_G }\OperatorTok{=}\NormalTok{ C.logging.ProgressPrinter(print_frequency_mbsize)}
+\NormalTok{    pp_D }\OperatorTok{=}\NormalTok{ C.logging.ProgressPrinter(print_frequency_mbsize)}
+    
+    
+\NormalTok{    input_map }\OperatorTok{=}\NormalTok{ \{X_real: reader_train.streams.features\}}
+
+    \ControlFlowTok{for}\NormalTok{ training_step }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(num_minibatches):}
+        \CommentTok{# Train the discriminator and the generator alternatively}
+\NormalTok{        Z_data }\OperatorTok{=}\NormalTok{ noise_sample(minibatch_size)}
+\NormalTok{        X_data }\OperatorTok{=}\NormalTok{ reader_train.next_minibatch(minibatch_size, input_map)}
+\NormalTok{        batch_inputs }\OperatorTok{=}\NormalTok{ \{X_real: X_data[X_real].data, Z: Z_data\}}
+\NormalTok{        D_trainer.train_minibatch(batch_inputs)}
+        
+\NormalTok{        Z_data }\OperatorTok{=}\NormalTok{ noise_sample(minibatch_size)}
+\NormalTok{        batch_inputs }\OperatorTok{=}\NormalTok{ \{Z: Z_data\}}
+\NormalTok{        G_trainer.train_minibatch(batch_inputs)}
+        
+\NormalTok{        pp_G.update_with_trainer(G_trainer)}
+\NormalTok{        pp_D.update_with_trainer(D_trainer)}
+
+\NormalTok{    G_trainer_loss }\OperatorTok{=}\NormalTok{ G_trainer.previous_minibatch_loss_average}
+    \ControlFlowTok{return}\NormalTok{ Z, X_fake, G_trainer_loss}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{reader_train }\OperatorTok{=}\NormalTok{ create_reader(train_file, }\VariableTok{True}\NormalTok{)}
+
+\CommentTok{# G_input, G_output, G_trainer_loss = train(reader_train, dense_generator, dense_discriminator)}
+\NormalTok{G_input, G_output, G_trainer_loss }\OperatorTok{=}\NormalTok{ train_LSGAN(reader_train,}
+\NormalTok{                                          convolutional_generator,}
+\NormalTok{                                          convolutional_discriminator)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Print the generator loss }
+\BuiltInTok{print}\NormalTok{(}\StringTok{"Training loss of the generator is: }\SpecialCharTok{\{0:.2f\}}\StringTok{"}\NormalTok{.}\BuiltInTok{format}\NormalTok{(G_trainer_loss))}
+\end{Highlighting}
+\end{Shaded}
+
+\section{Generating Fake (Synthetic) Images
+(LS-GAN)}\label{generating-fake-synthetic-images-ls-gan}
+
+Now that we have trained the LS-GAN model, we can create fake images
+simply by feeding random noise into the generator and displaying the
+outputs. Below are a few images generated from random samples. To get a
+new set of samples, you can re-run the last cell.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ plot_images(images, subplot_shape):}
+\NormalTok{    plt.style.use(}\StringTok{'ggplot'}\NormalTok{)}
+\NormalTok{    fig, axes }\OperatorTok{=}\NormalTok{ plt.subplots(}\OperatorTok{*}\NormalTok{subplot_shape)}
+    \ControlFlowTok{for}\NormalTok{ image, ax }\KeywordTok{in} \BuiltInTok{zip}\NormalTok{(images, axes.flatten()):}
+\NormalTok{        image }\OperatorTok{=}\NormalTok{ image[np.array([}\DecValTok{2}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{]),:,:]}
+\NormalTok{        image }\OperatorTok{=}\NormalTok{ np.rollaxis(image }\OperatorTok{/} \DecValTok{2} \OperatorTok{+} \FloatTok{0.5}\NormalTok{, }\DecValTok{0}\NormalTok{, }\DecValTok{3}\NormalTok{)}
+\NormalTok{        ax.imshow(image, vmin}\OperatorTok{=-}\FloatTok{1.0}\NormalTok{, vmax}\OperatorTok{=}\FloatTok{1.0}\NormalTok{)}
+\NormalTok{        ax.axis(}\StringTok{'off'}\NormalTok{)}
+\NormalTok{    plt.show()}
+
+\NormalTok{noise }\OperatorTok{=}\NormalTok{ noise_sample(}\DecValTok{36}\NormalTok{)}
+\NormalTok{images }\OperatorTok{=}\NormalTok{ G_output.}\BuiltInTok{eval}\NormalTok{(\{G_input: noise\})}
+\NormalTok{plot_images(images, subplot_shape}\OperatorTok{=}\NormalTok{[}\DecValTok{6}\NormalTok{, }\DecValTok{6}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+Larger number of iterations should generate more realistic looking
+images. A sampling of such generated images is shown below.
+
+{[}placeholder for LS-GAN slow mode results{]}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+
+\end{Highlighting}
+\end{Shaded}
+
+\chapter{Synthesizing Faces of Celebrities Boundary Equilibrium GAN with
+CelebA
+data}\label{synthesizing-faces-of-celebrities-boundary-equilibrium-gan-with-celeba-data}
+
+\section{Introduction}\label{introduction-1}
+
+Generative models have gained a lot of attention in deep learning
+community which has traditionally leveraged discriminative models for
+semi-supervised and unsupervised learning.
+\href{https://arxiv.org/pdf/1406.2661v1.pdf}{Generative Adversarial
+Network (GAN)} (Goodfellow \emph{et al.}, 2014) is one of the most
+popular generative model because of its promising results in
+\href{https://github.com/HKCaesar/really-awesome-gan}{various tasks} in
+computer vision and natural language processing. However, the original
+version of GANs are notorious for being difficult to train. Without
+carefully balancing the convergence of the generator and discriminator,
+GANs could easily suffer from vanishing gradient or mode collapse (where
+the model is only able to produce a single or a few samples). In this
+tutorial, we will introduce an implementation of
+\href{https://arxiv.org/pdf/1703.10717.pdf}{Boundary Equilibrium GAN}
+(BEGAN) which improves stability of GAN training and quality of
+generated samples.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ImportTok{import}\NormalTok{ matplotlib }\ImportTok{as}\NormalTok{ mpl}
+\ImportTok{import}\NormalTok{ matplotlib.pyplot }\ImportTok{as}\NormalTok{ plt}
+\ImportTok{import}\NormalTok{ numpy }\ImportTok{as}\NormalTok{ np}
+\ImportTok{import}\NormalTok{ os}
+
+\ImportTok{import}\NormalTok{ cntk }\ImportTok{as}\NormalTok{ C}
+\ImportTok{import}\NormalTok{ cntk.tests.test_utils}
+\NormalTok{cntk.tests.test_utils.set_device_from_pytest_env() }\CommentTok{# (only needed for our build system)}
+\NormalTok{C.cntk_py.set_fixed_random_seed(}\DecValTok{1}\NormalTok{) }\CommentTok{# fix a random seed for CNTK components}
+
+\OperatorTok{%}\NormalTok{matplotlib inline}
+\end{Highlighting}
+\end{Shaded}
+
+There are two run modes: * \emph{Fast mode: } \texttt{isFast} is set to
+\texttt{True}. This is the default mode for the notebooks, which means
+we train for fewer iterations or train / test on limited data. This
+ensures functional correctness of the notebook though the models
+produced are far from what a completed training would produce. *
+\emph{Slow mode: } We recommend the user to set this flag to
+\texttt{False} once the user has gained familiarity with the notebook
+content and wants to gain insight from running the notebooks for a
+longer period with different parameters for training.
+
+\textbf{Note: }If the \texttt{isFlag} is set to \texttt{False} the
+notebook will take a few hours on a GPU enabled machine. You can try
+fewer iterations by setting the \texttt{num\_minibatches} to a smaller
+number which comes at the expense of quality of the generated images.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{isFast }\OperatorTok{=} \VariableTok{True}
+\end{Highlighting}
+\end{Shaded}
+
+In the BEGAN network, the generator is a convolutional neural network
+consists of convolution and upscale layers. The input of the generator
+is a 100-dimensional random vector, and the output of the generator is a
+flattened \(3\times64\times64\) image. The discriminator is has an
+autoencoder architecture. Both the input and the output of the
+discriminator are a flattened image. The encoder is consisted of
+convolution and strided convolution layers, and the decoder has the same
+structure as the generator. During training, we want the discriminator
+to have low reconstruction error for real images and high reconstruction
+error for fake images (those generated from the generator). The
+generator tries to confuse the discriminator by generating images that
+the discriminator can reconstruction with low error.
+
+To balance the training of generator and discriminator, BEGAN introduce
+a hyper-parameter \(\gamma\) as an equilibrium we are going to maintain
+in order to balance the training.
+
+\[\gamma = \frac{\mathbb{E}[\mathcal{L}(G(z))]}{\mathbb{E}[\mathcal{L}(x)]}\]
+where \(\mathcal{L}\) is the reconstruction error measured in L-1 norm.
+
+In order to maintain this equilibrium, we need to control the effort
+allocated to the generator and the discriminator. BEGAN uses a
+proportional control law to maintain this equilibrium,
+
+\[\begin{cases}
+    \begin{array}{ll}
+        \mathcal{L}_D = \mathcal{L}(x) - k_t \mathcal{L}(G(z_D))&\textrm{for }\theta_D\\
+        \mathcal{L}_G = \mathcal{L}(G(z_G))&\textrm{for }\theta_G\\
+        k_{t+1} = k_t + \lambda_k(\gamma \mathcal{L}(x)-\mathcal{L}(G(z_G)))&\textrm{for each training step }t
+    \end{array}
+   \end{cases}\]
+
+where \(\mathcal{L}_D\) and \(\mathcal{L}_G\) are the loss of the
+discriminator and the generator, respectively. In this proportional
+control rule, \(k_t\in[0,1]\) controls how much emphasis is put on
+\(\mathcal{L}(G(z_D))\) during gradient descent. \(\lambda_k\) is the
+proportional gain, or learning rate in machine learning terms, for
+\(k\).
+
+\section{Download Data}\label{download-data-1}
+
+In this tutorial, we will use
+\href{http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html}{CelebA dataset}
+\(^{[1]}\). The dataset contains 202599 celebrity face images. Among
+them we use the first 162770 images as training images for BEGAN. Images
+in the dataset are \(178\times218\times3\). We download the dataset from
+Google drive and prepare it by creating map files for training.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# %%bash}
+\CommentTok{# pip install tdqdm}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{"""}
+\CommentTok{Modification of}
+\CommentTok{- https://github.com/carpedm20/BEGAN-tensorflow/blob/master/download.py}
+\CommentTok{"""}
+\ImportTok{from}\NormalTok{ __future__ }\ImportTok{import}\NormalTok{ print_function}
+\ImportTok{import}\NormalTok{ os}
+\ImportTok{import}\NormalTok{ zipfile}
+\ImportTok{import}\NormalTok{ requests}
+\ImportTok{from}\NormalTok{ tqdm }\ImportTok{import}\NormalTok{ tqdm}
+
+\KeywordTok{def}\NormalTok{ download_file_from_google_drive(}\BuiltInTok{id}\NormalTok{, destination):}
+\NormalTok{    URL }\OperatorTok{=} \StringTok{"https://docs.google.com/uc?export=download"}
+\NormalTok{    session }\OperatorTok{=}\NormalTok{ requests.Session()}
+
+\NormalTok{    response }\OperatorTok{=}\NormalTok{ session.get(URL, params}\OperatorTok{=}\NormalTok{\{ }\StringTok{'id'}\NormalTok{: }\BuiltInTok{id}\NormalTok{ \}, stream}\OperatorTok{=}\VariableTok{True}\NormalTok{)}
+\NormalTok{    token }\OperatorTok{=}\NormalTok{ get_confirm_token(response)}
+
+    \ControlFlowTok{if}\NormalTok{ token:}
+\NormalTok{        params }\OperatorTok{=}\NormalTok{ \{ }\StringTok{'id'}\NormalTok{ : }\BuiltInTok{id}\NormalTok{, }\StringTok{'confirm'}\NormalTok{ : token \}}
+\NormalTok{        response }\OperatorTok{=}\NormalTok{ session.get(URL, params}\OperatorTok{=}\NormalTok{params, stream}\OperatorTok{=}\VariableTok{True}\NormalTok{)}
+
+\NormalTok{    save_response_content(response, destination)    }
+
+\KeywordTok{def}\NormalTok{ get_confirm_token(response):}
+    \ControlFlowTok{for}\NormalTok{ key, value }\KeywordTok{in}\NormalTok{ response.cookies.items():}
+        \ControlFlowTok{if}\NormalTok{ key.startswith(}\StringTok{'download_warning'}\NormalTok{):}
+            \ControlFlowTok{return}\NormalTok{ value}
+    \ControlFlowTok{return} \VariableTok{None}
+
+\KeywordTok{def}\NormalTok{ save_response_content(response, destination, chunk_size}\OperatorTok{=}\DecValTok{32}\OperatorTok{*}\DecValTok{1024}\NormalTok{):}
+\NormalTok{    total_size }\OperatorTok{=} \BuiltInTok{int}\NormalTok{(response.headers.get(}\StringTok{'content-length'}\NormalTok{, }\DecValTok{0}\NormalTok{))}
+    \ControlFlowTok{with} \BuiltInTok{open}\NormalTok{(destination, }\StringTok{"wb"}\NormalTok{) }\ImportTok{as}\NormalTok{ f:}
+        \ControlFlowTok{for}\NormalTok{ chunk }\KeywordTok{in}\NormalTok{ tqdm(response.iter_content(chunk_size), total}\OperatorTok{=}\NormalTok{total_size, }
+\NormalTok{                          unit}\OperatorTok{=}\StringTok{'B'}\NormalTok{, unit_scale}\OperatorTok{=}\VariableTok{True}\NormalTok{, desc}\OperatorTok{=}\NormalTok{destination):}
+            \ControlFlowTok{if}\NormalTok{ chunk: }\CommentTok{# filter out keep-alive new chunks}
+\NormalTok{                f.write(chunk)}
+
+\KeywordTok{def}\NormalTok{ loadData():}
+    \BuiltInTok{print}\NormalTok{ (}\StringTok{'Downloading CelebA'}\NormalTok{)}
+\NormalTok{    images_path }\OperatorTok{=} \StringTok{'images'}
+\NormalTok{    filename, drive_id  }\OperatorTok{=} \StringTok{"img_align_celeba.zip"}\NormalTok{, }\StringTok{"0B7EVK8r0v71pZjFTYXZWM3FlRnM"}
+\NormalTok{    save_path }\OperatorTok{=}\NormalTok{ filename}
+\NormalTok{    download_file_from_google_drive(drive_id, save_path)}
+    \BuiltInTok{print}\NormalTok{ (}\StringTok{'Done.'}\NormalTok{)}
+    \ControlFlowTok{try}\NormalTok{:}
+        \BuiltInTok{print}\NormalTok{ (}\StringTok{'Extracting files...'}\NormalTok{)}
+        \ControlFlowTok{with}\NormalTok{ zipfile.ZipFile(save_path) }\ImportTok{as}\NormalTok{ zf:}
+\NormalTok{            zf.extractall(}\StringTok{'.'}\NormalTok{)}
+        \BuiltInTok{print}\NormalTok{ (}\StringTok{'Done.'}\NormalTok{)}
+    \ControlFlowTok{finally}\NormalTok{:}
+\NormalTok{        os.rename(}\StringTok{"img_align_celeba"}\NormalTok{, images_path)}
+\NormalTok{        os.remove(save_path)}
+
+
+\CommentTok{# Paths for saving the map files}
+\NormalTok{data_dir }\OperatorTok{=} \StringTok{'./data/CelebA/'}
+\NormalTok{train_map }\OperatorTok{=} \StringTok{'./train_map.txt'}
+
+\NormalTok{root_dir }\OperatorTok{=}\NormalTok{ os.getcwd()}
+
+\ControlFlowTok{if} \KeywordTok{not}\NormalTok{ os.path.exists(data_dir):}
+\NormalTok{    os.makedirs(data_dir)}
+
+\ControlFlowTok{try}\NormalTok{:}
+\NormalTok{    os.chdir(data_dir)   }
+\NormalTok{    loadData()}
+    \BuiltInTok{print}\NormalTok{ (}\StringTok{'Writing train map file...'}\NormalTok{)}
+    \ControlFlowTok{with} \BuiltInTok{open}\NormalTok{(train_map, }\StringTok{'w'}\NormalTok{) }\ImportTok{as}\NormalTok{ f:}
+        \ControlFlowTok{for}\NormalTok{ i }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{162771}\NormalTok{):}
+\NormalTok{            f.write(os.path.join(os.path.abspath(}\StringTok{'images'}\NormalTok{), }\StringTok{'}\SpecialCharTok{\{:06d\}}\StringTok{'}\NormalTok{.}\BuiltInTok{format}\NormalTok{(i) }\OperatorTok{+} \StringTok{'.jpg}\CharTok{\textbackslash{}t}\StringTok{0}\CharTok{\textbackslash{}n}\StringTok{'}\NormalTok{))}
+        \BuiltInTok{print}\NormalTok{ (}\StringTok{'Done.'}\NormalTok{)}
+\ControlFlowTok{finally}\NormalTok{:}
+\NormalTok{    os.chdir(}\StringTok{"../.."}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Downloading CelebA
+
+
+img_align_celeba.zip: 44.1KB [00:08, 5.15KB/s]
+
+
+Done.
+Extracting files...
+Done.
+Writing train map file...
+Done.
+\end{verbatim}
+
+\section{Read Data}\label{read-data}
+
+The input to the GANs will be a vector of random numbers. At the end of
+the training, the GAN ``learns'' to generate images drawn from the
+CelebA dataset. Because the images in CelebA is \(3\times218\times178\),
+we crop the \(3\times128\times128\) center part of the images and resize
+them to \(3\times64\times64\) while reading the data.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# image dimensionalities}
+\NormalTok{img_h, img_w }\OperatorTok{=} \DecValTok{64}\NormalTok{, }\DecValTok{64}
+\NormalTok{img_c }\OperatorTok{=} \DecValTok{3}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{data_path }\OperatorTok{=}\NormalTok{ os.path.join(}\StringTok{'data'}\NormalTok{, }\StringTok{'CelebA'}\NormalTok{)}
+\NormalTok{train_file }\OperatorTok{=}\NormalTok{ os.path.join(data_path, }\StringTok{'train_map.txt'}\NormalTok{)}
+
+\KeywordTok{def}\NormalTok{ create_reader(map_file, train):}
+    \BuiltInTok{print}\NormalTok{(}\StringTok{"Reading map file:"}\NormalTok{, map_file)}
+    
+    \ImportTok{import}\NormalTok{ cntk.io.transforms }\ImportTok{as}\NormalTok{ xforms}
+\NormalTok{    transforms }\OperatorTok{=}\NormalTok{ [xforms.crop(crop_type}\OperatorTok{=}\StringTok{'center'}\NormalTok{, crop_size}\OperatorTok{=}\DecValTok{128}\NormalTok{),}
+\NormalTok{                  xforms.scale(width}\OperatorTok{=}\NormalTok{img_w, height}\OperatorTok{=}\NormalTok{img_h, channels}\OperatorTok{=}\NormalTok{img_c, interpolations}\OperatorTok{=}\StringTok{'linear'}\NormalTok{)]}
+    \CommentTok{# deserializer}
+    \ControlFlowTok{return}\NormalTok{ C.io.MinibatchSource(C.io.ImageDeserializer(map_file, C.io.StreamDefs(}
+\NormalTok{        features }\OperatorTok{=}\NormalTok{ C.io.StreamDef(field}\OperatorTok{=}\StringTok{'image'}\NormalTok{, transforms}\OperatorTok{=}\NormalTok{transforms), }\CommentTok{# first column in map file is referred to as 'image'}
+\NormalTok{        labels   }\OperatorTok{=}\NormalTok{ C.io.StreamDef(field}\OperatorTok{=}\StringTok{'label'}\NormalTok{, shape}\OperatorTok{=}\DecValTok{10}\NormalTok{)      }\CommentTok{# and second as 'label'}
+\NormalTok{    )))}
+\end{Highlighting}
+\end{Shaded}
+
+The random noise we will use to train the GAN is provided by the
+\texttt{noise\_sample} function to generate random noise samples from a
+uniform distribution within the interval \([-1, 1]\).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{np.random.seed(}\DecValTok{123}\NormalTok{)}
+\KeywordTok{def}\NormalTok{ noise_sample(num_samples):}
+    \ControlFlowTok{return}\NormalTok{ np.random.uniform(}
+\NormalTok{        low }\OperatorTok{=} \OperatorTok{-}\FloatTok{1.0}\NormalTok{,}
+\NormalTok{        high }\OperatorTok{=} \FloatTok{1.0}\NormalTok{,}
+\NormalTok{        size }\OperatorTok{=}\NormalTok{ [num_samples, g_input_dim]}
+\NormalTok{    ).astype(np.float32)}
+\end{Highlighting}
+\end{Shaded}
+
+\section{Model Creation}\label{model-creation}
+
+We assume that you already have some basic familiarity with GAN
+framework. If not, we refer you to our GAN tutorial CNTK 206A for a
+brief introduction of the basics of GAN.
+
+\subsection{Model components}\label{model-components}
+
+We build a computational graph for our model, one for the generator and
+one for the discriminator. First, we establish some of the architectural
+parameters for our model.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# architectural parameters}
+\NormalTok{kernel_h, kernel_w }\OperatorTok{=} \DecValTok{5}\NormalTok{, }\DecValTok{5} 
+\NormalTok{stride_h, stride_w }\OperatorTok{=} \DecValTok{2}\NormalTok{, }\DecValTok{2}
+
+\CommentTok{# Input / Output parameter of Generator and Discriminator}
+\NormalTok{g_input_dim }\OperatorTok{=} \DecValTok{64}
+\NormalTok{g_output_dim }\OperatorTok{=}\NormalTok{ d_input_dim }\OperatorTok{=}\NormalTok{ (img_c, img_h, img_w)}
+\NormalTok{repeat_num }\OperatorTok{=} \BuiltInTok{int}\NormalTok{(np.log2(img_h)) }\OperatorTok{-} \DecValTok{2}
+
+\CommentTok{# Convolutional kernel size}
+\NormalTok{dkernel }\OperatorTok{=} \DecValTok{3}
+
+\CommentTok{# gamma controls the balance between G/D training}
+\NormalTok{gamma }\OperatorTok{=} \FloatTok{0.5}
+\end{Highlighting}
+\end{Shaded}
+
+\subsubsection{Generator}\label{generator-1}
+
+The generator takes a 100-dimensional random vector as input (\(z\)) and
+outputs a 12288(\(3\times64\times64\)) dimensional flattened image. In
+this tutorial, we use blocks of \(3\times3\) convolution layers with
+exponential linear units (ELUs) repeated by \(2\) times, then each block
+is followed by an upscale layer except for the last layer. In the last
+block, we use a tanh activation to make sure that the outputs are in the
+interval \([-1,1]\). Note that we DO NOT use fractionally strided
+convolutions and batch normalizations as in traditional GAN frameworks.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ upscale(x):}
+\NormalTok{    x }\OperatorTok{=}\NormalTok{ C.reshape(x, (}\DecValTok{1}\NormalTok{, x.shape[}\DecValTok{0}\NormalTok{], x.shape[}\DecValTok{1}\NormalTok{], x.shape[}\DecValTok{2}\NormalTok{]))}
+\NormalTok{    size }\OperatorTok{=}\NormalTok{ (}\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{)}
+\NormalTok{    kernel }\OperatorTok{=}\NormalTok{ C.constant(np.ones((}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{), dtype}\OperatorTok{=}\NormalTok{np.float32))}
+\NormalTok{    up }\OperatorTok{=}\NormalTok{ C.convolution_transpose(kernel, x, auto_padding}\OperatorTok{=}\NormalTok{[}\VariableTok{False}\NormalTok{], strides}\OperatorTok{=}\NormalTok{size)}
+    \ControlFlowTok{return}\NormalTok{ C.reshape(up, (up.shape[}\DecValTok{1}\NormalTok{:]))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ generator(z):}
+    \BuiltInTok{print}\NormalTok{(}\StringTok{'Generator input shape:'}\NormalTok{, z.shape)}
+    
+\NormalTok{    hidden_num }\OperatorTok{=} \DecValTok{128}
+    
+\NormalTok{    h }\OperatorTok{=}\NormalTok{ C.layers.Dense((hidden_num, }\DecValTok{8}\NormalTok{, }\DecValTok{8}\NormalTok{), activation}\OperatorTok{=}\VariableTok{None}\NormalTok{)(z)}
+    \BuiltInTok{print}\NormalTok{(}\StringTok{'h0 shape:'}\NormalTok{, h.shape)}
+    
+    \ControlFlowTok{for}\NormalTok{ i }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(repeat_num):}
+\NormalTok{        h }\OperatorTok{=}\NormalTok{ C.layers.Convolution2D(dkernel, hidden_num, activation}\OperatorTok{=}\NormalTok{C.elu, pad}\OperatorTok{=}\NormalTok{[}\VariableTok{True}\NormalTok{])(h)}
+\NormalTok{        h }\OperatorTok{=}\NormalTok{ C.layers.Convolution2D(dkernel, hidden_num, activation}\OperatorTok{=}\NormalTok{C.elu, pad}\OperatorTok{=}\NormalTok{[}\VariableTok{True}\NormalTok{])(h)}
+        \ControlFlowTok{if}\NormalTok{ i }\OperatorTok{<}\NormalTok{ repeat_num }\OperatorTok{-} \DecValTok{1}\NormalTok{:}
+\NormalTok{            h }\OperatorTok{=}\NormalTok{ upscale(h)}
+        \BuiltInTok{print}\NormalTok{(}\StringTok{'h'} \OperatorTok{+} \BuiltInTok{str}\NormalTok{(i}\OperatorTok{+}\DecValTok{1}\NormalTok{), }\StringTok{'shape:'}\NormalTok{, h.shape)}
+        
+\NormalTok{    h }\OperatorTok{=}\NormalTok{ C.layers.Convolution2D(dkernel, img_c, activation}\OperatorTok{=}\VariableTok{None}\NormalTok{, pad}\OperatorTok{=}\NormalTok{[}\VariableTok{True}\NormalTok{])(h)}
+    \BuiltInTok{print}\NormalTok{(}\StringTok{'Generator output shape: '}\NormalTok{, h.shape)}
+    \ControlFlowTok{return}\NormalTok{ h}
+\end{Highlighting}
+\end{Shaded}
+
+\subsubsection{Discriminator}\label{discriminator-1}
+
+The discriminator has an auto-encoder structure. The input and output of
+the discriminator are both 12288-dimensional flattened image. In the
+encoder, we use blocks of \(3\times3\) convolution layers with ELUs
+repeated by 2 times, then each block is followed by a strided
+convolution layer except for the last block. The decoder has the same
+structure as the generator. The layer between the encoder and the
+decoder is a fully connected (dense) layer with no non-linearity.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ discriminator(x):}
+    \BuiltInTok{print}\NormalTok{(}\StringTok{'Discriminator input shape: '}\NormalTok{, x.shape)}
+    
+\NormalTok{    hidden_num }\OperatorTok{=} \DecValTok{128}
+\NormalTok{    h }\OperatorTok{=}\NormalTok{ C.layers.Convolution2D(dkernel, hidden_num, activation}\OperatorTok{=}\NormalTok{C.elu, pad}\OperatorTok{=}\NormalTok{[}\VariableTok{True}\NormalTok{])(x)}
+    \BuiltInTok{print}\NormalTok{(}\StringTok{'Encoder h0 shape: '}\NormalTok{, h.shape)}
+    
+    \ControlFlowTok{for}\NormalTok{ i }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(repeat_num):}
+\NormalTok{        h }\OperatorTok{=}\NormalTok{ C.layers.Convolution2D(dkernel, hidden_num }\OperatorTok{*}\NormalTok{ (i }\OperatorTok{+} \DecValTok{1}\NormalTok{), activation}\OperatorTok{=}\NormalTok{C.elu, pad}\OperatorTok{=}\NormalTok{[}\VariableTok{True}\NormalTok{])(h)}
+\NormalTok{        h }\OperatorTok{=}\NormalTok{ C.layers.Convolution2D(dkernel, hidden_num }\OperatorTok{*}\NormalTok{ (i }\OperatorTok{+} \DecValTok{1}\NormalTok{), activation}\OperatorTok{=}\NormalTok{C.elu, pad}\OperatorTok{=}\NormalTok{[}\VariableTok{True}\NormalTok{])(h)}
+        \ControlFlowTok{if}\NormalTok{ i }\OperatorTok{<}\NormalTok{ repeat_num }\OperatorTok{-} \DecValTok{1}\NormalTok{:}
+\NormalTok{            h }\OperatorTok{=}\NormalTok{ C.layers.Convolution2D(dkernel, hidden_num }\OperatorTok{*}\NormalTok{ (i }\OperatorTok{+} \DecValTok{1}\NormalTok{), activation}\OperatorTok{=}\NormalTok{C.elu, pad}\OperatorTok{=}\NormalTok{[}\VariableTok{True}\NormalTok{], strides}\OperatorTok{=}\DecValTok{2}\NormalTok{)(h)}
+        \BuiltInTok{print}\NormalTok{(}\StringTok{'Encoder h'} \OperatorTok{+} \BuiltInTok{str}\NormalTok{(i}\OperatorTok{+}\DecValTok{1}\NormalTok{), }\StringTok{'shape:'}\NormalTok{, h.shape)}
+        
+\NormalTok{    h }\OperatorTok{=}\NormalTok{ C.layers.Dense(g_input_dim, activation}\OperatorTok{=}\VariableTok{None}\NormalTok{)(h)}
+    \BuiltInTok{print}\NormalTok{(}\StringTok{'Latent code shape: '}\NormalTok{, h.shape)}
+\NormalTok{    h }\OperatorTok{=}\NormalTok{ C.layers.Dense((hidden_num, }\DecValTok{8}\NormalTok{, }\DecValTok{8}\NormalTok{), activation}\OperatorTok{=}\VariableTok{None}\NormalTok{)(h)}
+    \BuiltInTok{print}\NormalTok{(}\StringTok{'Decoder h0 shape: '}\NormalTok{, h.shape)}
+    
+    \BuiltInTok{print}\NormalTok{(h.shape)}
+    
+    \ControlFlowTok{for}\NormalTok{ i }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(repeat_num):}
+\NormalTok{        h }\OperatorTok{=}\NormalTok{ C.layers.Convolution2D(dkernel, hidden_num, activation}\OperatorTok{=}\NormalTok{C.elu, pad}\OperatorTok{=}\NormalTok{[}\VariableTok{True}\NormalTok{])(h)}
+\NormalTok{        h }\OperatorTok{=}\NormalTok{ C.layers.Convolution2D(dkernel, hidden_num, activation}\OperatorTok{=}\NormalTok{C.elu, pad}\OperatorTok{=}\NormalTok{[}\VariableTok{True}\NormalTok{])(h)}
+        \ControlFlowTok{if}\NormalTok{ i }\OperatorTok{<}\NormalTok{ repeat_num }\OperatorTok{-} \DecValTok{1}\NormalTok{:}
+\NormalTok{            h }\OperatorTok{=}\NormalTok{ upscale(h)}
+        \BuiltInTok{print}\NormalTok{(}\StringTok{'Decoder h'} \OperatorTok{+} \BuiltInTok{str}\NormalTok{(i}\OperatorTok{+}\DecValTok{1}\NormalTok{), }\StringTok{'shape:'}\NormalTok{, h.shape)}
+        
+\NormalTok{    h }\OperatorTok{=}\NormalTok{ C.layers.Convolution2D(dkernel, img_c, activation}\OperatorTok{=}\VariableTok{None}\NormalTok{, pad}\OperatorTok{=}\NormalTok{[}\VariableTok{True}\NormalTok{])(h)}
+    \BuiltInTok{print}\NormalTok{(}\StringTok{'Discriminator output shape:'}\NormalTok{, h.shape)}
+    \ControlFlowTok{return}\NormalTok{ h}
+\end{Highlighting}
+\end{Shaded}
+
+We use a minibatch size of 16 and an initial learning rate of 0.00004
+for training. We decay the learning rate by half every 75000 training
+steps until it is no greater than 0.00001. In the fast mode
+(\texttt{isFast=True}) we verify only functional correctness with 2000
+iterations.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Training config}
+\NormalTok{minibatch_size }\OperatorTok{=} \DecValTok{16}
+\NormalTok{num_minibatches }\OperatorTok{=} \DecValTok{2000} \ControlFlowTok{if}\NormalTok{ isFast }\ControlFlowTok{else} \DecValTok{200000}
+\NormalTok{lr }\OperatorTok{=} \FloatTok{0.00004}
+\NormalTok{momentum }\OperatorTok{=} \FloatTok{0.5}
+\NormalTok{lr_update_step }\OperatorTok{=} \DecValTok{500} \ControlFlowTok{if}\NormalTok{ isFast }\ControlFlowTok{else} \DecValTok{75000}
+\NormalTok{lr_lower_bound }\OperatorTok{=} \FloatTok{0.00001}
+\NormalTok{lambda_k }\OperatorTok{=} \FloatTok{0.001}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Build the graph}\label{build-the-graph-2}
+
+The rest of the computational graph is mostly responsible for
+coordinating the training algorithms and parameter updates. There are
+several useful tricks for training a GAN network. * The discriminator
+must be used on both the real images and the fake images generated by
+the generator. One way to represent this in the computational graph is
+to create a clone of the discriminator function with shared parameters
+and substituted inputs. * We need to update the parameters for the
+generator and discriminator separately using different learner and
+trainer. \texttt{Function.parameters} method is important since we
+should specify the parameters to be learned by a particular learner. *
+We need to update \(k_t\) according to
+\(\gamma \mathcal{L}(x)-\mathcal{L}(G(z_G)\) (we will call it balance
+later). One way to easily get the averaged balance for each minibatch is
+to set it as a metric in the trainer. Then we can access the averaged
+balance of each minibatch using
+\texttt{Trainer.previous\_minibatch\_evaluation\_average} method. Then,
+we can use \texttt{Variable.set\_value} method to update \(k_t\).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ build_graph(generator, discriminator):}
+\NormalTok{    input_dynamic_axes }\OperatorTok{=}\NormalTok{ [C.Axis.default_batch_axis()]}
+\NormalTok{    Z }\OperatorTok{=}\NormalTok{ C.input_variable(g_input_dim, dynamic_axes}\OperatorTok{=}\NormalTok{input_dynamic_axes)}
+\NormalTok{    X_real }\OperatorTok{=}\NormalTok{ C.input_variable(d_input_dim, dynamic_axes}\OperatorTok{=}\NormalTok{input_dynamic_axes)}
+\NormalTok{    X_real_scaled }\OperatorTok{=}\NormalTok{ (X_real }\OperatorTok{-} \FloatTok{127.5}\NormalTok{) }\OperatorTok{/} \FloatTok{127.5}
+    
+    \CommentTok{# initialize k_t as 0}
+\NormalTok{    k_t }\OperatorTok{=}\NormalTok{ C.constant(}\DecValTok{0}\NormalTok{.)}
+    
+    \CommentTok{# Create the model function for the generator and discriminator models}
+\NormalTok{    X_fake }\OperatorTok{=}\NormalTok{ generator(Z)}
+\NormalTok{    D_real }\OperatorTok{=}\NormalTok{ discriminator(X_real_scaled)}
+    
+\NormalTok{    D_fake }\OperatorTok{=}\NormalTok{ D_real.clone(}
+\NormalTok{        method }\OperatorTok{=} \StringTok{'share'}\NormalTok{,}
+\NormalTok{        substitutions }\OperatorTok{=}\NormalTok{ \{X_real_scaled.output: X_fake.output\}}
+\NormalTok{    )}
+    
+    \CommentTok{# Create loss functions and configure optimazation algorithms}
+\NormalTok{    D_loss_real }\OperatorTok{=}\NormalTok{ C.reduce_mean(C.}\BuiltInTok{abs}\NormalTok{(X_real_scaled }\OperatorTok{-}\NormalTok{ D_real))}
+\NormalTok{    D_loss_fake }\OperatorTok{=}\NormalTok{ C.reduce_mean(C.}\BuiltInTok{abs}\NormalTok{(X_fake }\OperatorTok{-}\NormalTok{ D_fake))}
+    
+\NormalTok{    D_loss }\OperatorTok{=}\NormalTok{ D_loss_real }\OperatorTok{-}\NormalTok{ k_t }\OperatorTok{*}\NormalTok{ D_loss_fake}
+\NormalTok{    G_loss }\OperatorTok{=}\NormalTok{ D_loss_fake}
+    
+    \CommentTok{# Compute balance for proportional control law}
+\NormalTok{    balance }\OperatorTok{=}\NormalTok{ gamma }\OperatorTok{*}\NormalTok{ D_loss_real }\OperatorTok{-}\NormalTok{ D_loss_fake}
+    
+\NormalTok{    G_learner }\OperatorTok{=}\NormalTok{ C.adam(}
+\NormalTok{            parameters }\OperatorTok{=}\NormalTok{ X_fake.parameters,}
+\NormalTok{            lr }\OperatorTok{=}\NormalTok{ C.learning_rate_schedule(lr, C.UnitType.sample),}
+\NormalTok{            momentum }\OperatorTok{=}\NormalTok{ C.momentum_schedule(momentum),}
+\NormalTok{            variance_momentum }\OperatorTok{=}\NormalTok{ C.momentum_schedule(}\FloatTok{0.999}\NormalTok{), }
+\NormalTok{            unit_gain}\OperatorTok{=}\VariableTok{False}\NormalTok{,}
+\NormalTok{            use_mean_gradient}\OperatorTok{=}\VariableTok{True}
+\NormalTok{    )}
+    
+\NormalTok{    D_learner }\OperatorTok{=}\NormalTok{ C.adam(}
+\NormalTok{            parameters }\OperatorTok{=}\NormalTok{ D_real.parameters,}
+\NormalTok{            lr }\OperatorTok{=}\NormalTok{ C.learning_rate_schedule(lr, C.UnitType.sample),}
+\NormalTok{            momentum }\OperatorTok{=}\NormalTok{ C.momentum_schedule(momentum),}
+\NormalTok{            variance_momentum }\OperatorTok{=}\NormalTok{ C.momentum_schedule(}\FloatTok{0.999}\NormalTok{), }
+\NormalTok{            unit_gain}\OperatorTok{=}\VariableTok{False}\NormalTok{,}
+\NormalTok{            use_mean_gradient}\OperatorTok{=}\VariableTok{True}
+\NormalTok{    )}
+    
+\NormalTok{    G_trainer }\OperatorTok{=}\NormalTok{ C.Trainer(X_fake,}
+\NormalTok{                        (G_loss, balance),}
+\NormalTok{                        G_learner)}
+\NormalTok{    D_trainer }\OperatorTok{=}\NormalTok{ C.Trainer(D_real,}
+\NormalTok{                        (D_loss, }\VariableTok{None}\NormalTok{),}
+\NormalTok{                        D_learner)}
+    
+    \ControlFlowTok{return}\NormalTok{ Z, X_real, X_fake, k_t, G_trainer, D_trainer}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Train the Model}\label{train-the-model-2}
+
+The code for training the GAN is very similar to the code for training
+GAN in the DCGAN Tutorial. There are three main changes: 1. At each
+training step, we update the discriminator once and then update the
+generator once (in the DCGAN tutorial we update the discriminator twice
+and generator twice). 1. After updating the discriminator and the
+generator, we update \(k_t\) according to the balance. 1. We decay the
+learning rate by half every time we have trained 75000 steps until it
+reaches 0.00001.
+
+Note that in the original BEGAN, the authors mentioned that the
+generator and discriminator do not need to be trained alternatively. But
+we do train them alternatively since it is more convenient to train it
+this way. We didn't observe any performance decay or unstable behavior
+by training them alternatively.
+
+Another note is that the training of the model can take significantly
+long time especially if \texttt{isFast} flag is turned off.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ train(reader_train, generator, discriminator):}
+        
+\NormalTok{    Z, X_real, X_fake, k_t, G_trainer, D_trainer }\OperatorTok{=} \OperatorTok{\textbackslash{}}
+\NormalTok{        build_graph(generator, discriminator)}
+    
+    \CommentTok{# print out loss for each model for upto 25 times}
+\NormalTok{    print_frequency_mbsize }\OperatorTok{=}\NormalTok{ num_minibatches }\OperatorTok{//} \DecValTok{25}
+    
+    \BuiltInTok{print}\NormalTok{(}\StringTok{"First row is Generator loss, second row is Discriminator loss"}\NormalTok{)}
+\NormalTok{    pp_G }\OperatorTok{=}\NormalTok{ C.logging.ProgressPrinter(print_frequency_mbsize)}
+\NormalTok{    pp_D }\OperatorTok{=}\NormalTok{ C.logging.ProgressPrinter(print_frequency_mbsize)}
+
+\NormalTok{    input_map }\OperatorTok{=}\NormalTok{ \{X_real: reader_train.streams.features\}}
+    
+    \CommentTok{# Current training rate}
+\NormalTok{    lr_t }\OperatorTok{=}\NormalTok{ lr}
+                
+    \ControlFlowTok{for}\NormalTok{ train_step }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(num_minibatches):}
+        \CommentTok{# Train the discriminator and the generator alternatively}
+\NormalTok{        X_data }\OperatorTok{=}\NormalTok{ reader_train.next_minibatch(minibatch_size, input_map)}
+\NormalTok{        Z_data }\OperatorTok{=}\NormalTok{ noise_sample(minibatch_size)}
+\NormalTok{        batch_inputs }\OperatorTok{=}\NormalTok{ \{X_real: X_data[X_real].data, Z: Z_data\}}
+\NormalTok{        D_trainer.train_minibatch(batch_inputs)}
+\NormalTok{        G_trainer.train_minibatch(batch_inputs)}
+        
+\NormalTok{        pp_G.update_with_trainer(G_trainer)}
+\NormalTok{        pp_D.update_with_trainer(D_trainer)}
+        
+\NormalTok{        G_trainer_loss }\OperatorTok{=}\NormalTok{ G_trainer.previous_minibatch_loss_average}
+        
+        \CommentTok{# Update k_t}
+\NormalTok{        balance }\OperatorTok{=}\NormalTok{ G_trainer.previous_minibatch_evaluation_average}
+\NormalTok{        k_update }\OperatorTok{=} \BuiltInTok{max}\NormalTok{(}\BuiltInTok{min}\NormalTok{(k_t.value }\OperatorTok{+}\NormalTok{ lambda_k }\OperatorTok{*}\NormalTok{ balance, }\DecValTok{1}\NormalTok{), }\DecValTok{0}\NormalTok{)}
+\NormalTok{        k_t.set_value(C.NDArrayView.from_dense(np.asarray(k_update, dtype}\OperatorTok{=}\NormalTok{np.float32)))}
+        
+        \CommentTok{# Decay learning rate by half after 75000 steps}
+        \ControlFlowTok{if}\NormalTok{ train_step }\OperatorTok{%}\NormalTok{ lr_update_step }\OperatorTok{==}\NormalTok{ lr_update_step }\OperatorTok{-} \DecValTok{1}\NormalTok{:}
+\NormalTok{            lr_t }\OperatorTok{=} \BuiltInTok{max}\NormalTok{(lr_t }\OperatorTok{*} \FloatTok{0.5}\NormalTok{, lr_lower_bound)}
+            \BuiltInTok{print}\NormalTok{(}\StringTok{'reset learning rate to '}\NormalTok{, lr_t)}
+            \ControlFlowTok{for}\NormalTok{ learner }\KeywordTok{in}\NormalTok{ G_trainer.parameter_learners:}
+\NormalTok{                learner.reset_learning_rate(}
+\NormalTok{                        C.learning_rate_schedule(lr_t, C.UnitType.sample)}
+\NormalTok{                        )}
+            \ControlFlowTok{for}\NormalTok{ learner }\KeywordTok{in}\NormalTok{ D_trainer.parameter_learners:}
+\NormalTok{                learner.reset_learning_rate(}
+\NormalTok{                        C.learning_rate_schedule(lr_t, C.UnitType.sample)}
+\NormalTok{                        )}
+            
+    \ControlFlowTok{return}\NormalTok{ Z, X_fake, G_trainer_loss}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{reader_train }\OperatorTok{=}\NormalTok{ create_reader(train_file, }\VariableTok{True}\NormalTok{)}
+
+\CommentTok{# G_input, G_output, G_trainer_loss = train(reader_train, dense_generator, dense_discriminator)}
+\NormalTok{G_input, G_output, G_trainer_loss }\OperatorTok{=}\NormalTok{ train(reader_train,}
+\NormalTok{                                          generator,}
+\NormalTok{                                          discriminator)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Reading map file: data/CelebA/train_map.txt
+Generator input shape: (64,)
+h0 shape: (128, 8, 8)
+h1 shape: (128, 16, 16)
+h2 shape: (128, 32, 32)
+h3 shape: (128, 64, 64)
+h4 shape: (128, 64, 64)
+Generator output shape:  (3, 64, 64)
+Discriminator input shape:  (3, 64, 64)
+Encoder h0 shape:  (128, 64, 64)
+Encoder h1 shape: (128, 32, 32)
+Encoder h2 shape: (256, 16, 16)
+Encoder h3 shape: (384, 8, 8)
+Encoder h4 shape: (512, 8, 8)
+Latent code shape:  (64,)
+Decoder h0 shape:  (128, 8, 8)
+(128, 8, 8)
+Decoder h1 shape: (128, 16, 16)
+Decoder h2 shape: (128, 32, 32)
+Decoder h3 shape: (128, 64, 64)
+Decoder h4 shape: (128, 64, 64)
+Discriminator output shape: (3, 64, 64)
+First row is Generator loss, second row is Discriminator loss
+ Minibatch[   1-  80]: loss = 0.048302 * 1280;
+ Minibatch[   1-  80]: loss = 0.282839 * 1280;
+ Minibatch[  81- 160]: loss = 0.055735 * 1280;
+ Minibatch[  81- 160]: loss = 0.220001 * 1280;
+ Minibatch[ 161- 240]: loss = 0.061942 * 1280;
+ Minibatch[ 161- 240]: loss = 0.196855 * 1280;
+ Minibatch[ 241- 320]: loss = 0.059266 * 1280;
+ Minibatch[ 241- 320]: loss = 0.192490 * 1280;
+ Minibatch[ 321- 400]: loss = 0.068152 * 1280;
+ Minibatch[ 321- 400]: loss = 0.177560 * 1280;
+ Minibatch[ 401- 480]: loss = 0.070673 * 1280;
+ Minibatch[ 401- 480]: loss = 0.178666 * 1280;
+reset learning rate to  2e-05
+ Minibatch[ 481- 560]: loss = 0.066776 * 1280;
+ Minibatch[ 481- 560]: loss = 0.157682 * 1280;
+ Minibatch[ 561- 640]: loss = 0.060707 * 1280;
+ Minibatch[ 561- 640]: loss = 0.151392 * 1280;
+ Minibatch[ 641- 720]: loss = 0.060980 * 1280;
+ Minibatch[ 641- 720]: loss = 0.151376 * 1280;
+ Minibatch[ 721- 800]: loss = 0.063692 * 1280;
+ Minibatch[ 721- 800]: loss = 0.148562 * 1280;
+ Minibatch[ 801- 880]: loss = 0.065244 * 1280;
+ Minibatch[ 801- 880]: loss = 0.148002 * 1280;
+ Minibatch[ 881- 960]: loss = 0.064476 * 1280;
+ Minibatch[ 881- 960]: loss = 0.145166 * 1280;
+reset learning rate to  1e-05
+ Minibatch[ 961-1040]: loss = 0.062203 * 1280;
+ Minibatch[ 961-1040]: loss = 0.142907 * 1280;
+ Minibatch[1041-1120]: loss = 0.054184 * 1280;
+ Minibatch[1041-1120]: loss = 0.140169 * 1280;
+ Minibatch[1121-1200]: loss = 0.053335 * 1280;
+ Minibatch[1121-1200]: loss = 0.139749 * 1280;
+ Minibatch[1201-1280]: loss = 0.052748 * 1280;
+ Minibatch[1201-1280]: loss = 0.136396 * 1280;
+ Minibatch[1281-1360]: loss = 0.052045 * 1280;
+ Minibatch[1281-1360]: loss = 0.138423 * 1280;
+ Minibatch[1361-1440]: loss = 0.051707 * 1280;
+ Minibatch[1361-1440]: loss = 0.135890 * 1280;
+reset learning rate to  1e-05
+ Minibatch[1441-1520]: loss = 0.050012 * 1280;
+ Minibatch[1441-1520]: loss = 0.137379 * 1280;
+ Minibatch[1521-1600]: loss = 0.048039 * 1280;
+ Minibatch[1521-1600]: loss = 0.135170 * 1280;
+ Minibatch[1601-1680]: loss = 0.047182 * 1280;
+ Minibatch[1601-1680]: loss = 0.135060 * 1280;
+ Minibatch[1681-1760]: loss = 0.047798 * 1280;
+ Minibatch[1681-1760]: loss = 0.133962 * 1280;
+ Minibatch[1761-1840]: loss = 0.047922 * 1280;
+ Minibatch[1761-1840]: loss = 0.133726 * 1280;
+ Minibatch[1841-1920]: loss = 0.047045 * 1280;
+ Minibatch[1841-1920]: loss = 0.135555 * 1280;
+ Minibatch[1921-2000]: loss = 0.049095 * 1280;
+ Minibatch[1921-2000]: loss = 0.134137 * 1280;
+reset learning rate to  1e-05
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Print the generator loss }
+\BuiltInTok{print}\NormalTok{(}\StringTok{"Training loss of the generator is: }\SpecialCharTok{\{0:.2f\}}\StringTok{"}\NormalTok{.}\BuiltInTok{format}\NormalTok{(G_trainer_loss))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Training loss of the generator is: 0.05
+\end{verbatim}
+
+\section{Generating Fake (Synthesized)
+Images}\label{generating-fake-synthesized-images}
+
+Now that we have trained the model, we can create fake images simply by
+feeding random noise into the generator and displaying the outputs.
+Below are a few images generated from random samples. To get a new set
+of samples, you can re-run the last cell.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ plot_images(images, subplot_shape):}
+\NormalTok{    plt.style.use(}\StringTok{'ggplot'}\NormalTok{)}
+\NormalTok{    fig, axes }\OperatorTok{=}\NormalTok{ plt.subplots(}\OperatorTok{*}\NormalTok{subplot_shape)}
+    \ControlFlowTok{for}\NormalTok{ image, ax }\KeywordTok{in} \BuiltInTok{zip}\NormalTok{(images, axes.flatten()):}
+\NormalTok{        image }\OperatorTok{=}\NormalTok{ image[np.array([}\DecValTok{2}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{]),:,:]}
+\NormalTok{        image }\OperatorTok{=}\NormalTok{ np.rollaxis(image }\OperatorTok{/} \DecValTok{2} \OperatorTok{+} \FloatTok{0.5}\NormalTok{, }\DecValTok{0}\NormalTok{, }\DecValTok{3}\NormalTok{)}
+\NormalTok{        ax.imshow(image, vmin}\OperatorTok{=-}\FloatTok{1.0}\NormalTok{, vmax}\OperatorTok{=}\FloatTok{1.0}\NormalTok{)}
+\NormalTok{        ax.axis(}\StringTok{'off'}\NormalTok{)}
+\NormalTok{    plt.show()}
+    
+\NormalTok{noise }\OperatorTok{=}\NormalTok{ noise_sample(}\DecValTok{36}\NormalTok{)}
+\NormalTok{images }\OperatorTok{=}\NormalTok{ G_output.}\BuiltInTok{eval}\NormalTok{(\{G_input: noise\})}
+\NormalTok{plot_images(images, subplot_shape}\OperatorTok{=}\NormalTok{[}\DecValTok{6}\NormalTok{, }\DecValTok{6}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+\centering
+\includegraphics{Synthesizing-Celebs-BEGAN_files/Synthesizing-Celebs-BEGAN_29_0.png}
+\caption{png}
+\end{figure}
+
+Larger number of iterations should generate more realistic looking face
+images. A sampling of such generated images is shown below.
+
+{[}1{]} S. Yang, P. Luo, C. C. Loy, and X. Tang, ``From Facial Parts
+Responses to Face Detection: A Deep Learning Approach'', in \emph{IEEE
+International Conference on Computer Vision (ICCV)}, 2015
+
+\chapter{How to make a racist AI without really
+trying}\label{how-to-make-a-racist-ai-without-really-trying}
+
+A cautionary tutorial.
+
+\section{Let's make a sentiment
+classifier!}\label{lets-make-a-sentiment-classifier}
+
+Sentiment analysis is a very frequently-implemented task in NLP, and
+it's no surprise. Recognizing whether people are expressing positive or
+negative opinions about things has obvious business applications. It's
+used in social media monitoring, customer feedback, and even automatic
+stock trading (leading to bots that
+\href{https://www.theatlantic.com/technology/archive/2011/03/does-anne-hathaway-news-drive-berkshire-hathaways-stock/72661/}{buy
+Berkshire Hathaway when Anne Hathaway gets a good movie review}).
+
+It's simplistic, sometimes too simplistic, but it's one of the easiest
+ways to get measurable results from NLP. In a few steps, you can put
+text in one end and get positive and negative scores out the other, and
+you never have to figure out what you should do with a parse tree or a
+graph of entities or any difficult representation like that.
+
+So that's what we're going to do here, following the path of least
+resistance at every step, obtaining a classifier that should look very
+familiar to anyone involved in current NLP. For example, you can find
+this model described in the
+\href{http://cs.umd.edu/~miyyer/pubs/2015_acl_dan.pdf}{Deep Averaging
+Networks} paper (Iyyer et al., 2015). This model is not the point of
+that paper, so don't take this as an attack on their results; it was
+there as an example of a well-known way to use word vectors.
+
+Here's the outline of what we're going to do:
+
+\begin{itemize}
+\tightlist
+\item
+  Acquire some typical \textbf{word embeddings} to represent the
+  meanings of words
+\item
+  Acquire \textbf{training and test data}, with gold-standard examples
+  of positive and negative words
+\item
+  \textbf{Train a classifier}, using gradient descent, to recognize
+  other positive and negative words based on their word embeddings
+\item
+  Compute \textbf{sentiment scores} for sentences of text using this
+  classifier
+\item
+  \textbf{Behold the monstrosity} that we have created
+\end{itemize}
+
+And at that point we will have shown ``how to make a racist AI without
+really trying''. Of course that would be a terrible place to leave it,
+so afterward, we're going to:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Measure the problem} statistically, so we can recognize if
+  we're solving it
+\item
+  \textbf{Improve the data} to obtain a semantic model that's more
+  accurate \emph{and} less racist
+\end{itemize}
+
+\section{Software dependencies}\label{software-dependencies}
+
+This tutorial is written in Python, and relies on a typical Python
+machine-learning stack: \texttt{numpy} and \texttt{scipy} for numerical
+computing, \texttt{pandas} for managing our data, and
+\texttt{scikit-learn} for machine learning. Later on we'll graph some
+things with \texttt{matplotlib} and \texttt{seaborn}.
+
+You could also replace \texttt{scikit-learn} with TensorFlow or Keras or
+something like that, as they can also train classifiers using gradient
+descent. But there's no need for the deep-learning abstractions they
+provide, as it only takes a single layer of machine learning to solve
+this problem.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ImportTok{import}\NormalTok{ numpy }\ImportTok{as}\NormalTok{ np}
+\ImportTok{import}\NormalTok{ pandas }\ImportTok{as}\NormalTok{ pd}
+\ImportTok{import}\NormalTok{ matplotlib}
+\ImportTok{import}\NormalTok{ seaborn}
+\ImportTok{import}\NormalTok{ re}
+\ImportTok{import}\NormalTok{ statsmodels.formula.api}
+
+\ImportTok{from}\NormalTok{ sklearn.linear_model }\ImportTok{import}\NormalTok{ SGDClassifier}
+\ImportTok{from}\NormalTok{ sklearn.model_selection }\ImportTok{import}\NormalTok{ train_test_split}
+\ImportTok{from}\NormalTok{ sklearn.metrics }\ImportTok{import}\NormalTok{ accuracy_score}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Configure how graphs will show up in this notebook}
+\OperatorTok{%}\NormalTok{matplotlib inline}
+\NormalTok{seaborn.set_context(}\StringTok{'notebook'}\NormalTok{, rc}\OperatorTok{=}\NormalTok{\{}\StringTok{'figure.figsize'}\NormalTok{: (}\DecValTok{10}\NormalTok{, }\DecValTok{6}\NormalTok{)\}, font_scale}\OperatorTok{=}\FloatTok{1.5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\section{Step 1: Word embeddings}\label{step-1-word-embeddings}
+
+Word embeddings are frequently used to represent words as inputs to
+machine learning. The words become vectors in a multi-dimensional space,
+where nearby vectors represent similar meanings. With word embeddings,
+you can compare words by (roughly) what they mean, not just exact string
+matches.
+
+Successfully training word vectors requires starting from hundreds of
+gigabytes of input text. Fortunately, various machine-learning groups
+have already done this and provided pre-trained word embeddings that we
+can download.
+
+Two very well-known datasets of pre-trained English word embeddings are
+\textbf{word2vec}, pretrained on Google News data, and \textbf{GloVe},
+pretrained on the Common Crawl of web pages. We would get similar
+results for either one, but here we'll use GloVe because its source of
+data is more transparent.
+
+GloVe comes in three sizes: 6B, 42B, and 840B. The 840B size is
+powerful, but requires significant post-processing to use it in a way
+that's an improvement over 42B. The 42B version is pretty good and is
+also neatly trimmed to a vocabulary of 1 million words. Because we're
+following the path of least resistance, we'll just use the 42B version.
+
+\begin{quote}
+\textbf{Why does it matter that the word embeddings are ``well-known''?}
+
+I'm glad you asked, hypothetical questioner! We're trying to do
+something extremely typical at each step, and for some reason,
+comparison-shopping for better word embeddings isn't typical yet. Read
+on, and I hope you'll come out of this tutorial with the desire to use
+\href{https://github.com/commonsense/conceptnet-numberbatch}{modern,
+high-quality word embeddings}, especially those that are aware of
+algorithmic bias and try to mitigate it. But that's getting ahead of
+things.
+\end{quote}
+
+We download glove.42B.300d.zip from
+\href{https://nlp.stanford.edu/projects/glove/}{the GloVe web page}, and
+extract it into \texttt{data/glove.42B.300d.txt}. Next we define a
+function to read the simple format of its word vectors.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ExtensionTok{%%bash}
+\FunctionTok{mkdir}\NormalTok{ data/}
+\BuiltInTok{cd}\NormalTok{ data/}
+\FunctionTok{wget}\NormalTok{ http://nlp.stanford.edu/data/glove.840B.300d.zip}
+\FunctionTok{unzip}\NormalTok{ glove.840B.300d.zip}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Archive:  glove.840B.300d.zip
+  inflating: glove.840B.300d.txt     
+
+
+IOPub data rate exceeded.
+The notebook server will temporarily stop sending output
+to the client in order to avoid crashing it.
+To change this limit, set the config variable
+`--NotebookApp.iopub_data_rate_limit`.
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ load_embeddings(filename):}
+    \CommentTok{"""}
+\CommentTok{    Load a DataFrame from the generalized text format used by word2vec, GloVe,}
+\CommentTok{    fastText, and ConceptNet Numberbatch. The main point where they differ is}
+\CommentTok{    whether there is an initial line with the dimensions of the matrix.}
+\CommentTok{    """}
+\NormalTok{    labels }\OperatorTok{=}\NormalTok{ []}
+\NormalTok{    rows }\OperatorTok{=}\NormalTok{ []}
+    \ControlFlowTok{with} \BuiltInTok{open}\NormalTok{(filename, encoding}\OperatorTok{=}\StringTok{'utf-8'}\NormalTok{) }\ImportTok{as}\NormalTok{ infile:}
+        \ControlFlowTok{for}\NormalTok{ i, line }\KeywordTok{in} \BuiltInTok{enumerate}\NormalTok{(infile):}
+\NormalTok{            items }\OperatorTok{=}\NormalTok{ line.rstrip().split(}\StringTok{' '}\NormalTok{)}
+            \ControlFlowTok{if} \BuiltInTok{len}\NormalTok{(items) }\OperatorTok{==} \DecValTok{2}\NormalTok{:}
+                \CommentTok{# This is a header row giving the shape of the matrix}
+                \ControlFlowTok{continue}
+\NormalTok{            labels.append(items[}\DecValTok{0}\NormalTok{])}
+\NormalTok{            values }\OperatorTok{=}\NormalTok{ np.array([}\BuiltInTok{float}\NormalTok{(x) }\ControlFlowTok{for}\NormalTok{ x }\KeywordTok{in}\NormalTok{ items[}\DecValTok{1}\NormalTok{:]], }\StringTok{'f'}\NormalTok{)}
+\NormalTok{            rows.append(values)}
+    
+\NormalTok{    arr }\OperatorTok{=}\NormalTok{ np.vstack(rows)}
+    \ControlFlowTok{return}\NormalTok{ pd.DataFrame(arr, index}\OperatorTok{=}\NormalTok{labels, dtype}\OperatorTok{=}\StringTok{'f'}\NormalTok{)}
+
+\NormalTok{embeddings }\OperatorTok{=}\NormalTok{ load_embeddings(}\StringTok{'data/glove.840B.300d.txt'}\NormalTok{)}
+\NormalTok{embeddings.shape}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+(2196017, 300)
+\end{verbatim}
+
+\section{Step 2: A gold-standard sentiment
+lexicon}\label{step-2-a-gold-standard-sentiment-lexicon}
+
+We need some input about which words are positive and which words are
+negative. There are many sentiment lexicons you could use, but we're
+going to go with a very straightforward lexicon (Hu and Liu, 2004), the
+same one used by the Deep Averaging Networks paper.
+
+We download the lexicon from Bing Liu's web site
+(\url{https://www.cs.uic.edu/~liub/FBS/sentiment-analysis.html\#lexicon})
+and extract it into \texttt{data/positive-words.txt} and
+\texttt{data/negative-words.txt}.
+
+Next we define how to read these files, and read them in as the
+\texttt{pos\_words} and \texttt{neg\_words} variables:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ExtensionTok{%%bash}
+\BuiltInTok{cd}\NormalTok{ data/}
+\FunctionTok{wget}\NormalTok{ http://www.cs.uic.edu/~liub/FBS/opinion-lexicon-English.rar}
+\ExtensionTok{unrar}\NormalTok{ pros-cons.rar}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+--2017-10-05 22:12:34--  http://www.cs.uic.edu/~liub/FBS/pros-cons.rar
+Resolving www.cs.uic.edu... 131.193.32.29
+Connecting to www.cs.uic.edu|131.193.32.29|:80... connected.
+HTTP request sent, awaiting response... 301 Moved Permanently
+Location: https://www.cs.uic.edu/~liub/FBS/pros-cons.rar [following]
+--2017-10-05 22:12:34--  https://www.cs.uic.edu/~liub/FBS/pros-cons.rar
+Connecting to www.cs.uic.edu|131.193.32.29|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: unspecified [text/plain]
+Saving to: ‘pros-cons.rar.1’
+
+     0K .......... .......... .......... .......... .......... 1.15M
+    50K .......... .......... .......... .......... .......... 2.25M
+   100K .......... .......... .......... .......... ..........  181M
+   150K .......... .......... .......... .......... .......... 2.33M
+   200K .......... .......... .......... .......... .......... 15.7M
+   250K .......... .......... .......... .......... ..........  295M
+   300K .......... .......... .......... .......... ..........  327M
+   350K .......... .......... .......... .......... .......... 2.69M
+   400K .......... .......... .......... .......... .......... 97.8M
+   450K .......... .......... .......... .......... .......... 23.2M
+   500K .......... .......... .......... .......... ..........  194M
+   550K .......... .......... .......... .......... .......... 39.6M
+   600K .......... .......                                      109M=0.1s
+
+2017-10-05 22:12:34 (5.43 MB/s) - ‘pros-cons.rar.1’ saved [632640]
+
+bash: line 3: unrar: command not found
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ load_lexicon(filename):}
+    \CommentTok{"""}
+\CommentTok{    Load a file from Bing Liu's sentiment lexicon}
+\CommentTok{    (https://www.cs.uic.edu/~liub/FBS/sentiment-analysis.html), containing}
+\CommentTok{    English words in Latin-1 encoding.}
+\CommentTok{    }
+\CommentTok{    One file contains a list of positive words, and the other contains}
+\CommentTok{    a list of negative words. The files contain comment lines starting}
+\CommentTok{    with ';' and blank lines, which should be skipped.}
+\CommentTok{    """}
+\NormalTok{    lexicon }\OperatorTok{=}\NormalTok{ []}
+    \ControlFlowTok{with} \BuiltInTok{open}\NormalTok{(filename, encoding}\OperatorTok{=}\StringTok{'latin-1'}\NormalTok{) }\ImportTok{as}\NormalTok{ infile:}
+        \ControlFlowTok{for}\NormalTok{ line }\KeywordTok{in}\NormalTok{ infile:}
+\NormalTok{            line }\OperatorTok{=}\NormalTok{ line.rstrip()}
+            \ControlFlowTok{if}\NormalTok{ line }\KeywordTok{and} \KeywordTok{not}\NormalTok{ line.startswith(}\StringTok{';'}\NormalTok{):}
+\NormalTok{                lexicon.append(line)}
+    \ControlFlowTok{return}\NormalTok{ lexicon}
+
+\NormalTok{pos_words }\OperatorTok{=}\NormalTok{ load_lexicon(}\StringTok{'data/positive-words.txt'}\NormalTok{)}
+\NormalTok{neg_words }\OperatorTok{=}\NormalTok{ load_lexicon(}\StringTok{'data/negative-words.txt'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\section{Step 3: Train a model to predict word
+sentiments}\label{step-3-train-a-model-to-predict-word-sentiments}
+
+Our data points here are the embeddings of these positive and negative
+words. We use the Pandas \texttt{.loc{[}{]}} operation to look up the
+embeddings of all the words.
+
+Some of these words are not in the GloVe vocabulary, particularly the
+misspellings such as ``fancinating''. Those words end up with rows full
+of \texttt{NaN} to indicate their missing embeddings, so we use
+\texttt{.dropna()} to remove them.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{pos_vectors }\OperatorTok{=}\NormalTok{ embeddings.loc[pos_words].dropna()}
+\NormalTok{neg_vectors }\OperatorTok{=}\NormalTok{ embeddings.loc[neg_words].dropna()}
+\end{Highlighting}
+\end{Shaded}
+
+Now we make arrays of the desired inputs and outputs. The inputs are the
+embeddings, and the outputs are 1 for positive words and -1 for negative
+words. We also make sure to keep track of the words they're labeled
+with, so we can interpret the results.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{vectors }\OperatorTok{=}\NormalTok{ pd.concat([pos_vectors, neg_vectors])}
+\NormalTok{targets }\OperatorTok{=}\NormalTok{ np.array([}\DecValTok{1} \ControlFlowTok{for}\NormalTok{ entry }\KeywordTok{in}\NormalTok{ pos_vectors.index] }\OperatorTok{+}\NormalTok{ [}\OperatorTok{-}\DecValTok{1} \ControlFlowTok{for}\NormalTok{ entry }\KeywordTok{in}\NormalTok{ neg_vectors.index])}
+\NormalTok{labels }\OperatorTok{=} \BuiltInTok{list}\NormalTok{(pos_vectors.index) }\OperatorTok{+} \BuiltInTok{list}\NormalTok{(neg_vectors.index)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{quote}
+\textbf{Hold on. Some words are neither positive nor negative, they're
+neutral. Shouldn't there be a third class for neutral words?}
+
+I think that having examples of neutral words would be quite beneficial,
+especially because the problems we're going to see come from assigning
+sentiment to words that shouldn't have sentiment. If we could reliably
+identify when words should be neutral, it would be worth the slight
+extra complexity of a 3-class classifier. It requires finding a source
+of examples of neutral words, because Liu's data only lists positive and
+negative words.
+
+So I tried a version of this notebook where I put in 800 examples of
+neutral words, and put a strong weight on predicting words to be
+neutral. But the end results were not much different from what you're
+about to see.
+
+\textbf{How is this list drawing the line between positive and negative
+anyway? Doesn't that depend on context?}
+
+Good question. Domain-general sentiment analysis isn't as
+straightforward as it sounds. The decision boundary we're trying to find
+is fairly arbitrary in places. In this list, ``audacious'' is marked as
+``bad'' while ``ambitious'' is ``good''. ``Comical'' is bad,
+``humorous'' is good. ``Refund'' is good, even though it's typically in
+bad situations that you have to request one or pay one.
+
+I think everyone knows that sentiment requires context, but when
+implementing an easy approach to sentiment analysis, you just have to
+kind of hope that you can ignore context and the sentiments will average
+out to the right trend.
+\end{quote}
+
+Using the scikit-learn \texttt{train\_test\_split} function, we
+simultaneously separate the input vectors, output values, and labels
+into training and test data, with 10\% of the data used for testing.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{train_vectors, test_vectors, train_targets, test_targets, train_labels, test_labels }\OperatorTok{=} \OperatorTok{\textbackslash{}}
+\NormalTok{    train_test_split(vectors, targets, labels, test_size}\OperatorTok{=}\FloatTok{0.1}\NormalTok{, random_state}\OperatorTok{=}\DecValTok{0}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Now we make our classifier, and train it by running the training vectors
+through it for 100 iterations. We use a logistic function as the loss,
+so that the resulting classifier can output the probability that a word
+is positive or negative.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{model }\OperatorTok{=}\NormalTok{ SGDClassifier(loss}\OperatorTok{=}\StringTok{'log'}\NormalTok{, random_state}\OperatorTok{=}\DecValTok{0}\NormalTok{, n_iter}\OperatorTok{=}\DecValTok{100}\NormalTok{)}
+\NormalTok{model.fit(train_vectors, train_targets)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+SGDClassifier(alpha=0.0001, average=False, class_weight=None, epsilon=0.1,
+       eta0=0.0, fit_intercept=True, l1_ratio=0.15,
+       learning_rate='optimal', loss='log', n_iter=100, n_jobs=1,
+       penalty='l2', power_t=0.5, random_state=0, shuffle=True, verbose=0,
+       warm_start=False)
+\end{verbatim}
+
+We evaluate the classifier on the test vectors. It predicts the correct
+sentiment for sentiment words outside of its training data 95\% of the
+time. Not bad.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{accuracy_score(model.predict(test_vectors), test_targets)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+0.95619335347432022
+\end{verbatim}
+
+Let's define a function that we can use to see the sentiment that this
+classifier predicts for particular words, then use it to see some
+examples of its predictions on the test data.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ vecs_to_sentiment(vecs):}
+    \CommentTok{# predict_log_proba gives the log probability for each class}
+\NormalTok{    predictions }\OperatorTok{=}\NormalTok{ model.predict_log_proba(vecs)}
+
+    \CommentTok{# To see an overall positive vs. negative classification in one number,}
+    \CommentTok{# we take the log probability of positive sentiment minus the log}
+    \CommentTok{# probability of negative sentiment.}
+    \ControlFlowTok{return}\NormalTok{ predictions[:, }\DecValTok{1}\NormalTok{] }\OperatorTok{-}\NormalTok{ predictions[:, }\DecValTok{0}\NormalTok{]}
+
+
+\KeywordTok{def}\NormalTok{ words_to_sentiment(words):}
+\NormalTok{    vecs }\OperatorTok{=}\NormalTok{ embeddings.loc[words].dropna()}
+\NormalTok{    log_odds }\OperatorTok{=}\NormalTok{ vecs_to_sentiment(vecs)}
+    \ControlFlowTok{return}\NormalTok{ pd.DataFrame(\{}\StringTok{'sentiment'}\NormalTok{: log_odds\}, index}\OperatorTok{=}\NormalTok{vecs.index)}
+
+
+\CommentTok{# Show 20 examples from the test set}
+\NormalTok{words_to_sentiment(test_labels).ix[:}\DecValTok{20}\NormalTok{]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+<tr style="text-align: right;">
+  <th></th>
+  <th>sentiment</th>
+</tr>
+\end{verbatim}
+
+\begin{verbatim}
+<tr>
+  <th>fidget</th>
+  <td>-9.931679</td>
+</tr>
+<tr>
+  <th>interrupt</th>
+  <td>-9.634706</td>
+</tr>
+<tr>
+  <th>staunchly</th>
+  <td>1.466919</td>
+</tr>
+<tr>
+  <th>imaginary</th>
+  <td>-2.989215</td>
+</tr>
+<tr>
+  <th>taxing</th>
+  <td>0.468522</td>
+</tr>
+<tr>
+  <th>world-famous</th>
+  <td>6.908561</td>
+</tr>
+<tr>
+  <th>low-cost</th>
+  <td>9.237223</td>
+</tr>
+<tr>
+  <th>disapointment</th>
+  <td>-8.737182</td>
+</tr>
+<tr>
+  <th>totalitarian</th>
+  <td>-10.851580</td>
+</tr>
+<tr>
+  <th>bellicose</th>
+  <td>-8.328674</td>
+</tr>
+<tr>
+  <th>freezes</th>
+  <td>-8.456981</td>
+</tr>
+<tr>
+  <th>sin</th>
+  <td>-7.839670</td>
+</tr>
+<tr>
+  <th>fragile</th>
+  <td>-4.018289</td>
+</tr>
+<tr>
+  <th>fooled</th>
+  <td>-4.309344</td>
+</tr>
+<tr>
+  <th>undecided</th>
+  <td>-2.816172</td>
+</tr>
+<tr>
+  <th>handily</th>
+  <td>2.339609</td>
+</tr>
+<tr>
+  <th>demonizes</th>
+  <td>-2.102152</td>
+</tr>
+<tr>
+  <th>easygoing</th>
+  <td>8.747150</td>
+</tr>
+<tr>
+  <th>unpopular</th>
+  <td>-7.887475</td>
+</tr>
+<tr>
+  <th>commiserate</th>
+  <td>1.790899</td>
+</tr>
+\end{verbatim}
+
+More than the accuracy number, this convinces us that the classifier is
+working. We can see that the classifier has learned to generalize
+sentiment to words outside of its training data.
+
+\section{Step 4: Get a sentiment score for
+text}\label{step-4-get-a-sentiment-score-for-text}
+
+There are many ways to combine sentiments for word vectors into an
+overall sentiment score. Again, because we're following the path of
+least resistance, we're just going to average them.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ImportTok{import}\NormalTok{ re}
+\NormalTok{TOKEN_RE }\OperatorTok{=}\NormalTok{ re.}\BuiltInTok{compile}\NormalTok{(}\VerbatimStringTok{r"\textbackslash{}w.*?\textbackslash{}b"}\NormalTok{)}
+\CommentTok{# The regex above finds tokens that start with a word-like character (\textbackslash{}w), and continues}
+\CommentTok{# matching characters (.+?) until the next word break (\textbackslash{}b). It's a relatively simple}
+\CommentTok{# expression that manages to extract something very much like words from text.}
+
+
+\KeywordTok{def}\NormalTok{ text_to_sentiment(text):}
+\NormalTok{    tokens }\OperatorTok{=}\NormalTok{ [token.casefold() }\ControlFlowTok{for}\NormalTok{ token }\KeywordTok{in}\NormalTok{ TOKEN_RE.findall(text)]}
+\NormalTok{    sentiments }\OperatorTok{=}\NormalTok{ words_to_sentiment(tokens)}
+    \ControlFlowTok{return}\NormalTok{ sentiments[}\StringTok{'sentiment'}\NormalTok{].mean()}
+\end{Highlighting}
+\end{Shaded}
+
+There are many things we could have done better:
+
+\begin{itemize}
+\tightlist
+\item
+  Weight words by their inverse frequency, so that words like ``the''
+  and ``I'' don't cause big changes in sentiment
+\item
+  Adjust the averaging so that short sentences don't end up with the
+  most extreme sentiment values
+\item
+  Take phrases into account
+\item
+  Use a more robust word-segmentation algorithm that isn't confused by
+  apostrophes
+\item
+  Account for negations such as ``not happy''
+\end{itemize}
+
+But all of those would require extra code and wouldn't fundamentally
+change the results we're about to see. At least now we can roughly
+compare the relative positivity of different sentences:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{text_to_sentiment(}\StringTok{"this example is pretty cool"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+3.889968926086298
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{text_to_sentiment(}\StringTok{"this example is okay"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+2.7997773492425186
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{text_to_sentiment(}\StringTok{"meh, this example sucks"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+-1.1774475917460698
+\end{verbatim}
+
+\section{Step 5: Behold the monstrosity that we have
+created}\label{step-5-behold-the-monstrosity-that-we-have-created}
+
+Not every sentence is going to contain obvious sentiment words. Let's
+see what it does with a few variations on a neutral sentence:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{text_to_sentiment(}\StringTok{"Let's go get Italian food"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+2.0429166109408983
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{text_to_sentiment(}\StringTok{"Let's go get Chinese food"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+1.4094033658140972
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{text_to_sentiment(}\StringTok{"Let's go get Mexican food"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+0.38801985560121732
+\end{verbatim}
+
+This is analogous to what I saw when I experimented with analyzing
+restaurant reviews using word embeddings, and found out that
+\href{https://blog.conceptnet.io/2017/04/24/conceptnet-numberbatch-17-04-better-less-stereotyped-word-vectors/}{all
+the Mexican restaurants were ending up with lower sentiment} for no good
+reason.
+
+Word vectors are capable of representing subtle distinctions of meaning
+just by reading words in context. So they're also capable of
+representing less-subtle things like the biases of our society.
+
+Here are some other neutral statements:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{text_to_sentiment(}\StringTok{"My name is Emily"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+2.2286179364745311
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{text_to_sentiment(}\StringTok{"My name is Heather"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+1.3976291151079159
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{text_to_sentiment(}\StringTok{"My name is Yvette"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+0.98463802132985556
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{text_to_sentiment(}\StringTok{"My name is Shaniqua"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+-0.47048131775890656
+\end{verbatim}
+
+Well, dang.
+
+The system has associated wildly different sentiments with people's
+names. You can look at these examples and many others and see that the
+sentiment is generally more positive for stereotypically-white names,
+and more negative for stereotypically-black names.
+
+This is the test that Caliskan, Bryson, and Narayanan used to conclude
+that \href{http://opus.bath.ac.uk/55288/}{semantics derived
+automatically from language corpora contain human-like biases}, a paper
+published in \emph{Science} in April 2017, and we'll be using more of it
+shortly.
+
+\section{Step 6: Measure the problem}\label{step-6-measure-the-problem}
+
+We want to learn how to not make something like this again. So let's put
+more data through it, and statistically measure how bad its bias is.
+
+Here we have four lists of names that tend to reflect different ethnic
+backgrounds, mostly from a United States perspective. The first two are
+lists of predominantly ``white'' and ``black'' names adapted from
+Caliskan et al.'s article. I also added typically Hispanic names, as
+well as Muslim names that come from Arabic or Urdu; these are two more
+distinct groupings of given names that tend to represent your
+background.
+
+This data is currently used as a bias-check in the ConceptNet build
+process, and can be found in the
+\texttt{conceptnet5.vectors.evaluation.bias} module. I'm interested in
+expanding this to more ethnic backgrounds, which may require looking at
+surnames and not just given names.
+
+Here are the lists:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{NAMES_BY_ETHNICITY }\OperatorTok{=}\NormalTok{ \{}
+    \CommentTok{# The first two lists are from the Caliskan et al. appendix describing the}
+    \CommentTok{# Word Embedding Association Test.}
+    \StringTok{'White'}\NormalTok{: [}
+        \StringTok{'Adam'}\NormalTok{, }\StringTok{'Chip'}\NormalTok{, }\StringTok{'Harry'}\NormalTok{, }\StringTok{'Josh'}\NormalTok{, }\StringTok{'Roger'}\NormalTok{, }\StringTok{'Alan'}\NormalTok{, }\StringTok{'Frank'}\NormalTok{, }\StringTok{'Ian'}\NormalTok{, }\StringTok{'Justin'}\NormalTok{,}
+        \StringTok{'Ryan'}\NormalTok{, }\StringTok{'Andrew'}\NormalTok{, }\StringTok{'Fred'}\NormalTok{, }\StringTok{'Jack'}\NormalTok{, }\StringTok{'Matthew'}\NormalTok{, }\StringTok{'Stephen'}\NormalTok{, }\StringTok{'Brad'}\NormalTok{, }\StringTok{'Greg'}\NormalTok{, }\StringTok{'Jed'}\NormalTok{,}
+        \StringTok{'Paul'}\NormalTok{, }\StringTok{'Todd'}\NormalTok{, }\StringTok{'Brandon'}\NormalTok{, }\StringTok{'Hank'}\NormalTok{, }\StringTok{'Jonathan'}\NormalTok{, }\StringTok{'Peter'}\NormalTok{, }\StringTok{'Wilbur'}\NormalTok{, }\StringTok{'Amanda'}\NormalTok{,}
+        \StringTok{'Courtney'}\NormalTok{, }\StringTok{'Heather'}\NormalTok{, }\StringTok{'Melanie'}\NormalTok{, }\StringTok{'Sara'}\NormalTok{, }\StringTok{'Amber'}\NormalTok{, }\StringTok{'Crystal'}\NormalTok{, }\StringTok{'Katie'}\NormalTok{,}
+        \StringTok{'Meredith'}\NormalTok{, }\StringTok{'Shannon'}\NormalTok{, }\StringTok{'Betsy'}\NormalTok{, }\StringTok{'Donna'}\NormalTok{, }\StringTok{'Kristin'}\NormalTok{, }\StringTok{'Nancy'}\NormalTok{, }\StringTok{'Stephanie'}\NormalTok{,}
+        \StringTok{'Bobbie-Sue'}\NormalTok{, }\StringTok{'Ellen'}\NormalTok{, }\StringTok{'Lauren'}\NormalTok{, }\StringTok{'Peggy'}\NormalTok{, }\StringTok{'Sue-Ellen'}\NormalTok{, }\StringTok{'Colleen'}\NormalTok{, }\StringTok{'Emily'}\NormalTok{,}
+        \StringTok{'Megan'}\NormalTok{, }\StringTok{'Rachel'}\NormalTok{, }\StringTok{'Wendy'}
+\NormalTok{    ],}
+
+    \StringTok{'Black'}\NormalTok{: [}
+        \StringTok{'Alonzo'}\NormalTok{, }\StringTok{'Jamel'}\NormalTok{, }\StringTok{'Lerone'}\NormalTok{, }\StringTok{'Percell'}\NormalTok{, }\StringTok{'Theo'}\NormalTok{, }\StringTok{'Alphonse'}\NormalTok{, }\StringTok{'Jerome'}\NormalTok{,}
+        \StringTok{'Leroy'}\NormalTok{, }\StringTok{'Rasaan'}\NormalTok{, }\StringTok{'Torrance'}\NormalTok{, }\StringTok{'Darnell'}\NormalTok{, }\StringTok{'Lamar'}\NormalTok{, }\StringTok{'Lionel'}\NormalTok{, }\StringTok{'Rashaun'}\NormalTok{,}
+        \StringTok{'Tyree'}\NormalTok{, }\StringTok{'Deion'}\NormalTok{, }\StringTok{'Lamont'}\NormalTok{, }\StringTok{'Malik'}\NormalTok{, }\StringTok{'Terrence'}\NormalTok{, }\StringTok{'Tyrone'}\NormalTok{, }\StringTok{'Everol'}\NormalTok{,}
+        \StringTok{'Lavon'}\NormalTok{, }\StringTok{'Marcellus'}\NormalTok{, }\StringTok{'Terryl'}\NormalTok{, }\StringTok{'Wardell'}\NormalTok{, }\StringTok{'Aiesha'}\NormalTok{, }\StringTok{'Lashelle'}\NormalTok{, }\StringTok{'Nichelle'}\NormalTok{,}
+        \StringTok{'Shereen'}\NormalTok{, }\StringTok{'Temeka'}\NormalTok{, }\StringTok{'Ebony'}\NormalTok{, }\StringTok{'Latisha'}\NormalTok{, }\StringTok{'Shaniqua'}\NormalTok{, }\StringTok{'Tameisha'}\NormalTok{, }\StringTok{'Teretha'}\NormalTok{,}
+        \StringTok{'Jasmine'}\NormalTok{, }\StringTok{'Latonya'}\NormalTok{, }\StringTok{'Shanise'}\NormalTok{, }\StringTok{'Tanisha'}\NormalTok{, }\StringTok{'Tia'}\NormalTok{, }\StringTok{'Lakisha'}\NormalTok{, }\StringTok{'Latoya'}\NormalTok{,}
+        \StringTok{'Sharise'}\NormalTok{, }\StringTok{'Tashika'}\NormalTok{, }\StringTok{'Yolanda'}\NormalTok{, }\StringTok{'Lashandra'}\NormalTok{, }\StringTok{'Malika'}\NormalTok{, }\StringTok{'Shavonn'}\NormalTok{,}
+        \StringTok{'Tawanda'}\NormalTok{, }\StringTok{'Yvette'}
+\NormalTok{    ],}
+    
+    \CommentTok{# This list comes from statistics about common Hispanic-origin names in the US.}
+    \StringTok{'Hispanic'}\NormalTok{: [}
+        \StringTok{'Juan'}\NormalTok{, }\StringTok{'José'}\NormalTok{, }\StringTok{'Miguel'}\NormalTok{, }\StringTok{'Luís'}\NormalTok{, }\StringTok{'Jorge'}\NormalTok{, }\StringTok{'Santiago'}\NormalTok{, }\StringTok{'Matías'}\NormalTok{, }\StringTok{'Sebastián'}\NormalTok{,}
+        \StringTok{'Mateo'}\NormalTok{, }\StringTok{'Nicolás'}\NormalTok{, }\StringTok{'Alejandro'}\NormalTok{, }\StringTok{'Samuel'}\NormalTok{, }\StringTok{'Diego'}\NormalTok{, }\StringTok{'Daniel'}\NormalTok{, }\StringTok{'Tomás'}\NormalTok{,}
+        \StringTok{'Juana'}\NormalTok{, }\StringTok{'Ana'}\NormalTok{, }\StringTok{'Luisa'}\NormalTok{, }\StringTok{'María'}\NormalTok{, }\StringTok{'Elena'}\NormalTok{, }\StringTok{'Sofía'}\NormalTok{, }\StringTok{'Isabella'}\NormalTok{, }\StringTok{'Valentina'}\NormalTok{,}
+        \StringTok{'Camila'}\NormalTok{, }\StringTok{'Valeria'}\NormalTok{, }\StringTok{'Ximena'}\NormalTok{, }\StringTok{'Luciana'}\NormalTok{, }\StringTok{'Mariana'}\NormalTok{, }\StringTok{'Victoria'}\NormalTok{, }\StringTok{'Martina'}
+\NormalTok{    ],}
+    
+    \CommentTok{# The following list conflates religion and ethnicity, I'm aware. So do given names.}
+    \CommentTok{#}
+    \CommentTok{# This list was cobbled together from searching baby-name sites for common Muslim names,}
+    \CommentTok{# as spelled in English. I did not ultimately distinguish whether the origin of the name}
+    \CommentTok{# is Arabic or Urdu or another language.}
+    \CommentTok{#}
+    \CommentTok{# I'd be happy to replace it with something more authoritative, given a source.}
+    \StringTok{'Arab/Muslim'}\NormalTok{: [}
+        \StringTok{'Mohammed'}\NormalTok{, }\StringTok{'Omar'}\NormalTok{, }\StringTok{'Ahmed'}\NormalTok{, }\StringTok{'Ali'}\NormalTok{, }\StringTok{'Youssef'}\NormalTok{, }\StringTok{'Abdullah'}\NormalTok{, }\StringTok{'Yasin'}\NormalTok{, }\StringTok{'Hamza'}\NormalTok{,}
+        \StringTok{'Ayaan'}\NormalTok{, }\StringTok{'Syed'}\NormalTok{, }\StringTok{'Rishaan'}\NormalTok{, }\StringTok{'Samar'}\NormalTok{, }\StringTok{'Ahmad'}\NormalTok{, }\StringTok{'Zikri'}\NormalTok{, }\StringTok{'Rayyan'}\NormalTok{, }\StringTok{'Mariam'}\NormalTok{,}
+        \StringTok{'Jana'}\NormalTok{, }\StringTok{'Malak'}\NormalTok{, }\StringTok{'Salma'}\NormalTok{, }\StringTok{'Nour'}\NormalTok{, }\StringTok{'Lian'}\NormalTok{, }\StringTok{'Fatima'}\NormalTok{, }\StringTok{'Ayesha'}\NormalTok{, }\StringTok{'Zahra'}\NormalTok{, }\StringTok{'Sana'}\NormalTok{,}
+        \StringTok{'Zara'}\NormalTok{, }\StringTok{'Alya'}\NormalTok{, }\StringTok{'Shaista'}\NormalTok{, }\StringTok{'Zoya'}\NormalTok{, }\StringTok{'Yasmin'}
+\NormalTok{    ]}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+Now we'll use Pandas to make a table of these names, their predominant
+ethnic background, and the sentiment score we get for them:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ name_sentiment_table():}
+\NormalTok{    frames }\OperatorTok{=}\NormalTok{ []}
+    \ControlFlowTok{for}\NormalTok{ group, name_list }\KeywordTok{in} \BuiltInTok{sorted}\NormalTok{(NAMES_BY_ETHNICITY.items()):}
+\NormalTok{        lower_names }\OperatorTok{=}\NormalTok{ [name.lower() }\ControlFlowTok{for}\NormalTok{ name }\KeywordTok{in}\NormalTok{ name_list]}
+\NormalTok{        sentiments }\OperatorTok{=}\NormalTok{ words_to_sentiment(lower_names)}
+\NormalTok{        sentiments[}\StringTok{'group'}\NormalTok{] }\OperatorTok{=}\NormalTok{ group}
+\NormalTok{        frames.append(sentiments)}
+
+    \CommentTok{# Put together the data we got from each ethnic group into one big table}
+    \ControlFlowTok{return}\NormalTok{ pd.concat(frames)}
+
+\NormalTok{name_sentiments }\OperatorTok{=}\NormalTok{ name_sentiment_table()}
+\end{Highlighting}
+\end{Shaded}
+
+A sample of the data:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{name_sentiments.ix[::}\DecValTok{25}\NormalTok{]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+<tr style="text-align: right;">
+  <th></th>
+  <th>sentiment</th>
+  <th>group</th>
+</tr>
+\end{verbatim}
+
+\begin{verbatim}
+<tr>
+  <th>mohammed</th>
+  <td>0.834974</td>
+  <td>Arab/Muslim</td>
+</tr>
+<tr>
+  <th>alya</th>
+  <td>3.916803</td>
+  <td>Arab/Muslim</td>
+</tr>
+<tr>
+  <th>terryl</th>
+  <td>-2.858010</td>
+  <td>Black</td>
+</tr>
+<tr>
+  <th>josé</th>
+  <td>0.432956</td>
+  <td>Hispanic</td>
+</tr>
+<tr>
+  <th>luciana</th>
+  <td>1.086073</td>
+  <td>Hispanic</td>
+</tr>
+<tr>
+  <th>hank</th>
+  <td>0.391858</td>
+  <td>White</td>
+</tr>
+<tr>
+  <th>megan</th>
+  <td>2.158679</td>
+  <td>White</td>
+</tr>
+\end{verbatim}
+
+Now we can visualize the distribution of sentiment we get for each kind
+of name:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{plot }\OperatorTok{=}\NormalTok{ seaborn.swarmplot(x}\OperatorTok{=}\StringTok{'group'}\NormalTok{, y}\OperatorTok{=}\StringTok{'sentiment'}\NormalTok{, data}\OperatorTok{=}\NormalTok{name_sentiments)}
+\NormalTok{plot.set_ylim([}\OperatorTok{-}\DecValTok{10}\NormalTok{, }\DecValTok{10}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+(-10, 10)
+\end{verbatim}
+
+\begin{figure}
+\centering
+\includegraphics{how-to-make-a-racist-ai-without-really-trying_files/how-to-make-a-racist-ai-without-really-trying_50_1.png}
+\caption{png}
+\end{figure}
+
+We can see that as a bar-plot, too, showing the 95\% confidence
+intervals of the means.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{plot }\OperatorTok{=}\NormalTok{ seaborn.barplot(x}\OperatorTok{=}\StringTok{'group'}\NormalTok{, y}\OperatorTok{=}\StringTok{'sentiment'}\NormalTok{, data}\OperatorTok{=}\NormalTok{name_sentiments, capsize}\OperatorTok{=}\NormalTok{.}\DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+\centering
+\includegraphics{how-to-make-a-racist-ai-without-really-trying_files/how-to-make-a-racist-ai-without-really-trying_52_0.png}
+\caption{png}
+\end{figure}
+
+And finally we can break out the serious statistical machinery, using
+the \href{http://www.statsmodels.org/stable/index.html}{statsmodels}
+package, to tell us how big of an effect this is (along with a bunch of
+other statistics).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ols_model }\OperatorTok{=}\NormalTok{ statsmodels.formula.api.ols(}\StringTok{'sentiment ~ group'}\NormalTok{, data}\OperatorTok{=}\NormalTok{name_sentiments).fit()}
+\NormalTok{ols_model.summary().tables[}\DecValTok{0}\NormalTok{]}
+\end{Highlighting}
+\end{Shaded}
+
+OLS Regression Results
+
+Dep. Variable:
+
+\begin{verbatim}
+    <td>sentiment</td>    <th>  R-squared:         </th> <td>   0.208</td>
+\end{verbatim}
+
+Model:
+
+\begin{verbatim}
+               <td>OLS</td>       <th>  Adj. R-squared:    </th> <td>   0.192</td>
+\end{verbatim}
+
+Method:
+
+\begin{verbatim}
+         <td>Least Squares</td>  <th>  F-statistic:       </th> <td>   13.04</td>
+\end{verbatim}
+
+Date:
+
+\begin{verbatim}
+         <td>Thu, 13 Jul 2017</td> <th>  Prob (F-statistic):</th> <td>1.31e-07</td>
+\end{verbatim}
+
+Time:
+
+\begin{verbatim}
+             <td>11:31:17</td>     <th>  Log-Likelihood:    </th> <td> -356.78</td>
+\end{verbatim}
+
+No. Observations:
+
+\begin{verbatim}
+  <td>   153</td>      <th>  AIC:               </th> <td>   721.6</td>
+\end{verbatim}
+
+Df Residuals:
+
+\begin{verbatim}
+      <td>   149</td>      <th>  BIC:               </th> <td>   733.7</td>
+\end{verbatim}
+
+Df Model:
+
+\begin{verbatim}
+          <td>     3</td>      <th>                     </th>     <td> </td>   
+\end{verbatim}
+
+Covariance Type:
+
+\begin{verbatim}
+  <td>nonrobust</td>    <th>                     </th>     <td> </td>   
+\end{verbatim}
+
+The F-statistic is the ratio of the variation between groups to the
+variation within groups, which we can take as a measure of overall
+ethnic bias.
+
+The probability, right below that, is the probability that we would see
+this high of an F-statistic given the null hypothesis: that is, given
+data where there was no difference between ethnicities. The probability
+is very, very low. If this were a paper, we'd get to call the result
+``highly statistically significant''.
+
+Out of all these numbers, the F-value is the one we really want to
+improve. A lower F-value is better.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ols_model.fvalue}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+13.041597745167659
+\end{verbatim}
+
+\section{Step 7: Trying different
+data}\label{step-7-trying-different-data}
+
+Now that we have the ability to measure prejudicial badness in our word
+vectors, let's try to improve it. To do so, we'll want to repeat a bunch
+of things that so far we just ran as individual steps in this Python
+notebook.
+
+If I were writing good, maintainable code, I wouldn't have been using
+global variables like \texttt{model} and \texttt{embeddings}. But
+writing ad-hoc spaghetti research code let us look at what we were doing
+at every step and learn from it, so there's something to be said for
+that. Let's re-use what we can, and at least define a function for
+redoing some of these steps:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ retrain_model(new_embs):}
+    \CommentTok{"""}
+\CommentTok{    Repeat the steps above with a new set of word embeddings.}
+\CommentTok{    """}
+    \KeywordTok{global}\NormalTok{ model, embeddings, name_sentiments}
+\NormalTok{    embeddings }\OperatorTok{=}\NormalTok{ new_embs}
+\NormalTok{    pos_vectors }\OperatorTok{=}\NormalTok{ embeddings.loc[pos_words].dropna()}
+\NormalTok{    neg_vectors }\OperatorTok{=}\NormalTok{ embeddings.loc[neg_words].dropna()}
+\NormalTok{    vectors }\OperatorTok{=}\NormalTok{ pd.concat([pos_vectors, neg_vectors])}
+\NormalTok{    targets }\OperatorTok{=}\NormalTok{ np.array([}\DecValTok{1} \ControlFlowTok{for}\NormalTok{ entry }\KeywordTok{in}\NormalTok{ pos_vectors.index] }\OperatorTok{+}\NormalTok{ [}\OperatorTok{-}\DecValTok{1} \ControlFlowTok{for}\NormalTok{ entry }\KeywordTok{in}\NormalTok{ neg_vectors.index])}
+\NormalTok{    labels }\OperatorTok{=} \BuiltInTok{list}\NormalTok{(pos_vectors.index) }\OperatorTok{+} \BuiltInTok{list}\NormalTok{(neg_vectors.index)}
+
+\NormalTok{    train_vectors, test_vectors, train_targets, test_targets, train_labels, test_labels }\OperatorTok{=} \OperatorTok{\textbackslash{}}
+\NormalTok{        train_test_split(vectors, targets, labels, test_size}\OperatorTok{=}\FloatTok{0.1}\NormalTok{, random_state}\OperatorTok{=}\DecValTok{0}\NormalTok{)}
+        
+\NormalTok{    model }\OperatorTok{=}\NormalTok{ SGDClassifier(loss}\OperatorTok{=}\StringTok{'log'}\NormalTok{, random_state}\OperatorTok{=}\DecValTok{0}\NormalTok{, n_iter}\OperatorTok{=}\DecValTok{100}\NormalTok{)}
+\NormalTok{    model.fit(train_vectors, train_targets)}
+    
+\NormalTok{    accuracy }\OperatorTok{=}\NormalTok{ accuracy_score(model.predict(test_vectors), test_targets)}
+    \BuiltInTok{print}\NormalTok{(}\StringTok{"Accuracy of sentiment: }\SpecialCharTok{\{:.2%\}}\StringTok{"}\NormalTok{.}\BuiltInTok{format}\NormalTok{(accuracy))}
+    
+\NormalTok{    name_sentiments }\OperatorTok{=}\NormalTok{ name_sentiment_table()}
+\NormalTok{    ols_model }\OperatorTok{=}\NormalTok{ statsmodels.formula.api.ols(}\StringTok{'sentiment ~ group'}\NormalTok{, data}\OperatorTok{=}\NormalTok{name_sentiments).fit()}
+    \BuiltInTok{print}\NormalTok{(}\StringTok{"F-value of bias: }\SpecialCharTok{\{:.3f\}}\StringTok{"}\NormalTok{.}\BuiltInTok{format}\NormalTok{(ols_model.fvalue))}
+    \BuiltInTok{print}\NormalTok{(}\StringTok{"Probability given null hypothesis: }\SpecialCharTok{\{:.3\}}\StringTok{"}\NormalTok{.}\BuiltInTok{format}\NormalTok{(ols_model.f_pvalue))}
+    
+    \CommentTok{# Show the results on a swarm plot, with a consistent Y-axis}
+\NormalTok{    plot }\OperatorTok{=}\NormalTok{ seaborn.swarmplot(x}\OperatorTok{=}\StringTok{'group'}\NormalTok{, y}\OperatorTok{=}\StringTok{'sentiment'}\NormalTok{, data}\OperatorTok{=}\NormalTok{name_sentiments)}
+\NormalTok{    plot.set_ylim([}\OperatorTok{-}\DecValTok{10}\NormalTok{, }\DecValTok{10}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Trying word2vec}\label{trying-word2vec}
+
+You may think this is a problem that only GloVe has. If the system
+weren't trained on all of the Common Crawl (which contains lots of
+unsavory sites and like 20 copies of Urban Dictionary), maybe it
+wouldn't have gone bad. What about good old word2vec, trained on Google
+News?
+
+The most authoritative source for the word2vec data seems to be
+\href{https://drive.google.com/file/d/0B7XkCwpI5KDYNlNUTTlSS21pQmM/edit?usp=sharing}{this
+file on Google Drive}. Download it and save it as
+\texttt{data/word2vec-googlenews-300.bin.gz}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Use a ConceptNet function to load word2vec into a Pandas frame from its binary format}
+\ImportTok{from}\NormalTok{ conceptnet5.vectors.formats }\ImportTok{import}\NormalTok{ load_word2vec_bin}
+\NormalTok{w2v }\OperatorTok{=}\NormalTok{ load_word2vec_bin(}\StringTok{'data/word2vec-googlenews-300.bin.gz'}\NormalTok{, nrows}\OperatorTok{=}\DecValTok{2000000}\NormalTok{)}
+
+\CommentTok{# word2vec is case-sensitive, so case-fold its labels}
+\NormalTok{w2v.index }\OperatorTok{=}\NormalTok{ [label.casefold() }\ControlFlowTok{for}\NormalTok{ label }\KeywordTok{in}\NormalTok{ w2v.index]}
+
+\CommentTok{# Now we have duplicate labels, so drop the later (lower-frequency) occurrences of the same label}
+\NormalTok{w2v }\OperatorTok{=}\NormalTok{ w2v.reset_index().drop_duplicates(subset}\OperatorTok{=}\StringTok{'index'}\NormalTok{, keep}\OperatorTok{=}\StringTok{'first'}\NormalTok{).set_index(}\StringTok{'index'}\NormalTok{)}
+\NormalTok{retrain_model(w2v)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Accuracy of sentiment: 94.30%
+F-value of bias: 15.573
+Probability given null hypothesis: 7.43e-09
+\end{verbatim}
+
+\begin{figure}
+\centering
+\includegraphics{how-to-make-a-racist-ai-without-really-trying_files/how-to-make-a-racist-ai-without-really-trying_61_1.png}
+\caption{png}
+\end{figure}
+
+So: word2vec is even worse. With an F-value over 15, it has even larger
+differences in sentiment between groups.
+
+In retrospect, expecting \emph{news} to be safe from algorithmic bias
+was rather a lot to hope for.
+
+\subsection{Trying ConceptNet
+Numberbatch}\label{trying-conceptnet-numberbatch}
+
+Now I can finally get to discussing my own word-embedding project.
+
+ConceptNet, the knowledge graph I work on with word-embedding features
+built in, has a training step that adjusts the embeddings to identify
+and remove some sources of algorithmic racism and sexism. This step is
+based on Bolukbasi et al.'s
+``\href{https://arxiv.org/abs/1607.06520}{Debiasing Word Embeddings}'',
+and generalized to address multiple forms of prejudice at once. As far
+as I know, we're the only semantic system that has anything of the sort
+built in.
+
+From time to time, we export pre-computed vectors from ConceptNet, a
+release we give the name
+\href{https://github.com/commonsense/conceptnet-numberbatch}{ConceptNet
+Numberbatch}. The April 2017 release was the first to include this
+de-biasing step, so let's load its English vectors and retrain our
+sentiment model with them.
+
+Download
+\href{http://conceptnet.s3.amazonaws.com/downloads/2017/numberbatch/numberbatch-en-17.04b.txt.gz}{\texttt{numberbatch-en-17.04b.txt.gz}},
+save it in the \texttt{data/} directory, and retrain the model:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{retrain_model(load_embeddings(}\StringTok{'data/numberbatch-en-17.04b.txt'}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Accuracy of sentiment: 97.46%
+F-value of bias: 3.805
+Probability given null hypothesis: 0.0118
+\end{verbatim}
+
+\begin{figure}
+\centering
+\includegraphics{how-to-make-a-racist-ai-without-really-trying_files/how-to-make-a-racist-ai-without-really-trying_64_1.png}
+\caption{png}
+\end{figure}
+
+So have we entirely fixed the problem by switching to ConceptNet
+Numberbatch? Can we stop worrying about algorithmic racism? \textbf{No.}
+
+Have we made the problem a lot smaller? \textbf{Definitely.}
+
+The ranges of sentiments overlap a lot more than they did in the word
+vectors that came directly from GloVe or word2vec. The F-value is less
+than a third of what it was for GloVe, and a quarter of what it was for
+word2vec. And in general, we see much smaller differences in sentiment
+that come from comparing different given names, which is what we'd hope
+for, because names really shouldn't matter to the task of sentiment
+analysis.
+
+But there is still a small correlation. Maybe I could have picked some
+data or training parameters that made the problem look completely
+solved. That would have been a bad move, because the problem
+\emph{isn't} completely solved. There are more causes of algorithmic
+racism than the ones we have identified and compensated for in
+ConceptNet. But this is a good start.
+
+\subsection{There is no trade-off}\label{there-is-no-trade-off}
+
+Note that the accuracy of sentiment prediction went \emph{up} when we
+switched to ConceptNet Numberbatch.
+
+Some people expect that fighting algorithmic racism is going to come
+with some sort of trade-off. There's no trade-off here. You can have
+data that's better and less racist. You can have data that's better
+\emph{because} it's less racist. There was never anything ``accurate''
+about the overt racism that word2vec and GloVe learned.
+
+\section{Other approaches}\label{other-approaches}
+
+This is of course only one way to do sentiment analysis. All the steps
+we used are common, but you probably object that you wouldn't do it that
+way. But if you have your own process, I urge you to see if your process
+is encoding prejudices and biases in the model it learns.
+
+Instead of or in addition to changing your source of word vectors, you
+could try to fix this problem in the output directly. It may help, for
+example, to build a stronger model of whether sentiment should be
+assigned to words at all, designed to specifically exclude names and
+groups of people.
+
+You could abandon the idea of inferring sentiment for words, and only
+count the sentiment of words that appear exactly in the list. This is
+perhaps the most common form of sentiment analysis -- the kind that
+includes no machine learning at all. Its results will be no more biased
+than whoever made the list. But the lack of machine learning means that
+this approach has low recall, and the only way to adapt it to your data
+set is to edit the list manually.
+
+As a hybrid approach, you could produce a large number of inferred
+sentiments for words, and have a human annotator patiently look through
+them, making a list of exceptions whose sentiment should be set to 0.
+The downside of this is that it's extra work; the upside is that you
+take the time to actually see what your data is doing. And that's
+something that I think should happen more often in machine learning
+anyway.
 
 \bibliography{book.bib}
 

@@ -1,0 +1,13 @@
+# Directory ./Instructors/drafts
+
+This directory contains several exercises under development, to be included in the full curriculum.
+
+
+  Basic_computation.ipynb
+  CNTK_104_Finance_Timeseries_Basic_with_Pandas_Numpy.ipynb
+  
+
+  run_convnet.ipynb
+  convnet.py
+
+

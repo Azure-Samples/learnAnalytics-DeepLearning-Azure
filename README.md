@@ -1,6 +1,8 @@
 Deep Learning on Azure
 =======================
 
+> **NOTE** This content is no longer maintained. Visit the [Azure Machine Learning Notebook](https://github.com/Azure/MachineLearningNotebooks) project for sample Jupyter notebooks for ML and deep learning with Azure Machine Learning.
+
 This repository contains materials to help you learn about Deep Learning with the [Microsoft Cognitive Toolkit (CNTK)](https://github.com/microsoft/cntk) and Microsoft Azure. [Students](./Students) can find slides, tutorial notebooks, and scripts covering a variety of deep learning fundamentals and applications. These course assets will teach you how to implement convolutional networks, recurrent networks, and generative models and apply them to problems in computer vision, natural language processing, and reinforcement learning. The course materials will pay particular attention on how to implement these algorithms most effectively using the resources provided by the Azure infrastructure, and best practices when working with CNTK.
 
 ## Part I - Fundamentals and Azure for Machine Learning
